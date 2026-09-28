@@ -1,5 +1,5 @@
 # github.local — Local Context Source
-<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.1-draft" -->
+<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.0-draft" -->
 
 ## Local Overview
 
@@ -24,10 +24,6 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
 - **Keep the CLI model-friendly:** Prefer stable command names, exit codes, and structured JSON output over interactive UI requirements.
   Why: terminal-capable LLM harnesses need a predictable low-overhead contract.
   <!-- ctx:rule id="GHLR-004" -->
-
-- **Prefer editable installs for owner testing:** For active development, clone the repository once, install with `uv tool install --editable .`, and test new versions after `git pull` without reinstalling.
-  Why: this is the project owner's preferred fast feedback loop for repeatedly testing development versions.
-  <!-- ctx:rule id="GHLR-005" -->
 
 ## Local Topics
 
