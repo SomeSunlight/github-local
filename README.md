@@ -43,15 +43,17 @@ Python 3.11+ is required. `uv` is the recommended installer.
 
 ### From GitHub
 
-```powershell
-uv tool install git+https://github.com/SomeSunlight/github-local.git
-github-local --help
-```
-
-To test an unmerged review branch explicitly:
+While the first candidate is still in Draft PR #2, install the review branch explicitly:
 
 ```powershell
 uv tool install git+https://github.com/SomeSunlight/github-local.git@issue-1-cli-first-mvp
+github-local --help
+```
+
+After the candidate is owner-approved and merged, the normal installation becomes:
+
+```powershell
+uv tool install git+https://github.com/SomeSunlight/github-local.git
 ```
 
 ### Offline / restricted network
