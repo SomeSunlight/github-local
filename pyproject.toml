@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "github-local"
+version = "0.1.0"
+description = "A small local GitHub-shaped development workflow for agents and humans"
+requires-python = ">=3.11"
+authors = [{name = "SomeSunlight"}]
+readme = "README.md"
+dependencies = []
+
+[project.scripts]
+github-local = "github_local.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
