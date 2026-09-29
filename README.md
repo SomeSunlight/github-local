@@ -87,9 +87,13 @@ $env:PYTHONPATH = "$PWD\src"
 python -m github_local.cli --help
 ```
 
-## First-use smoke assignment
+## First-use smoke tests
 
-Use a disposable Git repository first. This deliberately tests both a current work item and a backlog created before implementation:
+The first tests are intentionally split. You do **not** need to understand or inspect Git history just to prove that the local Issue provider works.
+
+### 1. Manual Issue smoke test
+
+Use a disposable Git repository:
 
 ```powershell
 mkdir github-local-smoke
@@ -97,23 +101,62 @@ cd github-local-smoke
 git init
 
 github-local init --owner local --repo smoke
-github-local issue create --title "Prove the local Issue workflow" --body "Create one Git change linked by branch and commit naming."
-github-local issue create --title "Add issue close" --body "Backlog only; do not implement during this smoke test."
-github-local issue create --title "Add explicit change links" --body "Backlog only; later make Change <-> Issue links machine-readable."
+
+github-local issue create --title "Prove the local Issue workflow" --body "First manual smoke issue."
+github-local issue create --title "Add issue close" --body "Backlog only; do not implement."
+github-local issue create --title "Add explicit change links" --body "Backlog only; do not implement."
 
 github-local issue list
 github-local issue list --json number,title,state,path
 github-local issue view 1
-
-git switch -c issue-1-smoke-workflow
-"github.local smoke passed" | Set-Content SMOKE.md
-git add SMOKE.md issues .github-local/config.json
-git commit -m "docs: prove local Issue workflow (#1)"
 ```
 
-Expected result: three ordinary Markdown Issue files exist below `issues/`; Issues #2 and #3 remain a visible backlog; the Git branch and commit visibly reference Issue #1. Closing #1 is intentionally not part of v0.1.0 yet.
+Expected result:
 
-For an automated implementation smoke test of the installed source tree, run `scripts/smoke.ps1`.
+- three Markdown files exist below `issues/`;
+- `github-local issue list` shows Issues #1, #2 and #3 as `OPEN`;
+- opening the files in an editor shows the same titles and bodies.
+
+That is all that **visible backlog** means here: Issues #2 and #3 exist as ordinary project files and remain `OPEN`. There is no hidden database state to inspect.
+
+If this works, the core v0.1.0 owner smoke test has passed.
+
+### 2. Optional Git-reference smoke test
+
+This does **not** test extra github.local behavior yet. It only demonstrates the temporary convention for associating normal Git work with an Issue number until explicit Change ↔ Issue links are implemented.
+
+```powershell
+git switch -c issue-1-smoke-workflow
+"github.local smoke passed" | Set-Content SMOKE.md
+git add SMOKE.md
+git commit -m "docs: prove local Issue workflow (#1)"
+
+git branch --show-current
+git log -1 --oneline
+```
+
+Expected result:
+
+- the current branch name contains `issue-1`;
+- the latest commit message contains `#1`.
+
+No checkout comparison is required. github.local does not interpret this relationship in v0.1.0; it is only a visible human/agent convention for now.
+
+### 3. LLM / Copilot smoke test
+
+This is the more important agent-facing test. Give the following task to an LLM that can run terminal commands in a disposable Git repository:
+
+> Use only the terminal, local files, Git and `github-local`. Do not create external GitHub Issues and do not use MCP.
+>
+> Initialize github.local in this repository. Create three local Issues: one small Issue that you will act on, plus two backlog Issues that you must not implement. List the Issues both normally and as JSON, then view Issue #1. Create a Git branch whose name contains `issue-1`, make one harmless small file change, and commit it with a message containing `#1`. At the end, show the Issue list, the files below `issues/`, the current branch name, and the latest commit.
+
+The point of this test is not code quality. It checks whether a terminal-capable agent naturally understands and uses the `github-local` interface.
+
+### 4. Developer automation: optional
+
+`scripts/smoke.ps1` is an automated developer regression smoke test. It creates its own temporary repository and verifies init → create → list → view automatically.
+
+If the manual smoke test above already passed, the project owner does **not** need to run `scripts/smoke.ps1` as an additional acceptance step.
 
 ## Project documentation
 
