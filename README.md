@@ -41,16 +41,29 @@ The current MVP is already useful as a local backlog: agents and humans can init
 
 Python 3.11+ is required. `uv` is the recommended installer.
 
-### From GitHub
+### Owner testing during development
 
-While the first candidate is still in Draft PR #2, install the review branch explicitly:
+For active development, clone the repository once and install the checkout **editable**:
 
 ```powershell
-uv tool install git+https://github.com/SomeSunlight/github-local.git@issue-1-cli-first-mvp
+git clone https://github.com/SomeSunlight/github-local.git
+cd github-local
+git switch issue-1-cli-first-mvp
+uv tool install --editable .
 github-local --help
 ```
 
-After the candidate is owner-approved and merged, the normal installation becomes:
+After that, new development versions normally require only:
+
+```powershell
+git pull
+```
+
+This is the preferred owner-test workflow while the project changes frequently.
+
+### Normal installation after merge/release
+
+For a stable merged version, direct installation from GitHub remains available:
 
 ```powershell
 uv tool install git+https://github.com/SomeSunlight/github-local.git
