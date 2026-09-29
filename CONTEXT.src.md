@@ -1,5 +1,5 @@
 # github.local — Local Context Source
-<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.0-draft" -->
+<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.1-draft" -->
 
 ## Local Overview
 
@@ -25,6 +25,18 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: terminal-capable LLM harnesses need a predictable low-overhead contract.
   <!-- ctx:rule id="GHLR-004" -->
 
+- **Keep the CLI as the primary agent contract:** Terminal-capable agents must be able to perform the normal workflow through stable CLI commands and structured output; MCP or other adapters are optional additions, not prerequisites.
+  Why: the real corporate Copilot owner test succeeded without MCP and demonstrated that CLI calls provide a simple, low-overhead integration surface.
+  <!-- ctx:rule id="GHLR-005" -->
+
+- **Keep Issue workflow state project-wide:** Ordinary Git branches/worktrees must not silently create divergent canonical backlogs or duplicate Issue identities/numbers.
+  Why: Issues may exist long before implementation branches and represent project workflow state rather than one code branch.
+  <!-- ctx:rule id="GHLR-006" -->
+
+- **Let completed work leave the open backlog:** Provide explicit close/reopen semantics and automatically close an Issue when accepted/merged work carries an explicit closing reference; do not treat an arbitrary Issue mention as a closing instruction.
+  Why: the open backlog should naturally shrink as accepted work completes while closure remains deliberate and inspectable.
+  <!-- ctx:rule id="GHLR-007" -->
+
 ## Local Topics
 
 ### Architecture and provider choice
@@ -43,3 +55,11 @@ When changing Issue persistence, numbering, Markdown format, locking, atomic wri
 Required:
 - Resource: `docs/storage.md`
 <!-- ctx:topic id="GHLR-TOPIC-ISSUES" -->
+
+### Agent integration evidence
+
+When changing the agent-facing CLI contract, help/discovery behavior, or deciding whether an adapter such as MCP is required:
+
+Required:
+- Resource: `docs/agent-validation.md`
+<!-- ctx:topic id="GHLR-TOPIC-AGENT" -->
