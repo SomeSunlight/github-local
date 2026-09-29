@@ -26,3 +26,17 @@ Exit: the local repository contains a tested Issue create → list → view vert
 Checkpoint: implementation and local verification are complete; remote publication is now possible because the project owner created the empty GitHub repository. `python -m unittest discover -s tests -v` passes 12 tests; `compileall` passes; a wheel builds without runtime dependencies; installing that wheel into a fresh venv and running init → create → list → view against a disposable Git repository succeeds. Real-`gh` black-box execution remains intentionally unclaimed and reproducible via `spike/README.md`.
 
 Fast Track closure: the bounded implementation/research block is complete and locally verified. The candidate remains unmerged for owner review. The remote repository now exists and this checkpoint is being published through Issue #1 and a Draft PR.
+
+
+## Owner validation and next sequence
+
+- [x] Complete the manual owner smoke test: initialize, create three Issues, list as text/JSON, and view Issue #1.
+- [x] Complete the real Copilot smoke test without MCP; the agent successfully used `github-local` plus native Git from terminal access alone.
+- [x] Capture the LLM debrief and convert product gaps into Issues #3–#7.
+- [x] Keep Assignees and milestones out of current scope.
+- [ ] After PR #2 is owner-approved and squash-merged, onboard `github-local` with ContextCanon and compose the reusable GitHub / Development Workflow context.
+- [ ] Resolve #3's branch/worktree semantics before expanding persisted workflow state.
+- [ ] Implement #4 immediately afterwards: complete the Issue lifecycle and automatic close for explicitly referenced accepted/merged work, before broader workflow testing.
+- [ ] Continue with #5 Change ↔ Issue linking, then #6 backlog ergonomics and #7 help examples.
+
+Owner-test conclusion: the CLI-first integration mechanism is validated. The remaining work is product semantics, not proof that Copilot can call local tools.
