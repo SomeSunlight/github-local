@@ -35,7 +35,11 @@ The official GitHub CLI was investigated first. Current `gh` Issue operations ar
 
 The first Fast Track implementation block is complete. The native Issue create/list/view vertical slice is green; the official-`gh` compatibility path remains a measured optional adapter. The review candidate is intentionally unmerged until project-owner approval.
 
-The current MVP is already useful as a local backlog: agents and humans can initialize a Git repository, create as many Issues as needed, list them cheaply, and reload the canonical Markdown after a new shell/process. It does **not** yet claim the complete development lifecycle. `issue close/edit/comment` and explicit machine-readable Change ↔ Issue links are the next small slices. Ordinary Git branch and commit naming can carry the Issue number immediately.
+The current MVP is already useful as a local backlog: agents and humans can initialize a Git repository, create as many Issues as needed, list them cheaply, and reload the canonical Markdown after a new shell/process.
+
+A real owner test inside corporate GitHub Copilot validated the central integration hypothesis: a terminal-capable LLM with no MCP access discovered and used the unfamiliar `github-local` CLI successfully, created/listed/viewed the local Issues, and performed the Git work using the documented branch/commit convention. The CLI itself is therefore a proven agent integration surface, not only a design hypothesis. See `docs/agent-validation.md`.
+
+The current v0.1.0 slice does **not** yet claim the complete development lifecycle. The immediate roadmap is tracked in Issues #3–#7. In particular, Issue #4 makes close/reopen and automatic closing of accepted work an early core capability; Assignees and milestones remain deliberately out of scope while the primary workflow is single-owner.
 
 ## Installation
 
@@ -165,4 +169,5 @@ If the manual smoke test above already passed, the project owner does **not** ne
 - `docs/gh-compatibility.md` — measured current `gh` contract and decision evidence
 - `docs/architecture.md` — product boundary and layers
 - `docs/storage.md` — canonical Issue format and safety model
+- `docs/agent-validation.md` — real Copilot owner-test evidence and follow-up findings
 - `spike/README.md` — reproduce the `gh` protocol trace with a real current CLI
