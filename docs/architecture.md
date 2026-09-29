@@ -34,3 +34,18 @@ The compatibility spike is retained under `spike/` so the decision can be revisi
 5. **Optional future adapters** — `gh`-compatible HTTPS/GraphQL, MCP, IDE integration, or local web UI.
 
 The first four layers are the MVP. Layer 5 must not contaminate canonical storage.
+
+
+## Validated agent integration
+
+The CLI-first boundary has been exercised in the target style of environment, not only unit-tested. A real corporate GitHub Copilot session without MCP access successfully discovered and operated `github-local` using terminal commands, structured JSON and native Git. This confirms the intended split:
+
+- filesystem/shell/Git for code state;
+- `github-local` CLI for workflow objects;
+- adapters such as MCP remain optional convenience layers.
+
+The result also reinforces a design constraint: keep commands discoverable, failures explicit and JSON stable rather than requiring an agent-specific protocol.
+
+## Next architecture boundary
+
+Before adding richer mutable Issue state, define how the canonical project-wide backlog remains consistent across ordinary Git branches/worktrees (#3). Immediately after that, complete the Issue lifecycle and automatic closure of explicitly referenced accepted work (#4). Change ↔ Issue linking (#5) should add workflow semantics around native Git rather than duplicate Git state.
