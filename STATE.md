@@ -21,3 +21,23 @@ The native Issue MVP is implemented on local branch `issue-1-cli-first-mvp`:
 Verification: 12/12 deterministic tests pass, Python compilation passes, wheel build passes, and an installed-wheel smoke test successfully performs init → create → list → view in a fresh Git repository.
 
 The remote delivery gap is closed: the repository now exists. The first candidate is published for review and remains deliberately unmerged. v0.1.0 supports Issue init/create/list/view; close/edit/comment and explicit machine-readable Change ↔ Issue links remain future slices rather than hidden assumptions.
+
+
+## Real owner validation
+
+The project owner completed both the manual and agent-facing smoke tests successfully.
+
+The decisive agent test used corporate GitHub Copilot with Claude Sonnet 5 (Medium, 264k context) in an environment where MCP is administratively unavailable. The model was given terminal/filesystem/Git access and the documented `github-local` workflow. It successfully discovered the CLI, created/listed/viewed all three Issues, and completed the ordinary Git branch/commit steps. This validates CLI-first integration as a practical low-overhead tool surface for terminal-capable agents in the target environment.
+
+The post-test LLM debrief confirmed that stable `--json`, clear failures, visible Markdown persistence and concise nested `--help` made the tool easy to use. It also identified the expected MVP gaps. One reported uncertainty was already implemented: `issue create --json ...` exists; the agent simply had not exercised it.
+
+Follow-up work is recorded as:
+- #3 project-wide Issue state across ordinary Git branches/worktrees;
+- #4 close/reopen/edit/comment, state filtering, and early automatic close of accepted/merged work carrying an explicit closing reference;
+- #5 first-class Change ↔ Issue linking;
+- #6 backlog filters, labels and search;
+- #7 concise CLI examples.
+
+Assignees and milestones remain out of scope while the primary workflow is single-owner.
+
+Before the next product implementation block, onboard this repository with ContextCanon and compose the reusable GitHub provider / Development Workflow for its public development workflow.
