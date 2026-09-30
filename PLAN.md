@@ -44,7 +44,7 @@ Owner-test conclusion: the CLI-first integration mechanism is validated. The rem
 
 ## Active Fast Track: runtime development provenance — Issue #8
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED**
 
 Purpose: make `github-local --version` identify both the stable release baseline and the exact Git checkout being tested, following inherited CCW-014.
 
@@ -53,9 +53,28 @@ Purpose: make `github-local --version` identify both the stable release baseline
 - [x] Keep installed artifacts without Git metadata on the plain release version.
 - [x] Add top-level `github-local --version` on stdout.
 - [x] Add focused release/provenance/CLI regression tests.
-- [ ] Run the complete deterministic suite and repository consistency checks.
+- [x] Run the complete deterministic suite and repository consistency checks.
 - [x] Keep PR #9 unmerged until explicit owner approval.
 
-Checkpoint: focused real-Git provenance checks and the top-level argparse version path pass. The repository currently has no GitHub Actions workflow, so the complete existing test suite remains a local/owner merge-gate check.
+Checkpoint: the owner ran the complete deterministic suite successfully with `uv run python -m unittest discover -s tests -v`, `contextcanon check --all .` passed, and `github-local --version` reported the expected branch/SHA/dirty provenance. PR #9 was squash-merged to `main` as `14034cd`; Issue #8 is closed.
 
 Issue #3 remains separate and will handle project-wide Issue identity/numbering across branches and worktrees.
+
+
+## Active Fast Track: project-wide Issue state — Issue #3
+
+**Fast Track status — ACTIVE**
+
+Purpose: make one local Issue backlog authoritative across ordinary Git branches and linked worktrees without moving canonical Issue content into a database or making Git branches own workflow state.
+
+- [ ] Make all worktrees resolve one canonical visible `issues/` directory in the primary worktree.
+- [ ] Move runtime repository configuration and Issue locking onto the shared Git common directory so linked worktrees use one identity and one allocator.
+- [ ] Keep `issues/` outside ordinary branch tracking and add a shared Git exclude rule.
+- [ ] Fail clearly when tracked `issues/` would make project-wide semantics unsafe; do not silently rewrite the Git index.
+- [ ] Preserve existing Issue Markdown format, stable IDs, URLs, and monotonic numbering.
+- [ ] Add real-Git regression coverage for branch switches, linked worktrees, shared numbering, and tracked-Issue refusal.
+- [ ] Document the KISS storage semantics before Issue lifecycle expansion.
+- [ ] Run the complete deterministic suite and ContextCanon consistency check.
+- [ ] Keep the review PR unmerged until explicit owner approval.
+
+Exit: one Git repository has one visible local Issue backlog and one number allocator regardless of which ordinary branch/worktree invokes `github-local`.
