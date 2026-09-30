@@ -50,6 +50,15 @@ class CliTests(unittest.TestCase):
         self.assertEqual(0, view.returncode, view.stderr)
         self.assertEqual({"number": 1, "title": "Überprüfung", "body": "Markdown body"}, json.loads(view.stdout))
 
+    def test_version_is_available_without_repository_initialization(self):
+        result = self.run_cli("--version")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("", result.stderr)
+        self.assertRegex(
+            result.stdout.strip(),
+            r"^github-local 0\.1\.0(?: \((?:[^@()]+|detached)@[0-9a-f]{7}(?:, dirty)?\))?$",
+        )
+
     def test_not_initialized_is_stable_exit_code(self):
         result = self.run_cli("issue", "list")
         self.assertEqual(3, result.returncode)
