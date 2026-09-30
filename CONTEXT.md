@@ -8,12 +8,12 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.1-draft`
+**Context version:** `0.1.3-draft`
 
 **Resulting imported Contexts:**
 
-- **Development Workflow** — `0.3.3-draft` — via Source **GitHub** [inspect](.context/sources/ebfc5ef834e4964de0611614fe2014be94968a1e51ff51c3925b29a45095ba6e/CONTEXT.md); direct Source [inspect](.context/sources/a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27/CONTEXT.md) — Why: Use also here the same proven workflow as for the other projects
-- **GitHub** — `0.1.3-draft` — direct Source — Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted. — [inspect accepted carrier](.context/sources/ebfc5ef834e4964de0611614fe2014be94968a1e51ff51c3925b29a45095ba6e/CONTEXT.md)
+- **Development Workflow** — `0.3.5-draft` — via Source **GitHub** — [inspect accepted carrier](.context/sources/0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd/CONTEXT.md)
+- **GitHub** — `0.1.5-draft` — direct Source — Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted. — [inspect accepted carrier](.context/sources/0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd/CONTEXT.md)
 
 ## Local Overview
 
@@ -160,6 +160,10 @@ A coherent development block may be presented for project-owner review while und
 
 When actively testing an installable Python tool from a development checkout, prefer one editable install (`uv tool install --editable .`) and pull subsequent revisions with Git rather than reinstalling each version, when the environment supports it.
 
+#### `CCW-014` — Expose development provenance without micro-bumping releases
+
+When an executable tool is tested from a changing Git checkout, keep its release version stable until a real release/version boundary, but make runtime version output identify the current VCS state with the branch/ref when available, commit identity, and dirty state. Treat the commit identity as authoritative and the branch/ref as human orientation; release artifacts without checkout metadata still report the canonical release version.
+
 ### Human review gate
 
 #### `CCW-011` — Expand change scope explicitly
@@ -275,6 +279,14 @@ When planning, resuming, checkpointing, reviewing, testing, finalizing, merging,
 **Required**
 
 - [`CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md`](CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md)
+
+### Implementing executable version identity
+
+When adding or changing `--version`, package version lookup, or Git checkout provenance for an executable Python tool:
+
+**Required**
+
+- [`CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md`](CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md)
 
 ## Local Topics
 

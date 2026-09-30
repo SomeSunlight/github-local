@@ -1,0 +1,115 @@
+{
+  "before": {
+    "normalized_digest": "030956e2c3d141f213660871e4002f9045d7102f0482916f21d47493cd0a4934",
+    "package_digest": "a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27",
+    "version": "0.3.3-draft"
+  },
+  "candidate": {
+    "normalized_digest": "2569d89b6d105194539c50fd4a71a6780cadfc967b3787604174ab90fcdf70c2",
+    "package_digest": "a97532c6c06aff41b0cb1c8b8678c3eb653a478787e5fa8f6251520a33db1029",
+    "version": "0.3.5-draft"
+  },
+  "consumer_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+  "diff": {
+    "after": {
+      "name": "Development Workflow",
+      "normalized_digest": "2569d89b6d105194539c50fd4a71a6780cadfc967b3787604174ab90fcdf70c2",
+      "package_digest": "a97532c6c06aff41b0cb1c8b8678c3eb653a478787e5fa8f6251520a33db1029",
+      "version": "0.3.5-draft"
+    },
+    "before": {
+      "name": "Development Workflow",
+      "normalized_digest": "030956e2c3d141f213660871e4002f9045d7102f0482916f21d47493cd0a4934",
+      "package_digest": "a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27",
+      "version": "0.3.3-draft"
+    },
+    "changed": true,
+    "entries": [
+      {
+        "after": {
+          "name": "Development Workflow",
+          "version": "0.3.5-draft"
+        },
+        "before": {
+          "name": "Development Workflow",
+          "version": "0.3.3-draft"
+        },
+        "category": "node",
+        "change": "modified",
+        "changed_fields": [
+          "version"
+        ],
+        "identity": "c4c94726-3cc7-4df6-b779-72bbf9c06f40"
+      },
+      {
+        "after": {
+          "group": "Proportional verification",
+          "id": "CCW-014",
+          "modifications": [],
+          "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+          "origin_node_name": "Development Workflow",
+          "statement": "When an executable tool is tested from a changing Git checkout, keep its release version stable until a real release/version boundary, but make runtime version output identify the current VCS state with the branch/ref when available, commit identity, and dirty state. Treat the commit identity as authoritative and the branch/ref as human orientation; release artifacts without checkout metadata still report the canonical release version.",
+          "status": "active",
+          "title": "Expose development provenance without micro-bumping releases",
+          "why": "Humans and agents must be able to distinguish different development code behind the same release baseline without turning every branch, documentation edit, or review iteration into release-version ceremony."
+        },
+        "before": null,
+        "category": "rule",
+        "change": "added",
+        "changed_fields": [],
+        "identity": "c4c94726-3cc7-4df6-b779-72bbf9c06f40#CCW-014"
+      },
+      {
+        "after": {
+          "condition": "When adding or changing `--version`, package version lookup, or Git checkout provenance for an executable Python tool:",
+          "id": "CCW-TOPIC-VERSION-PROVENANCE",
+          "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+          "origin_node_name": "Development Workflow",
+          "targets": [
+            {
+              "intent": "required",
+              "kind": "resource",
+              "resource_id": "RESOURCE-7C6F7E4D126B",
+              "target_node_id": null,
+              "target_node_name": null
+            }
+          ],
+          "title": "Implementing executable version identity"
+        },
+        "before": null,
+        "category": "topic",
+        "change": "added",
+        "changed_fields": [],
+        "identity": "c4c94726-3cc7-4df6-b779-72bbf9c06f40#CCW-TOPIC-VERSION-PROVENANCE"
+      },
+      {
+        "after": {
+          "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md",
+          "sha256": "124440f4a2ed17d7bfbf265ac2936fa38695e6699069acc94f19f38a92b4351f",
+          "size": 6107
+        },
+        "before": null,
+        "category": "resource",
+        "change": "added",
+        "changed_fields": [],
+        "identity": "c4c94726-3cc7-4df6-b779-72bbf9c06f40#RESOURCE-7C6F7E4D126B"
+      }
+    ],
+    "node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+    "schema": "contextcanon/diff/v0"
+  },
+  "schema": "contextcanon/source-review/v0",
+  "source_file_sha256": "3bd153ef6ac6bc5c717718765ee41c99939a8bb984ad1c7413752f7ae4c4ed35",
+  "source_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+  "structural_validation": "passed",
+  "transport_candidate": {
+    "candidate_ref": "4ade1f38caaf0b01bf2c6d6224ef4cb7dfd18ed1",
+    "discovery_ref": "",
+    "kind": "git",
+    "location": "https://github.com/SomeSunlight/context-canon.git",
+    "node_path": "nodes/library/development-workflow",
+    "package_digest": "a97532c6c06aff41b0cb1c8b8678c3eb653a478787e5fa8f6251520a33db1029",
+    "schema": "contextcanon/source-candidate-provenance/v1",
+    "source_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40"
+  }
+}

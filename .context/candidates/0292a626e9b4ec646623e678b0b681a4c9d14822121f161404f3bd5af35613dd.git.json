@@ -1,0 +1,10 @@
+{
+  "candidate_ref": "4ade1f38caaf0b01bf2c6d6224ef4cb7dfd18ed1",
+  "discovery_ref": "",
+  "kind": "git",
+  "location": "https://github.com/SomeSunlight/context-canon.git",
+  "node_path": "nodes/library/github",
+  "package_digest": "0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd",
+  "schema": "contextcanon/source-candidate-provenance/v1",
+  "source_id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc"
+}

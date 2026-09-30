@@ -2,14 +2,14 @@
   "changes": [],
   "compiler_version": "0.6.0",
   "digests": {
-    "normalized": "54cd653b10df1dfa176a73a38024d88c06c885e6d1d1171cee6e7164fc090a7a",
-    "package": "52160eb9a3d776dfdba2ddeb4662154fa0331611a6866a8f9c148eca86f7dbad"
+    "normalized": "5bed750b7145fd7af65fa5c04dbfbe49b111f814553e0f613149e9d794dc5fbb",
+    "package": "3e4464468be6cb02c656677b3b601beb8749ee704e7bd8519836b8ed699beaa3"
   },
   "files": [
     {
       "path": "CONTEXT.md",
-      "sha256": "3cef083524b99be9488dd625c3ca1a40586132974af47714e5815a3972ada098",
-      "size": 18711
+      "sha256": "5d511537a33e1b2900c611e9ded3bca060308890af4df56b20e64fae29faebf7",
+      "size": 19499
     },
     {
       "path": "CONTEXT/README.md",
@@ -55,30 +55,35 @@
       "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md",
       "sha256": "21ac62e2449effee4c2172ba02438c2f5093c9dc7e0235684fcb78801b851060",
       "size": 9670
+    },
+    {
+      "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md",
+      "sha256": "124440f4a2ed17d7bfbf265ac2936fa38695e6699069acc94f19f38a92b4351f",
+      "size": 6107
     }
   ],
   "imports": [
     {
       "id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
       "name": "Development Workflow",
-      "normalized_digest": "030956e2c3d141f213660871e4002f9045d7102f0482916f21d47493cd0a4934",
-      "package_digest": "a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27",
-      "version": "0.3.3-draft",
-      "why": "Use also here the same proven workflow as for the other projects"
+      "normalized_digest": "2569d89b6d105194539c50fd4a71a6780cadfc967b3787604174ab90fcdf70c2",
+      "package_digest": "a97532c6c06aff41b0cb1c8b8678c3eb653a478787e5fa8f6251520a33db1029",
+      "version": "0.3.5-draft",
+      "why": null
     },
     {
       "id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc",
       "name": "GitHub",
-      "normalized_digest": "16a0e58a5881720e35b4b08456bc0bf6480b90464a56667f2b387e2199a4c2c1",
-      "package_digest": "ebfc5ef834e4964de0611614fe2014be94968a1e51ff51c3925b29a45095ba6e",
-      "version": "0.1.3-draft",
+      "normalized_digest": "a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65",
+      "package_digest": "0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd",
+      "version": "0.1.5-draft",
       "why": "Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted."
     }
   ],
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.1-draft"
+    "version": "0.1.3-draft"
   },
   "parents": [],
   "removed_rules": [],
@@ -182,6 +187,16 @@
       "statement": "When actively testing an installable Python tool from a development checkout, prefer one editable install (`uv tool install --editable .`) and pull subsequent revisions with Git rather than reinstalling each version, when the environment supports it.",
       "title": "Prefer editable installs for repeated owner testing",
       "why": "This keeps the owner-test loop short and makes the tested command follow the current checkout."
+    },
+    {
+      "group": "Proportional verification",
+      "id": "CCW-014",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "When an executable tool is tested from a changing Git checkout, keep its release version stable until a real release/version boundary, but make runtime version output identify the current VCS state with the branch/ref when available, commit identity, and dirty state. Treat the commit identity as authoritative and the branch/ref as human orientation; release artifacts without checkout metadata still report the canonical release version.",
+      "title": "Expose development provenance without micro-bumping releases",
+      "why": "Humans and agents must be able to distinguish different development code behind the same release baseline without turning every branch, documentation edit, or review iteration into release-version ceremony."
     },
     {
       "group": "Human review gate",
@@ -417,19 +432,11 @@
   "schema": "contextcanon/package/v2",
   "sources": [
     {
-      "id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
-      "name": "Development Workflow",
-      "normalized_digest": "030956e2c3d141f213660871e4002f9045d7102f0482916f21d47493cd0a4934",
-      "package_digest": "a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27",
-      "version": "0.3.3-draft",
-      "why": null
-    },
-    {
       "id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc",
       "name": "GitHub",
-      "normalized_digest": "16a0e58a5881720e35b4b08456bc0bf6480b90464a56667f2b387e2199a4c2c1",
-      "package_digest": "ebfc5ef834e4964de0611614fe2014be94968a1e51ff51c3925b29a45095ba6e",
-      "version": "0.1.3-draft",
+      "normalized_digest": "a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65",
+      "package_digest": "0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd",
+      "version": "0.1.5-draft",
       "why": null
     }
   ],
@@ -448,6 +455,21 @@
         }
       ],
       "title": "Executing a development block"
+    },
+    {
+      "condition": "When adding or changing `--version`, package version lookup, or Git checkout provenance for an executable Python tool:",
+      "id": "CCW-TOPIC-VERSION-PROVENANCE",
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md",
+          "resource_id": "RESOURCE-7C6F7E4D126B"
+        }
+      ],
+      "title": "Implementing executable version identity"
     },
     {
       "condition": "When deciding between official `gh` compatibility and the native `github-local` CLI, or extending the runtime boundary:",
