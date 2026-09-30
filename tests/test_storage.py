@@ -1,20 +1,32 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import tempfile
 import threading
 import unittest
 from pathlib import Path
 
-from github_local.repository import Repository
+from github_local.repository import Repository, RepositoryError
 from github_local.storage import IssueStore, StorageError, slugify
 
 
 class StorageTests(unittest.TestCase):
+    def git(self, root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            ["git", "-C", str(root), *args],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
     def make_repo(self):
         temp = tempfile.TemporaryDirectory()
-        root = Path(temp.name)
-        (root / ".git").mkdir()
+        workspace = Path(temp.name)
+        root = workspace / "main"
+        root.mkdir()
+        self.git(root, "init", "-q", "-b", "main")
         repo = Repository.initialize(root, owner="acme", name="demo")
         counter = {"n": 0}
 
@@ -23,6 +35,13 @@ class StorageTests(unittest.TestCase):
             return f"2026-09-28T18:00:{counter['n']:02d}Z"
 
         return temp, root, repo, IssueStore(repo, clock=clock)
+
+    def commit_base(self, root: Path) -> None:
+        self.git(root, "config", "user.email", "test@example.com")
+        self.git(root, "config", "user.name", "Test")
+        (root / "README.md").write_text("base\n", encoding="utf-8")
+        self.git(root, "add", "README.md")
+        self.git(root, "commit", "-qm", "base")
 
     def test_create_list_view_survives_new_store_instance(self):
         temp, root, repo, store = self.make_repo()
@@ -69,6 +88,102 @@ class StorageTests(unittest.TestCase):
         self.assertEqual(list(range(1, 13)), sorted(results))
         self.assertEqual(12, len(list((root / "issues").glob("*.md"))))
         self.assertEqual([], list((root / "issues").glob(".issue-*.tmp")))
+
+    def test_branch_switch_keeps_one_untracked_issue_backlog(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.commit_base(root)
+        store.create("Before branch switch")
+        self.git(root, "switch", "-q", "-c", "feature")
+        discovered = Repository.discover(root)
+        self.assertEqual(root.resolve(), discovered.workflow_root)
+        self.assertEqual([1], [item.number for item in IssueStore(discovered).list()])
+        self.assertEqual(2, IssueStore(discovered).create("On feature").number)
+        self.git(root, "switch", "-q", "main")
+        self.assertEqual([1, 2], [item.number for item in IssueStore(Repository.discover(root)).list()])
+        status = self.git(root, "status", "--short").stdout
+        self.assertNotIn("issues/", status)
+
+    def test_linked_worktree_uses_primary_issue_store_and_shared_allocator(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.commit_base(root)
+        self.assertEqual(1, store.create("Primary").number)
+
+        linked = root.parent / "linked"
+        self.git(root, "worktree", "add", "-q", "-b", "feature", str(linked))
+        linked_repo = Repository.discover(linked)
+        self.assertEqual(linked.resolve(), linked_repo.root)
+        self.assertEqual(root.resolve(), linked_repo.workflow_root)
+        self.assertEqual(repo.config_dir, linked_repo.config_dir)
+        self.assertEqual(root / "issues", linked_repo.issues_dir)
+
+        created = IssueStore(linked_repo).create("Linked")
+        self.assertEqual(2, created.number)
+        self.assertEqual("issues/0002-linked.md", created.path.as_posix())
+        self.assertEqual([1, 2], [item.number for item in IssueStore(repo).list()])
+
+    def test_concurrent_creation_across_worktrees_has_unique_numbers(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.commit_base(root)
+        linked = root.parent / "linked"
+        self.git(root, "worktree", "add", "-q", "-b", "feature", str(linked))
+        linked_repo = Repository.discover(linked)
+
+        results = []
+        errors = []
+        barrier = threading.Barrier(12)
+
+        def worker(index):
+            try:
+                barrier.wait()
+                target_repo = repo if index % 2 == 0 else linked_repo
+                issue = IssueStore(target_repo).create(f"Cross worktree {index}")
+                results.append(issue.number)
+            except BaseException as exc:
+                errors.append(exc)
+
+        threads = [threading.Thread(target=worker, args=(i,)) for i in range(12)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        self.assertEqual([], errors)
+        self.assertEqual(list(range(1, 13)), sorted(results))
+        self.assertEqual(12, len(list((root / "issues").glob("*.md"))))
+
+    def test_legacy_visible_config_is_migrated_to_shared_git_state(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        self.git(root, "init", "-q", "-b", "main")
+        legacy = root / ".github-local" / "config.json"
+        legacy.parent.mkdir()
+        legacy.write_text(
+            json.dumps({"schema": 1, "owner": "acme", "repository": "demo"}) + "\n",
+            encoding="utf-8",
+        )
+
+        repo = Repository.discover(root)
+        self.assertEqual("acme", repo.owner)
+        self.assertEqual("demo", repo.name)
+        self.assertTrue(repo.config_path.is_file())
+        self.assertTrue(str(repo.config_path).startswith(str((root / ".git").resolve())))
+
+    def test_tracked_issues_are_rejected_explicitly(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        self.git(root, "init", "-q", "-b", "main")
+        issues = root / "issues"
+        issues.mkdir()
+        (issues / "0001-tracked.md").write_text("# tracked\n", encoding="utf-8")
+        self.git(root, "add", "issues/0001-tracked.md")
+
+        with self.assertRaisesRegex(RepositoryError, "outside ordinary Git branch tracking"):
+            Repository.initialize(root, owner="acme", name="demo")
 
     def test_windows_reserved_slug_is_avoided(self):
         self.assertEqual("issue-con", slugify("CON"))

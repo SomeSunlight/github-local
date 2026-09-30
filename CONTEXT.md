@@ -8,7 +8,7 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.3-draft`
+**Context version:** `0.1.4-draft`
 
 **Resulting imported Contexts:**
 

@@ -13,7 +13,7 @@ class CliTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
-        (self.root / ".git").mkdir()
+        subprocess.run(["git", "init", "-q", "-b", "main", str(self.root)], check=True)
         src = Path(__file__).resolve().parents[1] / "src"
         self.env = dict(os.environ, PYTHONPATH=str(src))
 

@@ -33,6 +33,12 @@ Before the next product implementation block, onboard this repository with Conte
 
 ## Issue #8 — runtime development provenance candidate
 
-Draft PR #9 implements inherited CCW-014 for the `github-local` executable while keeping release version `0.1.0` canonical only in `pyproject.toml`. Source/editable checkouts report branch/ref, seven-character commit identity, and dirty state; detached HEAD is explicit; non-Git installed artifacts report the plain release version.
+PR #9 was owner-tested successfully and squash-merged to `main` as `14034cd`. `github-local --version` now implements CCW-014 while keeping release version `0.1.0` canonical only in `pyproject.toml`. Issue #8 is closed.
 
-Focused real-Git and argparse checks pass. The repository has no GitHub Actions workflow yet, so the complete deterministic suite remains pending as the local owner merge-gate check. PR #9 remains unmerged.
+
+## Issue #3 — project-wide Issue state
+
+The current MVP keeps `issues/` and its lock inside one worktree, so branch/worktree independence is not actually guaranteed. The accepted direction for #3 is one canonical visible Markdown backlog per Git repository: the primary worktree owns `issues/`; every linked worktree resolves that same directory; runtime config and locks live in the shared Git common directory; and `issues/` is excluded from ordinary branch tracking. If Issue files are already tracked, github.local must refuse unsafe project-wide operation and require an explicit migration rather than silently modifying the Git index.
+
+
+Draft PR #10 carries the #3 implementation and remains unmerged pending the full owner suite, ContextCanon regeneration/check, and explicit approval.

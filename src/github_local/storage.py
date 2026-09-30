@@ -241,6 +241,6 @@ class IssueStore:
             body=body,
             created_at=created_at,
             updated_at=updated_at,
-            path=path.relative_to(self.repository.root),
+            path=path.relative_to(self.repository.workflow_root),
             url=url,
         )
