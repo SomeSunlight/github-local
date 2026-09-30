@@ -75,7 +75,7 @@ Purpose: make one local Issue backlog authoritative across ordinary Git branches
 - [x] Add real-Git regression coverage for branch switches, linked worktrees, shared numbering, and tracked-Issue refusal.
 - [x] Document the KISS storage semantics before Issue lifecycle expansion.
 - [ ] Run the complete deterministic suite and ContextCanon consistency check.
-- [ ] Keep the review PR unmerged until explicit owner approval.
+- [x] Keep Draft PR #10 unmerged until explicit owner approval.
 
 Checkpoint: focused real-Git tests pass for ordinary branch switching, linked worktree discovery, cross-worktree concurrent numbering, legacy config migration, tracked-Issue refusal, and the CLI create/list/view slice. Full owner suite + ContextCanon regeneration/check remain the merge-gate steps.
 
