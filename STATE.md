@@ -47,3 +47,8 @@ PR #10 was owner-tested, ContextCanon-regenerated, approved, and squash-merged t
 ## Issue #4 — lifecycle and accepted-change auto-close
 
 The next product block completes everyday Issue handling. Manual close/reopen, title/body editing, visible comments, and state filtering remain explicit CLI operations. Auto-close will only interpret an explicit closing reference (`Fixes #N`, `Closes #N`, or `Resolves #N`) after that commit is reachable from the repository's configured accepted branch; feature-branch mentions or ordinary `#N` references do not close anything.
+
+
+## Issue #4 implementation checkpoint
+
+The review candidate now supports manual close/reopen, title/body edit with stable identity, visible Markdown comments under `issues/comments/<issue>/`, state-filtered listing, and automatic close from new commits reaching the configured accepted branch with explicit `Fixes/Closes/Resolves #N` references. A per-repository cursor in shared Git metadata prevents historical replay and preserves deliberate reopen behavior. The legacy tracked bootstrap Issue file was removed from the source tree so github.local can operate in its own repository under the accepted #3 semantics.
