@@ -48,12 +48,14 @@ Owner-test conclusion: the CLI-first integration mechanism is validated. The rem
 
 Purpose: make `github-local --version` identify both the stable release baseline and the exact Git checkout being tested, following inherited CCW-014.
 
-- [ ] Keep `pyproject.toml` as the single canonical release-version source.
-- [ ] Add dependency-free runtime branch/ref + short commit + dirty provenance for source/editable checkouts.
-- [ ] Keep installed artifacts without Git metadata on the plain release version.
-- [ ] Add top-level `github-local --version` on stdout.
-- [ ] Add focused release/provenance/CLI regression tests.
+- [x] Keep `pyproject.toml` as the single canonical release-version source.
+- [x] Add dependency-free runtime branch/ref + short commit + dirty provenance for source/editable checkouts.
+- [x] Keep installed artifacts without Git metadata on the plain release version.
+- [x] Add top-level `github-local --version` on stdout.
+- [x] Add focused release/provenance/CLI regression tests.
 - [ ] Run the complete deterministic suite and repository consistency checks.
-- [ ] Keep the PR unmerged until explicit owner approval.
+- [x] Keep PR #9 unmerged until explicit owner approval.
+
+Checkpoint: focused real-Git provenance checks and the top-level argparse version path pass. The repository currently has no GitHub Actions workflow, so the complete existing test suite remains a local/owner merge-gate check.
 
 Issue #3 remains separate and will handle project-wide Issue identity/numbering across branches and worktrees.
