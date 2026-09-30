@@ -34,8 +34,8 @@ Fast Track closure: the bounded implementation/research block is complete and lo
 - [x] Complete the real Copilot smoke test without MCP; the agent successfully used `github-local` plus native Git from terminal access alone.
 - [x] Capture the LLM debrief and convert product gaps into Issues #3–#7.
 - [x] Keep Assignees and milestones out of current scope.
-- [ ] After PR #2 is owner-approved and squash-merged, onboard `github-local` with ContextCanon and compose the reusable GitHub / Development Workflow context.
-- [ ] Resolve #3's branch/worktree semantics before expanding persisted workflow state.
+- [x] After PR #2 is owner-approved and squash-merged, onboard `github-local` with ContextCanon and compose the reusable GitHub / Development Workflow context.
+- [x] Resolve #3's branch/worktree semantics before expanding persisted workflow state.
 - [ ] Implement #4 immediately afterwards: complete the Issue lifecycle and automatic close for explicitly referenced accepted/merged work, before broader workflow testing.
 - [ ] Continue with #5 Change ↔ Issue linking, then #6 backlog ergonomics and #7 help examples.
 
@@ -63,7 +63,7 @@ Issue #3 remains separate and will handle project-wide Issue identity/numbering 
 
 ## Active Fast Track: project-wide Issue state — Issue #3
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED**
 
 Purpose: make one local Issue backlog authoritative across ordinary Git branches and linked worktrees without moving canonical Issue content into a database or making Git branches own workflow state.
 
@@ -74,9 +74,30 @@ Purpose: make one local Issue backlog authoritative across ordinary Git branches
 - [x] Preserve existing Issue Markdown format, stable IDs, URLs, and monotonic numbering.
 - [x] Add real-Git regression coverage for branch switches, linked worktrees, shared numbering, and tracked-Issue refusal.
 - [x] Document the KISS storage semantics before Issue lifecycle expansion.
-- [ ] Run the complete deterministic suite and ContextCanon consistency check.
+- [x] Run the complete deterministic suite and ContextCanon consistency check.
 - [x] Keep Draft PR #10 unmerged until explicit owner approval.
 
-Checkpoint: focused real-Git tests pass for ordinary branch switching, linked worktree discovery, cross-worktree concurrent numbering, legacy config migration, tracked-Issue refusal, and the CLI create/list/view slice. Full owner suite + ContextCanon regeneration/check remain the merge-gate steps.
+Checkpoint: the owner ran the full deterministic suite successfully, regenerated ContextCanon output, and `contextcanon check --all .` passed. PR #10 was approved and squash-merged to `main` as `e8f546a`; Issue #3 was then closed manually because the PR body said `Implements #3` rather than a GitHub closing keyword.
 
 Exit: one Git repository has one visible local Issue backlog and one number allocator regardless of which ordinary branch/worktree invokes `github-local`.
+
+
+## Active Fast Track: complete the Issue lifecycle — Issue #4
+
+**Fast Track status — ACTIVE**
+
+Purpose: make github.local useful for a real daily backlog: Issues can be edited, discussed, closed/reopened, filtered, and automatically leave the open backlog after accepted code reaches the configured accepted branch with an explicit closing reference.
+
+- [ ] Add explicit `issue close` and `issue reopen`.
+- [ ] Add `issue edit` for title/body while preserving Issue identity and comments.
+- [ ] Add durable visible Markdown comments with `issue comment`.
+- [ ] Add `issue list --state open|closed|all` while preserving the existing default.
+- [ ] Record one accepted branch per repository and reconcile explicit `Fixes/Closes/Resolves #N` references from that branch only.
+- [ ] Never auto-close from arbitrary mentions or unaccepted feature-branch commits.
+- [ ] Keep old config/Issue files backwards compatible and migration explicit.
+- [ ] Add focused real-Git lifecycle and auto-close regression tests.
+- [ ] Update README/storage docs for productive daily use.
+- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [ ] Keep the review PR unmerged until explicit owner approval; PR body must use `Fixes #4` so GitHub closes the Issue automatically after merge.
+
+Exit: create → edit/comment → close/reopen → state-filter → merge-with-closing-reference works with one visible project-wide backlog.
