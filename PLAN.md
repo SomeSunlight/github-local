@@ -98,7 +98,7 @@ Purpose: make github.local useful for a real daily backlog: Issues can be edited
 - [x] Add focused real-Git lifecycle and auto-close regression tests.
 - [x] Update README/storage docs for productive daily use.
 - [ ] Run the complete deterministic suite and ContextCanon build/check.
-- [ ] Keep the review PR unmerged until explicit owner approval; PR body must use `Fixes #4` so GitHub closes the Issue automatically after merge.
+- [x] Keep Draft PR #11 unmerged until explicit owner approval; its body uses `Fixes #4` so GitHub should close Issue #4 automatically after merge.
 
 Checkpoint: lifecycle storage, CLI commands, accepted-branch commit cursor, explicit-closing-reference reconciliation, visible comments, README/storage guidance, and focused regression coverage are implemented. The old tracked bootstrap Issue file was removed from the versioned source tree so the repository itself no longer violates #3 semantics. Full owner suite plus ContextCanon build/check remain the merge gate.
 
