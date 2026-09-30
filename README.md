@@ -46,7 +46,6 @@ For active development, clone the repository once and install the checkout **edi
 ```powershell
 git clone https://github.com/SomeSunlight/github-local.git
 cd github-local
-git switch issue-1-cli-first-mvp
 uv tool install --editable .
 github-local --help
 ```
@@ -84,6 +83,37 @@ For development from a checkout without installing:
 $env:PYTHONPATH = "$PWD\src"
 python -m github_local.cli --help
 ```
+
+## Daily Issue workflow
+
+Initialize once from the branch that represents accepted work, normally `main`:
+
+```powershell
+github-local init --owner local --repo my-project
+```
+
+Then use the backlog directly:
+
+```powershell
+github-local issue create --title "Add validation" --body "Why this change is needed."
+github-local issue list --state open
+github-local issue view 1
+
+github-local issue comment 1 --body "Implementation note."
+github-local issue edit 1 --title "Add input validation"
+github-local issue close 1
+github-local issue reopen 1
+```
+
+When accepted Git history contains an explicit closing reference such as:
+
+```text
+Fixes #1
+```
+
+the next `github-local issue ...` command reconciles accepted history and closes that Issue automatically. A plain `#1` mention does not close it, and a closing reference on an unmerged feature branch has no effect until it reaches the configured accepted branch.
+
+Use `github-local init --accepted-branch <branch>` when the accepted branch cannot be inferred correctly.
 
 ## First-use smoke tests
 
