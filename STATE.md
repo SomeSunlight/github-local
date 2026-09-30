@@ -52,3 +52,5 @@ The next product block completes everyday Issue handling. Manual close/reopen, t
 ## Issue #4 implementation checkpoint
 
 The review candidate now supports manual close/reopen, title/body edit with stable identity, visible Markdown comments under `issues/comments/<issue>/`, state-filtered listing, and automatic close from new commits reaching the configured accepted branch with explicit `Fixes/Closes/Resolves #N` references. A per-repository cursor in shared Git metadata prevents historical replay and preserves deliberate reopen behavior. The legacy tracked bootstrap Issue file was removed from the source tree so github.local can operate in its own repository under the accepted #3 semantics.
+
+Draft PR #11 contains the #4 review candidate and uses `Fixes #4` in the PR body. It remains unmerged pending the owner merge gate.
