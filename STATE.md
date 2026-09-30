@@ -41,4 +41,9 @@ PR #9 was owner-tested successfully and squash-merged to `main` as `14034cd`. `g
 The current MVP keeps `issues/` and its lock inside one worktree, so branch/worktree independence is not actually guaranteed. The accepted direction for #3 is one canonical visible Markdown backlog per Git repository: the primary worktree owns `issues/`; every linked worktree resolves that same directory; runtime config and locks live in the shared Git common directory; and `issues/` is excluded from ordinary branch tracking. If Issue files are already tracked, github.local must refuse unsafe project-wide operation and require an explicit migration rather than silently modifying the Git index.
 
 
-Draft PR #10 carries the #3 implementation and remains unmerged pending the full owner suite, ContextCanon regeneration/check, and explicit approval.
+PR #10 was owner-tested, ContextCanon-regenerated, approved, and squash-merged to `main` as `e8f546a`. Issue #3 is closed. One project-wide visible Issue backlog and shared allocator are now the accepted baseline.
+
+
+## Issue #4 — lifecycle and accepted-change auto-close
+
+The next product block completes everyday Issue handling. Manual close/reopen, title/body editing, visible comments, and state filtering remain explicit CLI operations. Auto-close will only interpret an explicit closing reference (`Fixes #N`, `Closes #N`, or `Resolves #N`) after that commit is reachable from the repository's configured accepted branch; feature-branch mentions or ordinary `#N` references do not close anything.
