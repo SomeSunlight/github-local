@@ -67,14 +67,16 @@ Issue #3 remains separate and will handle project-wide Issue identity/numbering 
 
 Purpose: make one local Issue backlog authoritative across ordinary Git branches and linked worktrees without moving canonical Issue content into a database or making Git branches own workflow state.
 
-- [ ] Make all worktrees resolve one canonical visible `issues/` directory in the primary worktree.
-- [ ] Move runtime repository configuration and Issue locking onto the shared Git common directory so linked worktrees use one identity and one allocator.
-- [ ] Keep `issues/` outside ordinary branch tracking and add a shared Git exclude rule.
-- [ ] Fail clearly when tracked `issues/` would make project-wide semantics unsafe; do not silently rewrite the Git index.
-- [ ] Preserve existing Issue Markdown format, stable IDs, URLs, and monotonic numbering.
-- [ ] Add real-Git regression coverage for branch switches, linked worktrees, shared numbering, and tracked-Issue refusal.
-- [ ] Document the KISS storage semantics before Issue lifecycle expansion.
+- [x] Make all worktrees resolve one canonical visible `issues/` directory in the primary worktree.
+- [x] Move runtime repository configuration and Issue locking onto the shared Git common directory so linked worktrees use one identity and one allocator.
+- [x] Keep `issues/` outside ordinary branch tracking and add a shared Git exclude rule.
+- [x] Fail clearly when tracked `issues/` would make project-wide semantics unsafe; do not silently rewrite the Git index.
+- [x] Preserve existing Issue Markdown format, stable IDs, URLs, and monotonic numbering.
+- [x] Add real-Git regression coverage for branch switches, linked worktrees, shared numbering, and tracked-Issue refusal.
+- [x] Document the KISS storage semantics before Issue lifecycle expansion.
 - [ ] Run the complete deterministic suite and ContextCanon consistency check.
 - [ ] Keep the review PR unmerged until explicit owner approval.
+
+Checkpoint: focused real-Git tests pass for ordinary branch switching, linked worktree discovery, cross-worktree concurrent numbering, legacy config migration, tracked-Issue refusal, and the CLI create/list/view slice. Full owner suite + ContextCanon regeneration/check remain the merge-gate steps.
 
 Exit: one Git repository has one visible local Issue backlog and one number allocator regardless of which ordinary branch/worktree invokes `github-local`.
