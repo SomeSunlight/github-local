@@ -8,3 +8,10 @@ build/
 htmlcov/
 .github-local/locks/
 .github-local/tmp/
+
+# >>> ContextCanon onboarding (managed)
+/contextcanon-onboarding/
+/.context/onboarding/*
+!/.context/onboarding/inventory-state.json
+!/.context/onboarding/inventory-acceptance.json
+# <<< ContextCanon onboarding (managed)

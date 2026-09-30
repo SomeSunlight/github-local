@@ -1,0 +1,566 @@
+{
+  "changes": [],
+  "compiler_version": "0.6.0",
+  "digests": {
+    "normalized": "54cd653b10df1dfa176a73a38024d88c06c885e6d1d1171cee6e7164fc090a7a",
+    "package": "52160eb9a3d776dfdba2ddeb4662154fa0331611a6866a8f9c148eca86f7dbad"
+  },
+  "files": [
+    {
+      "path": "CONTEXT.md",
+      "sha256": "3cef083524b99be9488dd625c3ca1a40586132974af47714e5815a3972ada098",
+      "size": 18711
+    },
+    {
+      "path": "CONTEXT/README.md",
+      "sha256": "933428c92391d1c0429d6e3b96804b67d6e4aa1ce1ae5d82a272198a681bcbbe",
+      "size": 2088
+    },
+    {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTEXT.md",
+      "sha256": "e3d74914f467a7c57024254488d640663ef8feb489ed1f4335d07039b9987483",
+      "size": 261
+    },
+    {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md",
+      "sha256": "64d427cfa389c37e33fa32ed3bef521ed43ad5415c74fde73f311e5024a6b6a2",
+      "size": 6724
+    },
+    {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
+      "sha256": "18f9f1e8361a8989bccfe0a44a7b4e2fbd849c5ce6bd3f66e5461d05cb7d7b1d",
+      "size": 2222
+    },
+    {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md",
+      "sha256": "3371abcad7250074323efeabe766bde3d1b97f5255a32a474b7aac208c49179b",
+      "size": 1671
+    },
+    {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md",
+      "sha256": "08afe5e6989f1c26dc191f4e4c2204f0a775f6c011437b6d6262a09742d82a32",
+      "size": 3324
+    },
+    {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md",
+      "sha256": "9c08a497e690895e411638975d07224ef6d4e2ed33a276c533aa87bc9899be42",
+      "size": 1860
+    },
+    {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
+      "sha256": "d4be308a03333386706e5e6fb3904ba7cc5f4435c83efe6742e4d9a6f7d2e48b",
+      "size": 2371
+    },
+    {
+      "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md",
+      "sha256": "21ac62e2449effee4c2172ba02438c2f5093c9dc7e0235684fcb78801b851060",
+      "size": 9670
+    }
+  ],
+  "imports": [
+    {
+      "id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "name": "Development Workflow",
+      "normalized_digest": "030956e2c3d141f213660871e4002f9045d7102f0482916f21d47493cd0a4934",
+      "package_digest": "a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27",
+      "version": "0.3.3-draft",
+      "why": "Use also here the same proven workflow as for the other projects"
+    },
+    {
+      "id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc",
+      "name": "GitHub",
+      "normalized_digest": "16a0e58a5881720e35b4b08456bc0bf6480b90464a56667f2b387e2199a4c2c1",
+      "package_digest": "ebfc5ef834e4964de0611614fe2014be94968a1e51ff51c3925b29a45095ba6e",
+      "version": "0.1.3-draft",
+      "why": "Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted."
+    }
+  ],
+  "node": {
+    "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+    "name": "github.local",
+    "version": "0.1.1-draft"
+  },
+  "parents": [],
+  "removed_rules": [],
+  "rules": [
+    {
+      "group": "Recoverable planning",
+      "id": "CCW-010",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "Before implementation, framework-context, or substantial documentation changes, ensure an Issue records why the change exists; it may be brief.",
+      "title": "Back every change with an Issue",
+      "why": "Repository history should show the reason without reconstructing chat history."
+    },
+    {
+      "group": "Recoverable planning",
+      "id": "CCW-001",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "Before starting a new coherent development block, record a short purpose and checklist in the project's durable planning surface; use `PLAN.md` when the project follows this workflow convention.",
+      "title": "Plan a coherent change block before editing",
+      "why": "Repository state must explain what work is in progress even if the chat, model session, or tool run disappears."
+    },
+    {
+      "group": "Recoverable planning",
+      "id": "CCW-002",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "When a listed step is actually complete, mark its `PLAN.md` checkbox `[x]` immediately rather than reconstructing completion at the end of a long session.",
+      "title": "Checkpoint completed plan items immediately",
+      "why": "Immediate checkpoints turn PLAN into a reliable recovery ledger instead of requiring plan archaeology after an interruption."
+    },
+    {
+      "group": "Recoverable planning",
+      "id": "CCW-003",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "Put decisions, active constraints, accepted state, and next steps needed to resume work in repository documentation such as `PLAN.md`, `STATE.md`, or the project's equivalent rather than relying on chat history or model memory.",
+      "title": "Keep recovery-critical knowledge in the repository",
+      "why": "Long conversations and agent sessions are transient; the repository is the durable shared recovery point for humans and tools."
+    },
+    {
+      "group": "Recoverable planning",
+      "id": "CCW-007",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "When the project owner resumes work after a short conversational interruption, explicitly says to continue, and reports no intervening repository changes, continue from the last established branch/PR state unless a repository operation gives evidence that it changed. Do not spend a new work cycle re-checking already established repository facts merely to prove that nothing happened.",
+      "title": "Resume recent explicit continuation without re-proving unchanged state",
+      "why": "In a controlled single-owner workflow, repeated defensive re-verification consumes the useful working window without adding evidence. Any stated or observed intervening change still invalidates this assumption."
+    },
+    {
+      "group": "Transparent machine semantics",
+      "id": "CCW-012",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "When Markdown is also parsed, compiled, extracted, or otherwise given machine-significant meaning, every field or wording whose value affects machine semantics must live in an explicitly marked machine structure rather than being inferred from ordinary presentation prose. Keep that machine significance recognizable in rendered and review surfaces; rendering may style or summarize the control structure, but must not make the machine/human boundary indistinguishable.",
+      "title": "Mark machine-significant Markdown explicitly",
+      "why": "Humans must be able to tell which Markdown is freely editable presentation and which content participates in operational semantics; hidden parser contracts turn harmless-looking prose edits into surprising behavior."
+    },
+    {
+      "group": "Proportional verification",
+      "id": "CCW-004",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "For one coherent correction block, make the related authoring/code changes and run proportionate focused checks first; do not repeat the project's most expensive generated-output, integration, packaging, or full verification cycle after every micro-edit.",
+      "title": "Batch related edits before expensive final verification",
+      "why": "Final verification is valuable, but repeating it on superseded intermediate heads adds ceremony without increasing confidence in the candidate that will actually be reviewed or merged."
+    },
+    {
+      "group": "Proportional verification",
+      "id": "CCW-009",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "When the project owner explicitly approves a coherent implementation scope and says intermediate product review is unnecessary, mark the Fast Track as active in the durable PLAN with its scope and exit condition, keep recovery checkpoints and focused verification inside bounded work blocks, and defer repeated PR-description polish, full CI, generated-output regeneration, and other review ceremony until the coherent review candidate. When the Fast Track ends, record that closure before returning to ordinary review cadence.",
+      "title": "Use owner-approved Fast Track blocks without weakening the final gate",
+      "why": "Explicit delegation can remove intermediate coordination cost without sacrificing recoverability. Visible start/scope/exit/closure boundaries prevent a long single-worker Fast Track from becoming undocumented process state, while final human review and exact-head merge verification remain unchanged."
+    },
+    {
+      "group": "Proportional verification",
+      "id": "CCW-005",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "A coherent development block may be presented for project-owner review while understood and disclosed CI failures or generated drift remain. After explicit project-owner approval and before merging, require the exact current head to pass the project's complete merge-gate verification, including zero generated drift when generated canonical output is part of the project contract.",
+      "title": "Require exact-head green verification at the merge gate, not the first review gate",
+      "why": "Human review should happen before spending finalization effort on a candidate that may still change, while the accepted branch remains protected by a strict reproducibility gate."
+    },
+    {
+      "group": "Proportional verification",
+      "id": "CCW-013",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "When actively testing an installable Python tool from a development checkout, prefer one editable install (`uv tool install --editable .`) and pull subsequent revisions with Git rather than reinstalling each version, when the environment supports it.",
+      "title": "Prefer editable installs for repeated owner testing",
+      "why": "This keeps the owner-test loop short and makes the tested command follow the current checkout."
+    },
+    {
+      "group": "Human review gate",
+      "id": "CCW-011",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "Applicable Context constrains a task; it does not silently expand its writable scope.",
+      "title": "Expand change scope explicitly",
+      "why": "A local task must not acquire wider impact merely because broader Context was loaded."
+    },
+    {
+      "group": "Human review gate",
+      "id": "CCW-006",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "Keep a review PR or equivalent change set open until the project owner explicitly approves the reviewed result.",
+      "title": "Do not merge without explicit project-owner approval",
+      "why": "Green automation proves only the properties it checks; it does not prove that the product, architecture, or documentation is acceptable to its human owner."
+    },
+    {
+      "group": "Accepted baseline",
+      "id": "CCW-008",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "After a reviewed change is successfully merged into the accepted branch, reconcile the durable repository state that records the accepted baseline before starting the next coherent development block. Record the merge outcome in `PLAN.md`, update `STATE.md` or equivalent current-state documentation, and refresh README/CHANGELOG or review-status wording made stale by the merge when applicable.",
+      "title": "Close the post-merge baseline checkpoint before new development",
+      "why": "The merge itself creates project facts after the merge candidate was frozen. Without a post-merge checkpoint, the accepted code can be correct while recovery documentation still describes the pre-merge state."
+    },
+    {
+      "group": "Development infrastructure",
+      "id": "GH-001",
+      "modifications": [],
+      "origin_node_id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc",
+      "origin_node_name": "GitHub",
+      "statement": "Manage workflow Issues, Pull Requests, reviews, checks/CI status, and merge state in the project's GitHub repository. Branches and commits remain ordinary Git objects; when a capable local harness is available, edit and test the local working tree directly rather than treating GitHub file APIs as a substitute filesystem.",
+      "title": "Use GitHub development objects",
+      "why": "The workflow should use standard GitHub semantics and tools while local code work stays local when possible."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-001",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Canonical Issue content lives in ordinary Markdown below `issues/`; caches or indexes may accelerate access later but must remain reconstructable.",
+      "title": "Keep project truth visible",
+      "why": "development reasoning is durable project knowledge, not opaque runtime state."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-002",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Use the local working tree and Git for branches, commits, diffs, and merges; do not proxy file operations through `github.local`.",
+      "title": "Use native Git for code state",
+      "why": "Git already solves these concerns locally and is the most compatible surface for IDE agents."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-003",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Unsupported or unavailable operations must fail explicitly instead of creating state on github.com or another provider.",
+      "title": "Never fall back to an external forge silently",
+      "why": "privacy-sensitive projects must not leak workflow state or acquire a second accidental source of truth."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-004",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Prefer stable command names, exit codes, and structured JSON output over interactive UI requirements.",
+      "title": "Keep the CLI model-friendly",
+      "why": "terminal-capable LLM harnesses need a predictable low-overhead contract."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-005",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Terminal-capable agents must be able to perform the normal workflow through stable CLI commands and structured output; MCP or other adapters are optional additions, not prerequisites.",
+      "title": "Keep the CLI as the primary agent contract",
+      "why": "the real corporate Copilot owner test succeeded without MCP and demonstrated that CLI calls provide a simple, low-overhead integration surface."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-006",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Ordinary Git branches/worktrees must not silently create divergent canonical backlogs or duplicate Issue identities/numbers.",
+      "title": "Keep Issue workflow state project-wide",
+      "why": "Issues may exist long before implementation branches and represent project workflow state rather than one code branch."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-007",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Provide explicit close/reopen semantics and automatically close an Issue when accepted/merged work carries an explicit closing reference; do not treat an arbitrary Issue mention as a closing instruction.",
+      "title": "Let completed work leave the open backlog",
+      "why": "the open backlog should naturally shrink as accepted work completes while closure remains deliberate and inspectable."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-B49912861E96",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Use the local working tree and native Git for branches, commits, diffs, and merges; do not proxy file operations through github.local.",
+      "title": "Use native Git for code state",
+      "why": "Git already owns code state locally and is the most compatible surface for IDE agents, while github.local owns workflow objects."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-C16E29C80641",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Keep canonical Issue content in ordinary Markdown below issues/; any cache or index must remain reconstructable.",
+      "title": "Keep canonical Issue truth visible",
+      "why": "Development reasoning is durable project knowledge, not opaque runtime state."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-6A499DD99A1B",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Unsupported or unavailable operations must fail explicitly instead of creating state on github.com or another provider.",
+      "title": "Never fall back to an external forge silently",
+      "why": "Privacy-sensitive projects must not leak workflow state or acquire a second accidental source of truth."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-F40586D91A16",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Keep normal workflow available through discoverable stable CLI commands, explicit error exits, and structured JSON; MCP and other adapters are optional additions, not prerequisites.",
+      "title": "Keep the CLI as the predictable primary agent contract",
+      "why": "Terminal-capable agents need a predictable low-overhead contract, and the target-environment owner test succeeded without MCP."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-9FEE670D694B",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Ordinary Git branches and worktrees must not silently create divergent canonical backlogs or duplicate Issue identities or numbers.",
+      "title": "Keep Issue workflow state project-wide",
+      "why": "Issues may predate implementation branches and represent project workflow state rather than one code branch."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-D2571236E23F",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Provide explicit close and reopen semantics, and automatically close an Issue only when accepted or merged work carries an explicit closing reference.",
+      "title": "Let completed work leave the open backlog deliberately",
+      "why": "The open backlog should shrink as accepted work completes while closure remains deliberate and inspectable; an arbitrary mention is not a closing instruction."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-192F43493BCC",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Store each Issue as one Markdown file with a strict, delimited, machine-owned JSON front matter block; maintain its title and body once as Markdown.",
+      "title": "Mark Issue machine metadata explicitly",
+      "why": "Explicit metadata supports standard tooling without hiding parser semantics or duplicating human content."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-47F89CA128E5",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Allocate repository-local monotonically increasing Issue numbers under an OS-level exclusive lock and publish new content with a same-directory atomic replace.",
+      "title": "Serialize numbering and write Issues atomically",
+      "why": "Rapid or concurrent creation must not duplicate numbers, expose partial files, or leave stale process locks."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-8174142758A8",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "If a database is added, use it only as an index or cache rebuildable from issues/ and Git state.",
+      "title": "Treat databases as rebuildable indexes",
+      "why": "Canonical project truth must remain visible and reconstructable without opaque runtime state."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-36E90990D445",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Build optional gh-compatible, MCP, IDE, or UI adapters on the same application service and canonical storage; adapter concerns must not contaminate Issue files.",
+      "title": "Keep optional adapters outside canonical storage",
+      "why": "Presentation and compatibility surfaces may evolve independently while durable project semantics remain stable."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-62CF63BD255B",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Identify and configure the local project through repository discovery without network discovery.",
+      "title": "Keep repository discovery local",
+      "why": "The provider must remain usable as a local workflow surface without depending on a service or external host."
+    },
+    {
+      "group": "Onboarding placement",
+      "id": "ONB-9CD288976D1B",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Treat the numeric prefix and stable Issue ID as identity; the conservative Windows-safe filename slug is presentation and may change with the title.",
+      "title": "Treat Issue filenames as presentation",
+      "why": "A title edit must not change Issue identity or make discovery platform-dependent."
+    }
+  ],
+  "schema": "contextcanon/package/v2",
+  "sources": [
+    {
+      "id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "name": "Development Workflow",
+      "normalized_digest": "030956e2c3d141f213660871e4002f9045d7102f0482916f21d47493cd0a4934",
+      "package_digest": "a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27",
+      "version": "0.3.3-draft",
+      "why": null
+    },
+    {
+      "id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc",
+      "name": "GitHub",
+      "normalized_digest": "16a0e58a5881720e35b4b08456bc0bf6480b90464a56667f2b387e2199a4c2c1",
+      "package_digest": "ebfc5ef834e4964de0611614fe2014be94968a1e51ff51c3925b29a45095ba6e",
+      "version": "0.1.3-draft",
+      "why": null
+    }
+  ],
+  "topics": [
+    {
+      "condition": "When planning, resuming, checkpointing, reviewing, testing, finalizing, merging, or closing the accepted baseline for a coherent development block:",
+      "id": "CCW-TOPIC-CHANGE-WORKFLOW",
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md",
+          "resource_id": "RESOURCE-AF854839DFA0"
+        }
+      ],
+      "title": "Executing a development block"
+    },
+    {
+      "condition": "When deciding between official `gh` compatibility and the native `github-local` CLI, or extending the runtime boundary:",
+      "id": "GHLR-TOPIC-ARCH",
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md"
+        },
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md"
+        }
+      ],
+      "title": "Architecture and provider choice"
+    },
+    {
+      "condition": "When changing Issue persistence, numbering, Markdown format, locking, atomic writes, or structured output:",
+      "id": "GHLR-TOPIC-ISSUES",
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md"
+        }
+      ],
+      "title": "Issue storage and CLI behavior"
+    },
+    {
+      "condition": "When changing the agent-facing CLI contract, help/discovery behavior, or deciding whether an adapter such as MCP is required:",
+      "id": "GHLR-TOPIC-AGENT",
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md"
+        }
+      ],
+      "title": "Agent integration evidence"
+    },
+    {
+      "condition": "When evaluating official gh compatibility, changing host/protocol behavior, or reproducing the real-client trace:",
+      "id": "ONB-1DE6FDEDE8CF",
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md",
+          "resource_id": "RESOURCE-9308EC2680A8"
+        },
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
+          "resource_id": "RESOURCE-E160697A4178"
+        }
+      ],
+      "title": "Route official gh compatibility work"
+    },
+    {
+      "condition": "When changing Issue persistence, numbering, Markdown format, locking, atomic writes, identity, indexes, or structured metadata:",
+      "id": "ONB-AE22D5D54F87",
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md",
+          "resource_id": "RESOURCE-AE1A0D0EF341"
+        }
+      ],
+      "title": "Route Issue storage work"
+    },
+    {
+      "condition": "When changing the agent-facing CLI contract, help and discovery behavior, structured output, or deciding whether an adapter such as MCP is required:",
+      "id": "ONB-B06387F8E1D0",
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
+          "resource_id": "RESOURCE-18D65FB143AD"
+        }
+      ],
+      "title": "Route agent integration evidence"
+    },
+    {
+      "condition": "When installing github.local, running owner acceptance checks, or reproducing the manual, Git-reference, LLM, or automated smoke tests:",
+      "id": "ONB-C31D33B512BF",
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md",
+          "resource_id": "RESOURCE-00215E4157B3"
+        }
+      ],
+      "title": "Route installation and smoke testing"
+    }
+  ]
+}

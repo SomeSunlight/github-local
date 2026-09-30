@@ -1,0 +1,198 @@
+# GENERATED ContextCanon machine state for github.local.
+# Humans normally read CONTEXT.src.md or CONTEXT.md instead.
+# This file is deterministic compiler output and must not be edited manually.
+
+schema: contextcanon/v0
+compiler_version: "0.6.0"
+
+# Stable logical Node identity. The filesystem path is deliberately not identity.
+node:
+  id: "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2"
+  name: "github.local"
+  version: "0.1.1-draft"
+
+# Accepted semantic Parent packages. Locators are discovery metadata; build uses only exact pins.
+parents: []
+
+# Accepted reusable Source packages used by this build. Both digests are exact pins.
+sources:
+  - id: "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc"
+    name: "GitHub"
+    version: "0.1.3-draft"
+    locator: "contextcanon.yaml"
+    normalized_digest: "16a0e58a5881720e35b4b08456bc0bf6480b90464a56667f2b387e2199a4c2c1"
+    package_digest: "ebfc5ef834e4964de0611614fe2014be94968a1e51ff51c3925b29a45095ba6e"
+  - id: "c4c94726-3cc7-4df6-b779-72bbf9c06f40"
+    name: "Development Workflow"
+    version: "0.3.3-draft"
+    locator: "contextcanon.yaml"
+    normalized_digest: "030956e2c3d141f213660871e4002f9045d7102f0482916f21d47493cd0a4934"
+    package_digest: "a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27"
+
+# Effective imported Context origins, flattened through accepted Parent/Source packages.
+imports:
+  - id: "c4c94726-3cc7-4df6-b779-72bbf9c06f40"
+    name: "Development Workflow"
+    version: "0.3.3-draft"
+    normalized_digest: "030956e2c3d141f213660871e4002f9045d7102f0482916f21d47493cd0a4934"
+    package_digest: "a2593ece6b5469a385c0b50898a9305565d4d8289453d08f5278e3fd40e66d27"
+    why: "Use also here the same proven workflow as for the other projects"
+  - id: "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc"
+    name: "GitHub"
+    version: "0.1.3-draft"
+    normalized_digest: "16a0e58a5881720e35b4b08456bc0bf6480b90464a56667f2b387e2199a4c2c1"
+    package_digest: "ebfc5ef834e4964de0611614fe2014be94968a1e51ff51c3925b29a45095ba6e"
+    why: "Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted."
+
+# Elements authored in this Node's CONTEXT.src.md.
+local:
+  state: "<!-- contextcanon-placement-state:start -->\n<!-- cc:placement-state id=\"ONB-0CFB25FEF085\" -->\n- The MVP uses the native github-local CLI; official gh remains a measured optional future adapter.\n\n<!-- cc:placement-state id=\"ONB-C7397BA8C299\" -->\n- The last documented check used gh 2.101.0, whose alternate-host Issue operations require GitHub Enterprise-shaped HTTPS, feature detection, and GraphQL behavior; binary execution was not available in the inspection environment.\n\n<!-- cc:placement-state id=\"ONB-2A0D9DB9CE94\" -->\n- github-local init creates repository-local configuration.\n\n<!-- cc:placement-state id=\"ONB-0FA4677C99F9\" -->\n- The executable runtime currently supplies Issues; Pull Request, review, and checks operations remain future slices.\n\n<!-- cc:placement-state id=\"ONB-7594DA134D05\" -->\n- issue create writes one canonical Markdown Issue atomically.\n\n<!-- cc:placement-state id=\"ONB-8A039C0E8489\" -->\n- issue list and issue view reload canonical state from disk, including after restart.\n\n<!-- cc:placement-state id=\"ONB-D64F234D9DFB\" -->\n- The CLI provides stable selected-field --json output for agent use.\n\n<!-- cc:placement-state id=\"ONB-CC5013E28126\" -->\n- The installable wheel has no runtime dependencies.\n\n<!-- cc:placement-state id=\"ONB-EB8702686598\" -->\n- The frozen candidate passes all 12 deterministic tests.\n\n<!-- cc:placement-state id=\"ONB-F8D077AA9B38\" -->\n- Python compilation passes for the frozen candidate.\n\n<!-- cc:placement-state id=\"ONB-2388F784A444\" -->\n- The wheel builds successfully for the frozen candidate.\n\n<!-- cc:placement-state id=\"ONB-867FF7195FBD\" -->\n- An installed-wheel smoke test completes init → create → list → view in a fresh Git repository.\n\n<!-- cc:placement-state id=\"ONB-AC230FD47742\" -->\n- Manual testing and a corporate GitHub Copilot test with Claude Sonnet 5 (Medium, 264k context) succeeded without MCP, validating the CLI as a practical agent integration surface.\n\n<!-- cc:placement-unresolved id=\"ONB-54373873C2CE\" -->\n- Open question: How should the canonical project-wide Issue backlog remain consistent across ordinary Git branches and worktrees?\n\n<!-- cc:placement-state id=\"ONB-A0D4599D0703\" -->\n- Assignees and milestones remain out of scope while the primary workflow is single-owner.\n\n<!-- cc:placement-state id=\"ONB-9D51655FF5B4\" -->\n- The frozen snapshot contains authored root CONTEXT.src.md but no generated CONTEXT.md or accepted package state because the bootstrap environment lacked the contextcanon executable.\n\n<!-- cc:placement-state id=\"ONB-D72B21BFD852\" -->\n- v0.1.0 does not yet support close, reopen, edit, comments, or explicit machine-readable Change ↔ Issue links.\n<!-- contextcanon-placement-state:end -->"
+  plan: "<!-- contextcanon-placement-plan:start -->\n<!-- cc:placement-plan id=\"ONB-23D6597B221C\" -->\n- Implement #4 next: close, reopen, edit, comment, state filtering, and automatic closure for accepted or merged work carrying an explicit closing reference.\n\n<!-- cc:placement-plan id=\"ONB-F5537BFB06ED\" -->\n- Implement #5 first-class Change ↔ Issue linking around native Git without duplicating Git state.\n\n<!-- cc:placement-plan id=\"ONB-CE7AE84864D9\" -->\n- Implement #6 backlog filters, labels, and search after Change ↔ Issue linking.\n\n<!-- cc:placement-plan id=\"ONB-233538BB01FB\" -->\n- Implement #7 concise examples in CLI help.\n\n<!-- cc:placement-plan id=\"ONB-95C18B6F9F9A\" -->\n- After PR #2 is accepted and squash-merged, complete ContextCanon onboarding and compose the reusable GitHub provider and Development Workflow Source before the next product implementation block.\n<!-- contextcanon-placement-plan:end -->"
+  rules:
+    - {"id": "GHLR-001", "title": "Keep project truth visible", "group": "Rules"}
+    - {"id": "GHLR-002", "title": "Use native Git for code state", "group": "Rules"}
+    - {"id": "GHLR-003", "title": "Never fall back to an external forge silently", "group": "Rules"}
+    - {"id": "GHLR-004", "title": "Keep the CLI model-friendly", "group": "Rules"}
+    - {"id": "GHLR-005", "title": "Keep the CLI as the primary agent contract", "group": "Rules"}
+    - {"id": "GHLR-006", "title": "Keep Issue workflow state project-wide", "group": "Rules"}
+    - {"id": "GHLR-007", "title": "Let completed work leave the open backlog", "group": "Rules"}
+    - {"id": "ONB-B49912861E96", "title": "Use native Git for code state", "group": "Onboarding placement"}
+    - {"id": "ONB-C16E29C80641", "title": "Keep canonical Issue truth visible", "group": "Onboarding placement"}
+    - {"id": "ONB-6A499DD99A1B", "title": "Never fall back to an external forge silently", "group": "Onboarding placement"}
+    - {"id": "ONB-F40586D91A16", "title": "Keep the CLI as the predictable primary agent contract", "group": "Onboarding placement"}
+    - {"id": "ONB-9FEE670D694B", "title": "Keep Issue workflow state project-wide", "group": "Onboarding placement"}
+    - {"id": "ONB-D2571236E23F", "title": "Let completed work leave the open backlog deliberately", "group": "Onboarding placement"}
+    - {"id": "ONB-192F43493BCC", "title": "Mark Issue machine metadata explicitly", "group": "Onboarding placement"}
+    - {"id": "ONB-47F89CA128E5", "title": "Serialize numbering and write Issues atomically", "group": "Onboarding placement"}
+    - {"id": "ONB-8174142758A8", "title": "Treat databases as rebuildable indexes", "group": "Onboarding placement"}
+    - {"id": "ONB-36E90990D445", "title": "Keep optional adapters outside canonical storage", "group": "Onboarding placement"}
+    - {"id": "ONB-62CF63BD255B", "title": "Keep repository discovery local", "group": "Onboarding placement"}
+    - {"id": "ONB-9CD288976D1B", "title": "Treat Issue filenames as presentation", "group": "Onboarding placement"}
+  changes: []
+  topics:
+    - {"id": "GHLR-TOPIC-ARCH", "title": "Architecture and provider choice"}
+    - {"id": "GHLR-TOPIC-ISSUES", "title": "Issue storage and CLI behavior"}
+    - {"id": "GHLR-TOPIC-AGENT", "title": "Agent integration evidence"}
+    - {"id": "ONB-1DE6FDEDE8CF", "title": "Route official gh compatibility work"}
+    - {"id": "ONB-AE22D5D54F87", "title": "Route Issue storage work"}
+    - {"id": "ONB-B06387F8E1D0", "title": "Route agent integration evidence"}
+    - {"id": "ONB-C31D33B512BF", "title": "Route installation and smoke testing"}
+
+# Compiled effective Rule/Topic view with provenance.
+official:
+  rules:
+    - {"id": "CCW-010", "title": "Back every change with an Issue", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-001", "title": "Plan a coherent change block before editing", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-002", "title": "Checkpoint completed plan items immediately", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-003", "title": "Keep recovery-critical knowledge in the repository", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-007", "title": "Resume recent explicit continuation without re-proving unchanged state", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-012", "title": "Mark machine-significant Markdown explicitly", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-004", "title": "Batch related edits before expensive final verification", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-009", "title": "Use owner-approved Fast Track blocks without weakening the final gate", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-005", "title": "Require exact-head green verification at the merge gate, not the first review gate", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-013", "title": "Prefer editable installs for repeated owner testing", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-011", "title": "Expand change scope explicitly", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-006", "title": "Do not merge without explicit project-owner approval", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-008", "title": "Close the post-merge baseline checkpoint before new development", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "GH-001", "title": "Use GitHub development objects", "origin_node_id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc", "origin_node_name": "GitHub", "local": false, "overrides": []}
+    - {"id": "GHLR-001", "title": "Keep project truth visible", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-002", "title": "Use native Git for code state", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-003", "title": "Never fall back to an external forge silently", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-004", "title": "Keep the CLI model-friendly", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-005", "title": "Keep the CLI as the primary agent contract", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-006", "title": "Keep Issue workflow state project-wide", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-007", "title": "Let completed work leave the open backlog", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-B49912861E96", "title": "Use native Git for code state", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-C16E29C80641", "title": "Keep canonical Issue truth visible", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-6A499DD99A1B", "title": "Never fall back to an external forge silently", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-F40586D91A16", "title": "Keep the CLI as the predictable primary agent contract", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-9FEE670D694B", "title": "Keep Issue workflow state project-wide", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-D2571236E23F", "title": "Let completed work leave the open backlog deliberately", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-192F43493BCC", "title": "Mark Issue machine metadata explicitly", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-47F89CA128E5", "title": "Serialize numbering and write Issues atomically", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-8174142758A8", "title": "Treat databases as rebuildable indexes", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-36E90990D445", "title": "Keep optional adapters outside canonical storage", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-62CF63BD255B", "title": "Keep repository discovery local", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "ONB-9CD288976D1B", "title": "Treat Issue filenames as presentation", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+  removed_rules: []
+  topic_ids: ["CCW-TOPIC-CHANGE-WORKFLOW", "GHLR-TOPIC-ARCH", "GHLR-TOPIC-ISSUES", "GHLR-TOPIC-AGENT", "ONB-1DE6FDEDE8CF", "ONB-AE22D5D54F87", "ONB-B06387F8E1D0", "ONB-C31D33B512BF"]
+  resource_root: "CONTEXT/"
+
+# Topic edges are explicit: kind is resource or context-node; intent is required or optional.
+targets:
+  - topic: "CCW-TOPIC-CHANGE-WORKFLOW"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "GHLR-TOPIC-ARCH"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "GHLR-TOPIC-ARCH"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "GHLR-TOPIC-ISSUES"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "GHLR-TOPIC-AGENT"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "ONB-1DE6FDEDE8CF"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "ONB-1DE6FDEDE8CF"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "ONB-AE22D5D54F87"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "ONB-B06387F8E1D0"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "ONB-C31D33B512BF"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md"
+    target_node_id: null
+    target_node_name: null
+
+# Mapping from author-facing Resource paths to generated package paths.
+resources:
+  - {"source": "CONTEXT.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTEXT.md"}
+  - {"source": "README.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md"}
+  - {"source": "docs/agent-validation.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md"}
+  - {"source": "docs/architecture.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md"}
+  - {"source": "docs/gh-compatibility.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md"}
+  - {"source": "docs/storage.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md"}
+  - {"source": "spike/README.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md"}
+  - {"source": null, "published": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md"}
+
+# Exact deterministic identities. package_digest covers CONTEXT.md plus CONTEXT/ resources.
+package:
+  normalized_digest: "54cd653b10df1dfa176a73a38024d88c06c885e6d1d1171cee6e7164fc090a7a"
+  package_digest: "52160eb9a3d776dfdba2ddeb4662154fa0331611a6866a8f9c148eca86f7dbad"

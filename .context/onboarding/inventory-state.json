@@ -1,0 +1,8 @@
+{
+  "csv_path": "contextcanon-onboarding/STEP-02-inventory.csv",
+  "directories": [
+    "."
+  ],
+  "rules": [],
+  "schema": "contextcanon/onboarding-inventory-state/v0"
+}

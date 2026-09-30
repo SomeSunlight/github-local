@@ -1,0 +1,123 @@
+{
+  "directories": [
+    "."
+  ],
+  "evidence_digest": "8cce7e77c2dd71d1833f724aa9cfb3aabce05a574d5088d36ecf9691688eff1a",
+  "files": {
+    ".github-local/config.json": {
+      "description": "",
+      "handling": "ignore",
+      "kind": "configuration",
+      "note": "",
+      "sha256": "89355d275cf953286dc819b273ec1ad6f45e63062820f68564e71be825e80d1f"
+    },
+    ".gitignore": {
+      "description": "",
+      "handling": "ignore",
+      "kind": "configuration",
+      "note": "",
+      "sha256": "a39e37cf83b3f32e760fdd1e6fb9b5d54a0c7d187c3b8729cbc1454441cd5989"
+    },
+    "CONTEXT.src.md": {
+      "description": "local context for github-local",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "e769e57b0c54dad0ba64af2e847bd7896932d511be4f6046910e47afee42434b"
+    },
+    "PLAN.md": {
+      "description": "current plan for github-local",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "18aa6b23a268ab2edefc5bd57180cb5493883fe9d7994d36915774f645ad0c44"
+    },
+    "README.md": {
+      "description": "Familiar project-level documentation.",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "af9b1f85821f4757f74a13fba2efe740e5ef4c6b1d7a7775149f557e91192a85"
+    },
+    "STATE.md": {
+      "description": "state of github-local",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "a90f7232c17834c9ba6c202390996831944fec3d609f831559a76368c77349e4"
+    },
+    "docs/agent-validation.md": {
+      "description": "Project documentation.",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "18f9f1e8361a8989bccfe0a44a7b4e2fbd849c5ce6bd3f66e5461d05cb7d7b1d"
+    },
+    "docs/architecture.md": {
+      "description": "Project documentation.",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "7496d531330f3ad047c1b94bf6f5af64fc6ecbbd351c54f839b6b5a60bbfccac"
+    },
+    "docs/contextcanon-bootstrap.md": {
+      "description": "Project documentation.",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "2085fe9368396c313a5b3600c06416d0b753ecb57e7761c9f532d10cefdf53ab"
+    },
+    "docs/gh-compatibility.md": {
+      "description": "Project documentation.",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "08afe5e6989f1c26dc191f4e4c2204f0a775f6c011437b6d6262a09742d82a32"
+    },
+    "docs/market-check.md": {
+      "description": "Project documentation.",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "af5a492d89f3d1866c0c130087a351e7626ada01cab94177b770a500e36df167"
+    },
+    "docs/storage.md": {
+      "description": "Project documentation.",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "9c08a497e690895e411638975d07224ef6d4e2ed33a276c533aa87bc9899be42"
+    },
+    "issues/0001-prove-cli-first-local-development-workflow.md": {
+      "description": "first issue for github-local",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "beeca25b1baaaab4f324f4726fba1df50939a94e67a0e4cd9ba3c65b565c2140"
+    },
+    "pyproject.toml": {
+      "description": "Project configuration or manifest.",
+      "handling": "source",
+      "kind": "configuration",
+      "note": "",
+      "sha256": "62fd0fd3bd3fbb36bd8e0157bb82673547b3c439eac0ff22f2c34901b2f1faae"
+    },
+    "spike/README.md": {
+      "description": "protocol trace spike",
+      "handling": "source",
+      "kind": "document",
+      "note": "",
+      "sha256": "d4be308a03333386706e5e6fb3904ba7cc5f4435c83efe6742e4d9a6f7d2e48b"
+    },
+    "spike/gh-2.101.0-source-contract.json": {
+      "description": "",
+      "handling": "ignore",
+      "kind": "configuration",
+      "note": "",
+      "sha256": "c09b2579c04568fbe62d963c8a8585b4dbe0d6dbfb6d8494df5cbde4b4fdc1fa"
+    }
+  },
+  "inventory_path": "contextcanon-onboarding/STEP-02-inventory.csv",
+  "inventory_sha256": "e252dd2ff539a31d2fe221a527f0970e8f642891a1da7d318e190a7c915a4817",
+  "schema": "contextcanon/onboarding-inventory-acceptance/v0"
+}
