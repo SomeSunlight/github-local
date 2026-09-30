@@ -185,6 +185,92 @@ class StorageTests(unittest.TestCase):
         with self.assertRaisesRegex(RepositoryError, "outside ordinary Git branch tracking"):
             Repository.initialize(root, owner="acme", name="demo")
 
+    def test_close_reopen_and_state_filter(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        first = store.create("One")
+        second = store.create("Two")
+        self.assertEqual("CLOSED", store.close(first.number).state)
+        self.assertEqual([2], [item.number for item in store.list(state="open")])
+        self.assertEqual([1], [item.number for item in store.list(state="closed")])
+        self.assertEqual("OPEN", store.reopen(first.number).state)
+        self.assertEqual([1, 2], [item.number for item in store.list(state="open")])
+
+    def test_edit_preserves_identity_and_comments(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        created = store.create("Old title", "Old body")
+        comment = store.comment(created.number, "Keep this discussion")
+        edited = store.edit(created.number, title="New title", body="New body")
+        self.assertEqual(created.issue_id, edited.issue_id)
+        self.assertEqual(created.number, edited.number)
+        self.assertEqual("New title", edited.title)
+        self.assertEqual("New body", edited.body)
+        self.assertEqual("issues/0001-new-title.md", edited.path.as_posix())
+        self.assertFalse((root / "issues" / "0001-old-title.md").exists())
+        comments = IssueStore(repo).comments(created.number)
+        self.assertEqual(1, len(comments))
+        self.assertEqual(comment.body, comments[0].body)
+
+    def test_comments_are_visible_markdown_and_survive_restart(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        issue = store.create("Discuss")
+        first = store.comment(issue.number, "First comment")
+        second = store.comment(issue.number, "Second\n\nMarkdown comment")
+        self.assertEqual("issues/comments/0001/0001.md", first.path.as_posix())
+        self.assertEqual("issues/comments/0001/0002.md", second.path.as_posix())
+        restarted = IssueStore(repo)
+        self.assertEqual(
+            ["First comment", "Second\n\nMarkdown comment"],
+            [item.body for item in restarted.comments(issue.number)],
+        )
+
+    def test_auto_close_only_after_explicit_reference_reaches_accepted_branch(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.commit_base(root)
+        store.reconcile_closing_references()
+        issue = store.create("Close after acceptance")
+
+        self.git(root, "switch", "-q", "-c", "feature")
+        self.git(root, "commit", "--allow-empty", "-qm", "Fixes #1")
+        self.assertEqual([], store.reconcile_closing_references())
+        self.assertEqual("OPEN", store.get(issue.number).state)
+
+        self.git(root, "switch", "-q", "main")
+        self.git(root, "merge", "--ff-only", "-q", "feature")
+        self.assertEqual([1], store.reconcile_closing_references())
+        closed = store.get(issue.number)
+        self.assertEqual("CLOSED", closed.state)
+
+    def test_plain_issue_mention_never_auto_closes(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.commit_base(root)
+        store.reconcile_closing_references()
+        issue = store.create("Explicit references only")
+
+        self.git(root, "commit", "--allow-empty", "-qm", "Discuss #1")
+        self.assertEqual([], store.reconcile_closing_references())
+        self.assertEqual("OPEN", store.get(issue.number).state)
+
+        self.git(root, "commit", "--allow-empty", "-qm", "Closes #1")
+        self.assertEqual([1], store.reconcile_closing_references())
+        self.assertEqual("CLOSED", store.get(issue.number).state)
+
+    def test_reopen_is_not_undone_by_an_old_closing_commit(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.commit_base(root)
+        store.reconcile_closing_references()
+        issue = store.create("May reopen")
+        self.git(root, "commit", "--allow-empty", "-qm", "Resolves #1")
+        self.assertEqual([1], store.reconcile_closing_references())
+        self.assertEqual("OPEN", store.reopen(issue.number).state)
+        self.assertEqual([], store.reconcile_closing_references())
+        self.assertEqual("OPEN", store.get(issue.number).state)
+
     def test_windows_reserved_slug_is_avoided(self):
         self.assertEqual("issue-con", slugify("CON"))
         self.assertEqual("issue-prn", slugify("PRN"))
