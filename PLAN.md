@@ -88,16 +88,18 @@ Exit: one Git repository has one visible local Issue backlog and one number allo
 
 Purpose: make github.local useful for a real daily backlog: Issues can be edited, discussed, closed/reopened, filtered, and automatically leave the open backlog after accepted code reaches the configured accepted branch with an explicit closing reference.
 
-- [ ] Add explicit `issue close` and `issue reopen`.
-- [ ] Add `issue edit` for title/body while preserving Issue identity and comments.
-- [ ] Add durable visible Markdown comments with `issue comment`.
-- [ ] Add `issue list --state open|closed|all` while preserving the existing default.
-- [ ] Record one accepted branch per repository and reconcile explicit `Fixes/Closes/Resolves #N` references from that branch only.
-- [ ] Never auto-close from arbitrary mentions or unaccepted feature-branch commits.
-- [ ] Keep old config/Issue files backwards compatible and migration explicit.
-- [ ] Add focused real-Git lifecycle and auto-close regression tests.
-- [ ] Update README/storage docs for productive daily use.
+- [x] Add explicit `issue close` and `issue reopen`.
+- [x] Add `issue edit` for title/body while preserving Issue identity and comments.
+- [x] Add durable visible Markdown comments with `issue comment`.
+- [x] Add `issue list --state open|closed|all` while preserving the existing default.
+- [x] Record one accepted branch per repository and reconcile explicit `Fixes/Closes/Resolves #N` references from that branch only.
+- [x] Never auto-close from arbitrary mentions or unaccepted feature-branch commits.
+- [x] Keep old config/Issue files backwards compatible and migration explicit.
+- [x] Add focused real-Git lifecycle and auto-close regression tests.
+- [x] Update README/storage docs for productive daily use.
 - [ ] Run the complete deterministic suite and ContextCanon build/check.
 - [ ] Keep the review PR unmerged until explicit owner approval; PR body must use `Fixes #4` so GitHub closes the Issue automatically after merge.
+
+Checkpoint: lifecycle storage, CLI commands, accepted-branch commit cursor, explicit-closing-reference reconciliation, visible comments, README/storage guidance, and focused regression coverage are implemented. The old tracked bootstrap Issue file was removed from the versioned source tree so the repository itself no longer violates #3 semantics. Full owner suite plus ContextCanon build/check remain the merge gate.
 
 Exit: create → edit/comment → close/reopen → state-filter → merge-with-closing-reference works with one visible project-wide backlog.
