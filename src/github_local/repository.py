@@ -249,6 +249,27 @@ class Repository:
         }
         _write_config(config_path, payload)
 
+        closing_state = common_dir / SHARED_STATE_DIR / "closing-state.json"
+        if not closing_state.exists():
+            initial_head = _git_optional(
+                workflow_root, "rev-parse", "--verify", f"refs/heads/{branch}"
+            )
+            closing_state.parent.mkdir(parents=True, exist_ok=True)
+            closing_state.write_text(
+                json.dumps(
+                    {
+                        "schema": 1,
+                        "accepted_branch": branch,
+                        "cursor": initial_head,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+
         _ensure_issues_excluded(common_dir)
         (common_dir / SHARED_STATE_DIR / "locks").mkdir(parents=True, exist_ok=True)
         (workflow_root / "issues").mkdir(exist_ok=True)
