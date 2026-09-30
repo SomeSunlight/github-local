@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .repository import Repository, RepositoryError
 from .storage import IssueNotFound, IssueStore, StorageError
+from .version import display_version
 
 
 JSON_FIELDS = {"id", "number", "state", "title", "body", "createdAt", "updatedAt", "path", "url"}
@@ -27,8 +28,15 @@ def _select(issue, fields: list[str]) -> dict[str, object]:
     return {field: data[field] for field in fields}
 
 
+class _RuntimeVersionAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
+        parser._print_message(f"{parser.prog} {display_version()}\n", sys.stdout)
+        parser.exit()
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="github-local", description="Local GitHub-shaped development workflow")
+    parser.add_argument("--version", action=_RuntimeVersionAction, nargs=0)
     sub = parser.add_subparsers(dest="command", required=True)
 
     init = sub.add_parser("init", help="initialize github.local metadata in the current Git repository")
