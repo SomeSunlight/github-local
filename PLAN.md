@@ -40,3 +40,22 @@ Fast Track closure: the bounded implementation/research block is complete and lo
 - [ ] Continue with #5 Change ↔ Issue linking, then #6 backlog ergonomics and #7 help examples.
 
 Owner-test conclusion: the CLI-first integration mechanism is validated. The remaining work is product semantics, not proof that Copilot can call local tools.
+
+
+## Active Fast Track: runtime development provenance — Issue #8
+
+**Fast Track status — ACTIVE**
+
+Purpose: make `github-local --version` identify both the stable release baseline and the exact Git checkout being tested, following inherited CCW-014.
+
+- [x] Keep `pyproject.toml` as the single canonical release-version source.
+- [x] Add dependency-free runtime branch/ref + short commit + dirty provenance for source/editable checkouts.
+- [x] Keep installed artifacts without Git metadata on the plain release version.
+- [x] Add top-level `github-local --version` on stdout.
+- [x] Add focused release/provenance/CLI regression tests.
+- [ ] Run the complete deterministic suite and repository consistency checks.
+- [x] Keep PR #9 unmerged until explicit owner approval.
+
+Checkpoint: focused real-Git provenance checks and the top-level argparse version path pass. The repository currently has no GitHub Actions workflow, so the complete existing test suite remains a local/owner merge-gate check.
+
+Issue #3 remains separate and will handle project-wide Issue identity/numbering across branches and worktrees.

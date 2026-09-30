@@ -29,3 +29,10 @@ Follow-up work is recorded as:
 Assignees and milestones remain out of scope while the primary workflow is single-owner.
 
 Before the next product implementation block, onboard this repository with ContextCanon and compose the reusable GitHub provider / Development Workflow for its public development workflow.
+
+
+## Issue #8 — runtime development provenance candidate
+
+Draft PR #9 implements inherited CCW-014 for the `github-local` executable while keeping release version `0.1.0` canonical only in `pyproject.toml`. Source/editable checkouts report branch/ref, seven-character commit identity, and dirty state; detached HEAD is explicit; non-Git installed artifacts report the plain release version.
+
+Focused real-Git and argparse checks pass. The repository has no GitHub Actions workflow yet, so the complete deterministic suite remains pending as the local owner merge-gate check. PR #9 remains unmerged.
