@@ -5,6 +5,14 @@ from pathlib import Path
 
 
 @dataclass(frozen=True, slots=True)
+class IssueComment:
+    number: int
+    created_at: str
+    body: str
+    path: Path
+
+
+@dataclass(frozen=True, slots=True)
 class Issue:
     number: int
     issue_id: str
