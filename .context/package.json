@@ -2,13 +2,13 @@
   "changes": [],
   "compiler_version": "0.6.0",
   "digests": {
-    "normalized": "5bed750b7145fd7af65fa5c04dbfbe49b111f814553e0f613149e9d794dc5fbb",
-    "package": "3e4464468be6cb02c656677b3b601beb8749ee704e7bd8519836b8ed699beaa3"
+    "normalized": "ee1c59160d5aff8e8febe44fb4020599db001a6e1a0bf629627eeafb23e62d49",
+    "package": "b2f627833cee9cd707d06fc4c188d9c08f9e41aa660f115607f97fedfdd76165"
   },
   "files": [
     {
       "path": "CONTEXT.md",
-      "sha256": "5d511537a33e1b2900c611e9ded3bca060308890af4df56b20e64fae29faebf7",
+      "sha256": "dfc213bef5914a81da67cd038eb662193367df403188b3efc1ef42254ced12e1",
       "size": 19499
     },
     {
@@ -43,8 +43,8 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md",
-      "sha256": "9c08a497e690895e411638975d07224ef6d4e2ed33a276c533aa87bc9899be42",
-      "size": 1860
+      "sha256": "f65308b3d8a36f096e688564e3c10e4526b77d5f43735a57e63c7540be6d51c8",
+      "size": 3997
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
@@ -83,7 +83,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.3-draft"
+    "version": "0.1.4-draft"
   },
   "parents": [],
   "removed_rules": [],
