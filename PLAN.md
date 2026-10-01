@@ -158,7 +158,7 @@ Exit: an LLM trained on ordinary `gh issue` commands encounters the same names/d
 
 ## Active Fast Track: backlog filters, labels and search — Issue #6
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED**
 
 Purpose: make a larger local backlog easy to discover without adding collaboration metadata, a database, or a hosted-search imitation.
 
@@ -173,7 +173,29 @@ Purpose: make a larger local backlog easy to discover without adding collaborati
 - [x] Add stable `labels` JSON output and concise human rendering.
 - [x] Document deliberately smaller local search semantics and label representation.
 - [x] Add focused storage/CLI regression coverage.
-- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [x] Run the complete deterministic suite and ContextCanon build/check.
 - [x] Open Draft PR #16 with `Fixes #6`; keep it unmerged until explicit owner approval.
 
+Checkpoint: the owner ran the complete deterministic suite successfully, regenerated ContextCanon output, and `contextcanon check --all .` passed. Two generated/context files missing from the first candidate were added by the owner before merge. PR #16 was squash-merged to `main` as `ba732c8`; its `Fixes #6` reference closed Issue #6 automatically.
+
 Exit: an agent can classify and find a larger repository-local backlog with familiar `gh issue` flags while Markdown remains the sole canonical Issue truth.
+
+## Active Fast Track: concise CLI examples — Issue #7
+
+**Fast Track status — ACTIVE**
+
+Purpose: reduce first-use trial-and-error for humans and terminal-capable agents without turning CLI help into a second README.
+
+- [x] Reconcile the owner-tested/squash-merged #6 result on `main`.
+- [x] Re-read the ContextCanon routes for agent-facing help/discovery and GitHub CLI compatibility.
+- [x] Confirm current official `gh issue` help uses compact Examples sections.
+- [ ] Add concise examples to top-level `github-local --help`.
+- [ ] Add concise examples to `github-local issue --help`.
+- [ ] Add focused examples to `issue create`, `issue list`, and `issue develop` help.
+- [ ] Include structured `--json` examples for cheap agent inspection.
+- [ ] Add regression tests that pin the examples to supported syntax.
+- [ ] Update agent-validation documentation with the resolved #7 gap.
+- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [ ] Open a Draft PR with `Fixes #7` and keep it unmerged until explicit owner approval.
+
+Exit: a new agent can infer the normal Issue workflow and the structured inspection path from one or two help surfaces instead of probing several commands.
