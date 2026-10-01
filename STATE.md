@@ -71,3 +71,8 @@ PR #12 was owner-tested, ContextCanon-regenerated, approved, and squash-merged t
 ## Issue #13 — GitHub CLI compatibility cleanup
 
 GitHub CLI compatibility is now an explicit product rule: use official `gh issue` names, flags, aliases and defaults wherever they map cleanly to the local architecture. A smaller supported subset is acceptable; accidental syntax divergence is not. Local-only behavior must be documented together with the reason for the deviation. Issue #14 (nested Issue scopes) follows immediately after this cleanup and before backlog labels/search.
+
+
+## Issue #13 implementation checkpoint
+
+The review candidate removes the local-only `issue changes` command in favor of GitHub-compatible `issue develop --list`, makes branch checkout opt-in through `--checkout`, adopts GitHub's `--name` and `--base` spellings, makes `issue list` default to open with alias `ls`, gates human comment rendering behind `view --comments`, and supports `--comment` on close/reopen. Intentional local extensions and unsupported GitHub-service features are recorded explicitly in `docs/gh-compatibility.md`.
