@@ -33,6 +33,8 @@ The agent identified the following product gaps:
 - limited list filtering/search and no labels;
 - no concise examples in CLI help.
 
+Issue #7 addresses the last item directly. The candidate adds compact copy/pasteable Examples sections to the top-level and Issue help plus the syntax-heavier create/list/develop commands, including structured JSON inspection. The examples are regression-tested so help cannot silently drift to unsupported syntax.
+
 It also wondered whether create supports JSON. That capability already exists (`issue create --json ...`); it simply was not exercised during the test.
 
 ## Product direction from the owner test
