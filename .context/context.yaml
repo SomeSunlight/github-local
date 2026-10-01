@@ -9,7 +9,7 @@ compiler_version: "0.6.0"
 node:
   id: "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2"
   name: "github.local"
-  version: "0.1.7-draft"
+  version: "0.1.8-draft"
 
 # Accepted semantic Parent packages. Locators are discovery metadata; build uses only exact pins.
 parents: []
@@ -39,7 +39,7 @@ imports:
 
 # Elements authored in this Node's CONTEXT.src.md.
 local:
-  state: "<!-- contextcanon-placement-state:start -->\n<!-- cc:placement-state id=\"ONB-0CFB25FEF085\" -->\n- The MVP uses the native github-local CLI; official gh remains a measured optional future adapter.\n\n<!-- cc:placement-state id=\"ONB-C7397BA8C299\" -->\n- The last documented check used gh 2.101.0, whose alternate-host Issue operations require GitHub Enterprise-shaped HTTPS, feature detection, and GraphQL behavior; binary execution was not available in the inspection environment.\n\n<!-- cc:placement-state id=\"ONB-2A0D9DB9CE94\" -->\n- github-local init creates repository-local configuration.\n\n<!-- cc:placement-state id=\"ONB-0FA4677C99F9\" -->\n- The executable runtime currently supplies Issues; Pull Request, review, and checks operations remain future slices.\n\n<!-- cc:placement-state id=\"ONB-7594DA134D05\" -->\n- issue create writes one canonical Markdown Issue atomically.\n\n<!-- cc:placement-state id=\"ONB-8A039C0E8489\" -->\n- issue list and issue view reload canonical state from disk, including after restart.\n\n<!-- cc:placement-state id=\"ONB-D64F234D9DFB\" -->\n- The CLI provides stable selected-field --json output for agent use.\n\n<!-- cc:placement-state id=\"ONB-CC5013E28126\" -->\n- The installable wheel has no runtime dependencies.\n\n<!-- cc:placement-state id=\"ONB-EB8702686598\" -->\n- The frozen candidate passes all 12 deterministic tests.\n\n<!-- cc:placement-state id=\"ONB-F8D077AA9B38\" -->\n- Python compilation passes for the frozen candidate.\n\n<!-- cc:placement-state id=\"ONB-2388F784A444\" -->\n- The wheel builds successfully for the frozen candidate.\n\n<!-- cc:placement-state id=\"ONB-867FF7195FBD\" -->\n- An installed-wheel smoke test completes init → create → list → view in a fresh Git repository.\n\n<!-- cc:placement-state id=\"ONB-AC230FD47742\" -->\n- Manual testing and a corporate GitHub Copilot test with Claude Sonnet 5 (Medium, 264k context) succeeded without MCP, validating the CLI as a practical agent integration surface.\n\n<!-- cc:placement-unresolved id=\"ONB-54373873C2CE\" -->\n- Open question: How should the canonical project-wide Issue backlog remain consistent across ordinary Git branches and worktrees?\n\n<!-- cc:placement-state id=\"ONB-A0D4599D0703\" -->\n- Assignees and milestones remain out of scope while the primary workflow is single-owner.\n\n<!-- cc:placement-state id=\"ONB-9D51655FF5B4\" -->\n- The frozen snapshot contains authored root CONTEXT.src.md but no generated CONTEXT.md or accepted package state because the bootstrap environment lacked the contextcanon executable.\n\n<!-- cc:placement-state id=\"ONB-D72B21BFD852\" -->\n- v0.1.0 does not yet support close, reopen, edit, comments, or explicit machine-readable Change ↔ Issue links.\n<!-- contextcanon-placement-state:end -->"
+  state: "<!-- contextcanon-placement-state:start -->\n<!-- cc:placement-state id=\"ONB-0CFB25FEF085\" -->\n- The MVP uses the native github-local CLI; official gh remains a measured optional future adapter.\n\n<!-- cc:placement-state id=\"ONB-C7397BA8C299\" -->\n- The last documented check used gh 2.101.0, whose alternate-host Issue operations require GitHub Enterprise-shaped HTTPS, feature detection, and GraphQL behavior; binary execution was not available in the inspection environment.\n\n<!-- cc:placement-state id=\"ONB-2A0D9DB9CE94\" -->\n- github-local init creates repository-local configuration.\n\n<!-- cc:placement-state id=\"ONB-0FA4677C99F9\" -->\n- The executable runtime currently supplies Issues; Pull Request, review, and checks operations remain future slices.\n\n<!-- cc:placement-state id=\"ONB-7594DA134D05\" -->\n- issue create writes one canonical Markdown Issue atomically.\n\n<!-- cc:placement-state id=\"ONB-8A039C0E8489\" -->\n- issue list and issue view reload canonical state from disk, including after restart.\n\n<!-- cc:placement-state id=\"ONB-D64F234D9DFB\" -->\n- The CLI provides stable selected-field --json output for agent use.\n\n<!-- cc:placement-state id=\"ONB-CC5013E28126\" -->\n- The installable wheel has no runtime dependencies.\n\n<!-- cc:placement-state id=\"ONB-EB8702686598\" -->\n- The frozen candidate passes all 12 deterministic tests.\n\n<!-- cc:placement-state id=\"ONB-F8D077AA9B38\" -->\n- Python compilation passes for the frozen candidate.\n\n<!-- cc:placement-state id=\"ONB-2388F784A444\" -->\n- The wheel builds successfully for the frozen candidate.\n\n<!-- cc:placement-state id=\"ONB-867FF7195FBD\" -->\n- An installed-wheel smoke test completes init → create → list → view in a fresh Git repository.\n\n<!-- cc:placement-state id=\"ONB-AC230FD47742\" -->\n- Manual testing and a corporate GitHub Copilot test with Claude Sonnet 5 (Medium, 264k context) succeeded without MCP, validating the CLI as a practical agent integration surface.\n\n<!-- cc:placement-unresolved id=\"ONB-54373873C2CE\" -->\n- Open question: How should the canonical project-wide Issue backlog remain consistent across ordinary Git branches and worktrees?\n\n<!-- cc:placement-state id=\"ONB-A0D4599D0703\" -->\n- Assignees and milestones remain out of scope while the primary workflow is single-owner.\n\n<!-- cc:placement-state id=\"ONB-9D51655FF5B4\" -->\n- The frozen snapshot contains authored root CONTEXT.src.md but no generated CONTEXT.md or accepted package state because the bootstrap environment lacked the contextcanon executable.\n\n<!-- cc:placement-state id=\"ONB-D72B21BFD852\" -->\n- v0.1.0 does not yet support close, reopen, edit, comments, or explicit machine-readable Change ↔ Issue links.\n<!-- contextcanon-placement-state:end -->\n\n### Maintained compatibility baseline\n\n- The current measured GitHub CLI compatibility baseline is `gh 2.101.0`; supported native CLI parity and intentional deviations are maintained in `docs/gh-compatibility.md`.\n  <!-- ctx:state id=\"GHLS-001\" -->\n\n- `spike/gh-2.101.0-source-contract.json` is the machine-readable source-inspection snapshot for that baseline. It explicitly records that the original environment did not execute a real `gh` binary.\n  <!-- ctx:state id=\"GHLS-002\" -->\n\n- `spike/gh_trace_server.py` plus `spike/README.md` provide the reproducible black-box harness for capturing real `gh` HTTP/GraphQL behavior against a small fake GitHub Enterprise-shaped endpoint.\n  <!-- ctx:state id=\"GHLS-003\" -->"
   plan: "<!-- contextcanon-placement-plan:start -->\n<!-- cc:placement-plan id=\"ONB-23D6597B221C\" -->\n- Implement #4 next: close, reopen, edit, comment, state filtering, and automatic closure for accepted or merged work carrying an explicit closing reference.\n\n<!-- cc:placement-plan id=\"ONB-F5537BFB06ED\" -->\n- Implement #5 first-class Change ↔ Issue linking around native Git without duplicating Git state.\n\n<!-- cc:placement-plan id=\"ONB-CE7AE84864D9\" -->\n- Implement #6 backlog filters, labels, and search after Change ↔ Issue linking.\n\n<!-- cc:placement-plan id=\"ONB-233538BB01FB\" -->\n- Implement #7 concise examples in CLI help.\n\n<!-- cc:placement-plan id=\"ONB-95C18B6F9F9A\" -->\n- After PR #2 is accepted and squash-merged, complete ContextCanon onboarding and compose the reusable GitHub provider and Development Workflow Source before the next product implementation block.\n<!-- contextcanon-placement-plan:end -->"
   rules:
     - {"id": "GHLR-001", "title": "Keep project truth visible", "group": "Rules"}
@@ -47,6 +47,7 @@ local:
     - {"id": "GHLR-003", "title": "Never fall back to an external forge silently", "group": "Rules"}
     - {"id": "GHLR-004", "title": "Keep the CLI model-friendly", "group": "Rules"}
     - {"id": "GHLR-005", "title": "Keep the CLI as the primary agent contract", "group": "Rules"}
+    - {"id": "GHLR-008", "title": "Default to GitHub CLI compatibility", "group": "Rules"}
     - {"id": "GHLR-006", "title": "Keep Issue workflow state project-wide", "group": "Rules"}
     - {"id": "GHLR-007", "title": "Let completed work leave the open backlog", "group": "Rules"}
     - {"id": "ONB-B49912861E96", "title": "Use native Git for code state", "group": "Onboarding placement"}
@@ -94,6 +95,7 @@ official:
     - {"id": "GHLR-003", "title": "Never fall back to an external forge silently", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-004", "title": "Keep the CLI model-friendly", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-005", "title": "Keep the CLI as the primary agent contract", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-008", "title": "Default to GitHub CLI compatibility", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-006", "title": "Keep Issue workflow state project-wide", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-007", "title": "Let completed work leave the open backlog", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "ONB-B49912861E96", "title": "Use native Git for code state", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
@@ -138,6 +140,24 @@ targets:
     locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md"
     target_node_id: null
     target_node_name: null
+  - topic: "GHLR-TOPIC-ARCH"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "GHLR-TOPIC-ARCH"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "GHLR-TOPIC-ARCH"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json"
+    target_node_id: null
+    target_node_name: null
   - topic: "GHLR-TOPIC-ISSUES"
     intent: "required"
     kind: "resource"
@@ -159,7 +179,19 @@ targets:
   - topic: "ONB-1DE6FDEDE8CF"
     intent: "required"
     kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "ONB-1DE6FDEDE8CF"
+    intent: "required"
+    kind: "resource"
     locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "ONB-1DE6FDEDE8CF"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json"
     target_node_id: null
     target_node_name: null
   - topic: "ONB-AE22D5D54F87"
@@ -184,16 +216,18 @@ targets:
 # Mapping from author-facing Resource paths to generated package paths.
 resources:
   - {"source": "CONTEXT.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTEXT.md"}
+  - {"source": "CONTRIBUTING.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md"}
   - {"source": "README.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md"}
   - {"source": "docs/agent-validation.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md"}
   - {"source": "docs/architecture.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md"}
   - {"source": "docs/gh-compatibility.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md"}
   - {"source": "docs/storage.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md"}
   - {"source": "spike/README.md", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md"}
+  - {"source": "spike/gh-2.101.0-source-contract.json", "published": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json"}
   - {"source": null, "published": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md"}
   - {"source": null, "published": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md"}
 
 # Exact deterministic identities. package_digest covers CONTEXT.md plus CONTEXT/ resources.
 package:
-  normalized_digest: "14b192224c7b970f83a1a750f0c3d7a8cd3b09afb575b23baa1959139637bb77"
-  package_digest: "3aefae5d369d2b6a8fb31ca4e206f812b15d253510fe40c6f14d39a82482e973"
+  normalized_digest: "f1c22c7110cdcb1caf6290ae2bcdddb4ab07df6380d6d7f2dcea4ca755000c4a"
+  package_digest: "9c6e5815cab6d0c2df3e9ae11aa266bf4ea249b481f3cb8f3ab2304ffb4c2ae5"

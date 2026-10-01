@@ -2,14 +2,14 @@
   "changes": [],
   "compiler_version": "0.6.0",
   "digests": {
-    "normalized": "14b192224c7b970f83a1a750f0c3d7a8cd3b09afb575b23baa1959139637bb77",
-    "package": "3aefae5d369d2b6a8fb31ca4e206f812b15d253510fe40c6f14d39a82482e973"
+    "normalized": "f1c22c7110cdcb1caf6290ae2bcdddb4ab07df6380d6d7f2dcea4ca755000c4a",
+    "package": "9c6e5815cab6d0c2df3e9ae11aa266bf4ea249b481f3cb8f3ab2304ffb4c2ae5"
   },
   "files": [
     {
       "path": "CONTEXT.md",
-      "sha256": "eb3d3009267df388a6214f2a62e5f6cd9b132355652504e9effe4ee4f9d17dea",
-      "size": 19499
+      "sha256": "c51bcd6c6217b0982184e8a25724c3e8c61f8b21566435e3a8af9ec9fd07aa43",
+      "size": 21476
     },
     {
       "path": "CONTEXT/README.md",
@@ -22,9 +22,14 @@
       "size": 261
     },
     {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md",
+      "sha256": "6da40bfbc54452511df9945eeffd3226e3e7f797cfdb2ba307360f7cce7a5ab4",
+      "size": 5803
+    },
+    {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md",
-      "sha256": "a9de5140c20d369c0545c0cc40883a04115ab9e3ef913b51189b894524ee64a2",
-      "size": 8144
+      "sha256": "aee872594161916b3a61054a819b6a761341c82866cfaaf8e1c987ea03ef19f6",
+      "size": 8244
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
@@ -38,8 +43,8 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md",
-      "sha256": "ed1f935bc3c679fac574a9edd5a7f0d05e7ba871e4f274d6b23c5f9bcdb7b9a7",
-      "size": 6030
+      "sha256": "8a303d5a712d9210cda6099869bdb734439d602cec5c99715c6628b3193fb9f1",
+      "size": 6799
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md",
@@ -48,8 +53,13 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
-      "sha256": "d4be308a03333386706e5e6fb3904ba7cc5f4435c83efe6742e4d9a6f7d2e48b",
-      "size": 2371
+      "sha256": "b18dc4bfd10c19660dc2f787b2106c1ee9f9f7c87f244f592549ec6256e0efac",
+      "size": 2944
+    },
+    {
+      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json",
+      "sha256": "c09b2579c04568fbe62d963c8a8585b4dbe0d6dbfb6d8494df5cbde4b4fdc1fa",
+      "size": 2564
     },
     {
       "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md",
@@ -83,7 +93,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.7-draft"
+    "version": "0.1.8-draft"
   },
   "parents": [],
   "removed_rules": [],
@@ -290,6 +300,16 @@
     },
     {
       "group": "Rules",
+      "id": "GHLR-008",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "For capabilities that github.local supports, prefer official `gh` command vocabulary, flags, aliases, and user-facing defaults wherever they map cleanly to the local architecture; every deliberate deviation must be explicit, documented, and justified.",
+      "title": "Default to GitHub CLI compatibility",
+      "why": "humans and LLMs already trained on GitHub should be able to transfer that knowledge directly instead of learning accidental local syntax."
+    },
+    {
+      "group": "Rules",
       "id": "GHLR-006",
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
@@ -472,11 +492,16 @@
       "title": "Implementing executable version identity"
     },
     {
-      "condition": "When deciding between official `gh` compatibility and the native `github-local` CLI, or extending the runtime boundary:",
+      "condition": "When deciding between official `gh` compatibility and the native `github-local` CLI, changing the supported CLI surface, reproducing the client protocol, or extending the runtime boundary:",
       "id": "GHLR-TOPIC-ARCH",
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
       "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md"
+        },
         {
           "intent": "required",
           "kind": "resource",
@@ -486,6 +511,16 @@
           "intent": "required",
           "kind": "resource",
           "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md"
+        },
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md"
+        },
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json"
         }
       ],
       "title": "Architecture and provider choice"
@@ -519,11 +554,16 @@
       "title": "Agent integration evidence"
     },
     {
-      "condition": "When evaluating official gh compatibility, changing host/protocol behavior, or reproducing the real-client trace:",
+      "condition": "When evaluating official gh compatibility, changing the supported CLI surface, changing host/protocol behavior, or reproducing the real-client trace:",
       "id": "ONB-1DE6FDEDE8CF",
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
       "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md"
+        },
         {
           "intent": "required",
           "kind": "resource",
@@ -535,6 +575,11 @@
           "kind": "resource",
           "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
           "resource_id": "RESOURCE-E160697A4178"
+        },
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json"
         }
       ],
       "title": "Route official gh compatibility work"
