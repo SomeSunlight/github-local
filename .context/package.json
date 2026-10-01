@@ -2,13 +2,13 @@
   "changes": [],
   "compiler_version": "0.6.0",
   "digests": {
-    "normalized": "f1c22c7110cdcb1caf6290ae2bcdddb4ab07df6380d6d7f2dcea4ca755000c4a",
-    "package": "9c6e5815cab6d0c2df3e9ae11aa266bf4ea249b481f3cb8f3ab2304ffb4c2ae5"
+    "normalized": "d9f893f751c9f614c039a5ce01d0a8bb5452277f8ee5a4b36df872e563a3645d",
+    "package": "678c79db4425ed46e12555b17095d319c8ee5bd33ce842c7e0a08294a57ffd90"
   },
   "files": [
     {
       "path": "CONTEXT.md",
-      "sha256": "c51bcd6c6217b0982184e8a25724c3e8c61f8b21566435e3a8af9ec9fd07aa43",
+      "sha256": "9088deb5232c6b456b41e726cc001c2c83472c1bf6a46ae9649536344bf7e427",
       "size": 21476
     },
     {
@@ -28,8 +28,8 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md",
-      "sha256": "aee872594161916b3a61054a819b6a761341c82866cfaaf8e1c987ea03ef19f6",
-      "size": 8244
+      "sha256": "af7a31b2f2433b1563809a470072626443fc16d5e8d12b04ded4a4f73b967ac0",
+      "size": 8718
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
@@ -43,13 +43,13 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md",
-      "sha256": "8a303d5a712d9210cda6099869bdb734439d602cec5c99715c6628b3193fb9f1",
-      "size": 6799
+      "sha256": "3264b78ced8e93d157bf558f07b843bd23347f214a1368e5fbf522c29df6d512",
+      "size": 7387
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md",
-      "sha256": "f815ab395d1c49ecc0faf7ec70bf1a3c57f376dedafa41249222c4532ec05a12",
-      "size": 5678
+      "sha256": "321e429355606e0bb0dbe6d836b742cd173a9b748319669049336d05cc18db38",
+      "size": 6532
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
@@ -93,7 +93,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.8-draft"
+    "version": "0.1.9-draft"
   },
   "parents": [],
   "removed_rules": [],
