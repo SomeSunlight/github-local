@@ -4,6 +4,14 @@ This directory is evidence tooling, not the product runtime.
 
 `gh_trace_server.py` records every HTTP request as JSONL and returns just enough canned GitHub-Enterprise-shaped responses to let a current `gh` client advance through common Issue probes. Unknown GraphQL operations are returned as explicit errors and remain visible in the log.
 
+## Relationship to the source-contract snapshot
+
+`gh_trace_server.py` is the black-box half of the compatibility evidence. The companion `gh-2.101.0-source-contract.json` is the source-inspection half.
+
+The JSON contract says what the tagged `gh v2.101.0` source was found to require. The trace server lets a contributor verify what a real `gh` binary actually sends. Keep those claims separate: the current source-contract explicitly records that the original environment did not execute the binary.
+
+For the full rationale and update workflow, see `../CONTRIBUTING.md`.
+
 ## Why this exists
 
 The implementation environment used for the first spike had no executable `gh` and no outbound DNS, so current source could be inspected but a binary could not be downloaded. This harness makes the missing black-box step reproducible rather than inventing an observed trace.
