@@ -10,7 +10,7 @@ import unicodedata
 from contextlib import AbstractContextManager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Iterable
 
 from .models import Issue, IssueComment
 from .repository import Repository
@@ -38,6 +38,21 @@ class IssueNotFound(StorageError):
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def normalize_labels(values: Iterable[str] | None) -> tuple[str, ...]:
+    labels: list[str] = []
+    seen: set[str] = set()
+    for raw in values or ():
+        for part in raw.split(","):
+            label = part.strip()
+            if not label:
+                raise StorageError("Issue label must not be empty")
+            key = label.casefold()
+            if key not in seen:
+                seen.add(key)
+                labels.append(label)
+    return tuple(labels)
 
 
 def slugify(title: str) -> str:
@@ -111,7 +126,13 @@ class IssueStore:
     def _lock_path(self) -> Path:
         return self.repository.config_dir / "locks" / "issues.lock"
 
-    def create(self, title: str, body: str = "") -> Issue:
+    def create(
+        self,
+        title: str,
+        body: str = "",
+        *,
+        labels: Iterable[str] | None = None,
+    ) -> Issue:
         title = title.strip()
         if not title:
             raise StorageError("Issue title must not be empty")
@@ -127,6 +148,7 @@ class IssueStore:
                     "id": issue_id,
                     "number": number,
                     "state": "OPEN",
+                    "labels": list(normalize_labels(labels)),
                     "created_at": now,
                     "updated_at": now,
                 }
@@ -134,16 +156,32 @@ class IssueStore:
             self._write_issue(target, metadata, title, body, new=True)
             return self._parse(target)
 
-    def list(self, *, state: str | None = None) -> list[Issue]:
+    def list(
+        self,
+        *,
+        state: str | None = None,
+        labels: Iterable[str] | None = None,
+        search: str | None = None,
+    ) -> list[Issue]:
         wanted = state.upper() if state else None
         if wanted not in (None, "OPEN", "CLOSED"):
             raise StorageError(f"unsupported Issue state filter: {state}")
+        wanted_labels = tuple(label.casefold() for label in normalize_labels(labels))
+        query = search.casefold().strip() if search else None
         issues: list[Issue] = []
         for path in sorted(self.repository.issues_dir.glob("*.md")):
             if ISSUE_RE.match(path.name):
                 issue = self._parse(path)
-                if wanted is None or issue.state == wanted:
-                    issues.append(issue)
+                if wanted is not None and issue.state != wanted:
+                    continue
+                issue_labels = {label.casefold() for label in issue.labels}
+                if any(label not in issue_labels for label in wanted_labels):
+                    continue
+                if query:
+                    haystack = "\n".join((issue.title, issue.body, *issue.labels)).casefold()
+                    if query not in haystack:
+                        continue
+                issues.append(issue)
         return sorted(issues, key=lambda i: i.number)
 
     def get(self, number: int) -> Issue:
@@ -171,9 +209,13 @@ class IssueStore:
         *,
         title: str | None = None,
         body: str | None = None,
+        add_labels: Iterable[str] | None = None,
+        remove_labels: Iterable[str] | None = None,
     ) -> Issue:
-        if title is None and body is None:
-            raise StorageError("issue edit requires --title, --body, or --body-file")
+        if title is None and body is None and add_labels is None and remove_labels is None:
+            raise StorageError(
+                "issue edit requires --title, --body, --body-file, --add-label, or --remove-label"
+            )
         with FileLock(self._lock_path):
             path = self._issue_path(number)
             metadata, old_title, old_body = self._read_issue(path)
@@ -181,7 +223,17 @@ class IssueStore:
             if not new_title:
                 raise StorageError("Issue title must not be empty")
             new_body = old_body if body is None else body
-            metadata["github-local"]["updated_at"] = self.clock()
+            issue_meta = metadata["github-local"]
+            current_labels = normalize_labels(issue_meta.get("labels", []))
+            removed = {label.casefold() for label in normalize_labels(remove_labels)}
+            kept = [label for label in current_labels if label.casefold() not in removed]
+            existing = {label.casefold() for label in kept}
+            for label in normalize_labels(add_labels):
+                if label.casefold() not in existing:
+                    existing.add(label.casefold())
+                    kept.append(label)
+            issue_meta["labels"] = kept
+            issue_meta["updated_at"] = self.clock()
 
             new_path = self.repository.issues_dir / f"{number:04d}-{slugify(new_title)}.md"
             if new_path != path and new_path.exists():
@@ -391,6 +443,10 @@ class IssueStore:
             number = int(issue_meta["number"])
             str(issue_meta["id"])
             str(issue_meta["state"])
+            raw_labels = issue_meta.get("labels", [])
+            if not isinstance(raw_labels, list) or not all(isinstance(label, str) for label in raw_labels):
+                raise TypeError("labels must be a list of strings")
+            normalize_labels(raw_labels)
             str(issue_meta["created_at"])
             str(issue_meta["updated_at"])
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
@@ -421,6 +477,7 @@ class IssueStore:
             state=str(issue_meta["state"]),
             title=title,
             body=body,
+            labels=normalize_labels(issue_meta.get("labels", [])),
             created_at=str(issue_meta["created_at"]),
             updated_at=str(issue_meta["updated_at"]),
             path=path.relative_to(self.repository.workflow_root),
