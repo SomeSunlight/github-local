@@ -136,16 +136,18 @@ Exit: an agent can create or discover the Git branch belonging to an Issue and i
 
 Purpose: make GitHub CLI vocabulary and behavior the default contract for every supported Issue capability; local deviations must be explicit and documented.
 
-- [ ] Replace local-only `issue changes <number>` with GitHub-compatible `issue develop --list <number>`.
-- [ ] Make `issue develop <number>` create/link without checkout by default; add GitHub-compatible `--checkout`.
-- [ ] Replace local `--branch` with GitHub-compatible `--name`.
-- [ ] Add GitHub-compatible `--base` using a local Git branch/ref as the base.
-- [ ] Make `issue list` default to open Issues and add the GitHub `issue ls` alias.
-- [ ] Make `issue view` show comments only with GitHub-compatible `--comments`.
-- [ ] Add low-cost `--comment` support to close/reopen where it maps directly to existing durable comments.
-- [ ] Audit/document the supported gh subset and every intentional github.local deviation.
-- [ ] Update regression tests and daily-use documentation.
+- [x] Replace local-only `issue changes <number>` with GitHub-compatible `issue develop --list <number>`.
+- [x] Make `issue develop <number>` create/link without checkout by default; add GitHub-compatible `--checkout`.
+- [x] Replace local `--branch` with GitHub-compatible `--name`.
+- [x] Add GitHub-compatible `--base` using a local Git branch/ref as the base.
+- [x] Make `issue list` default to open Issues and add the GitHub `issue ls` alias.
+- [x] Make `issue view` show comments only with GitHub-compatible `--comments`.
+- [x] Add low-cost `--comment` support to close/reopen where it maps directly to existing durable comments.
+- [x] Audit/document the supported gh subset and every intentional github.local deviation.
+- [x] Update regression tests and daily-use documentation.
 - [ ] Run complete deterministic suite and ContextCanon build/check.
 - [ ] Keep review PR unmerged until explicit owner approval; PR body must use `Fixes #13`.
+
+Checkpoint: the supported Issue surface now follows current `gh` naming/defaults for develop/list/view/close/reopen; `issue changes` and `--branch` are removed before 1.0. The compatibility document records the supported subset and deliberate local extensions (`develop --json`, local-ref `--base`, and existing-branch adoption). Focused regression coverage is updated. Full deterministic suite and ContextCanon build/check remain the owner merge gate.
 
 Exit: an LLM trained on ordinary `gh issue` commands encounters the same names/defaults for the subset github.local implements.
