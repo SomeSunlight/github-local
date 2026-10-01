@@ -96,25 +96,29 @@ def build_parser() -> argparse.ArgumentParser:
     _add_body_group(create, default="")
     _add_issue_json(create)
 
-    list_cmd = issue_sub.add_parser("list", help="list Issues")
+    list_cmd = issue_sub.add_parser("list", aliases=["ls"], help="list Issues")
     list_cmd.add_argument(
         "--state",
+        "-s",
         choices=("open", "closed", "all"),
-        default="all",
-        help="filter by Issue state (default: all)",
+        default="open",
+        help="filter by Issue state (default: open)",
     )
     _add_issue_json(list_cmd)
 
     view = issue_sub.add_parser("view", help="view an Issue")
     view.add_argument("number", type=int)
+    view.add_argument("--comments", "-c", action="store_true", help="view Issue comments")
     _add_issue_json(view)
 
     close = issue_sub.add_parser("close", help="close an Issue")
     close.add_argument("number", type=int)
+    close.add_argument("--comment", "-c", help="leave a closing comment")
     _add_issue_json(close)
 
     reopen = issue_sub.add_parser("reopen", help="reopen an Issue")
     reopen.add_argument("number", type=int)
+    reopen.add_argument("--comment", "-c", help="add a reopening comment")
     _add_issue_json(reopen)
 
     edit = issue_sub.add_parser("edit", help="edit an Issue title or body")
@@ -127,14 +131,13 @@ def build_parser() -> argparse.ArgumentParser:
     comment.add_argument("number", type=int)
     _add_body_group(comment, required=True, default=None)
 
-    develop = issue_sub.add_parser("develop", help="create or switch to a Git branch linked to an Issue")
+    develop = issue_sub.add_parser("develop", help="manage linked Git branches for an Issue")
     develop.add_argument("number", type=int)
-    develop.add_argument("--branch", default=None, help="use or adopt this branch instead of the conventional name")
+    develop.add_argument("--base", "-b", default=None, help="Git branch/ref to create the new branch from")
+    develop.add_argument("--checkout", "-c", action="store_true", help="checkout the branch after creating or linking it")
+    develop.add_argument("--list", "-l", action="store_true", help="list linked branches for the Issue")
+    develop.add_argument("--name", "-n", default=None, help="name of the branch to create or adopt")
     develop.add_argument("--json", metavar="FIELDS", nargs="?", const="", default=None)
-
-    changes = issue_sub.add_parser("changes", help="show Git branches linked to an Issue")
-    changes.add_argument("number", type=int)
-    changes.add_argument("--json", metavar="FIELDS", nargs="?", const="", default=None)
 
     return parser
 
@@ -173,7 +176,7 @@ def _run(args: argparse.Namespace) -> int:
         _emit_issue(issue, args.json)
         return 0
 
-    if args.command == "issue" and args.issue_command == "list":
+    if args.command == "issue" and args.issue_command in ("list", "ls"):
         wanted = None if args.state == "all" else args.state
         issues = store.list(state=wanted)
         fields = _json_fields(args.json)
@@ -197,22 +200,29 @@ def _run(args: argparse.Namespace) -> int:
         if issue.body:
             print()
             print(issue.body)
-        comments = store.comments(issue.number)
-        if comments:
-            print()
-            print("comments:")
-            for comment in comments:
+        if args.comments:
+            comments = store.comments(issue.number)
+            if comments:
                 print()
-                print(f"[{comment.number}] {comment.created_at}")
-                print(comment.body)
+                print("comments:")
+                for comment in comments:
+                    print()
+                    print(f"[{comment.number}] {comment.created_at}")
+                    print(comment.body)
         return 0
 
     if args.command == "issue" and args.issue_command == "close":
-        _emit_issue(store.close(args.number), args.json)
+        issue = store.close(args.number)
+        if args.comment:
+            store.comment(args.number, args.comment)
+        _emit_issue(issue, args.json)
         return 0
 
     if args.command == "issue" and args.issue_command == "reopen":
-        _emit_issue(store.reopen(args.number), args.json)
+        issue = store.reopen(args.number)
+        if args.comment:
+            store.comment(args.number, args.comment)
+        _emit_issue(issue, args.json)
         return 0
 
     if args.command == "issue" and args.issue_command == "edit":
@@ -229,27 +239,34 @@ def _run(args: argparse.Namespace) -> int:
         return 0
 
     if args.command == "issue" and args.issue_command == "develop":
-        change = changes.develop(args.number, branch=args.branch)
+        if args.list:
+            if args.name is not None or args.base is not None or args.checkout:
+                raise ValueError("--list cannot be combined with --name, --base, or --checkout")
+            linked = changes.list(args.number)
+            fields = _change_json_fields(args.json)
+            if fields is not None:
+                print(json.dumps([_select_change(item, fields) for item in linked], ensure_ascii=False, separators=(",", ":")))
+                return 0
+            if not linked:
+                print(f"No development branches linked to Issue #{args.number}.")
+                return 0
+            print("BRANCH  HEAD     CURRENT  RELATION")
+            for item in linked:
+                current = "yes" if item.current else ""
+                print(f"{item.branch}  {item.head[:7]}  {current:<7}  {item.relation}")
+            return 0
+
+        change = changes.develop(
+            args.number,
+            name=args.name,
+            base=args.base,
+            checkout=args.checkout,
+        )
         fields = _change_json_fields(args.json)
         if fields is None:
             print(change.branch)
         else:
             print(json.dumps(_select_change(change, fields), ensure_ascii=False, separators=(",", ":")))
-        return 0
-
-    if args.command == "issue" and args.issue_command == "changes":
-        linked = changes.list(args.number)
-        fields = _change_json_fields(args.json)
-        if fields is not None:
-            print(json.dumps([_select_change(item, fields) for item in linked], ensure_ascii=False, separators=(",", ":")))
-            return 0
-        if not linked:
-            print(f"No development branches linked to Issue #{args.number}.")
-            return 0
-        print("BRANCH  HEAD     CURRENT  RELATION")
-        for item in linked:
-            current = "yes" if item.current else ""
-            print(f"{item.branch}  {item.head[:7]}  {current:<7}  {item.relation}")
         return 0
 
     raise AssertionError("unreachable")

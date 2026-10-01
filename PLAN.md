@@ -37,7 +37,9 @@ Fast Track closure: the bounded implementation/research block is complete and lo
 - [x] After PR #2 is owner-approved and squash-merged, onboard `github-local` with ContextCanon and compose the reusable GitHub / Development Workflow context.
 - [x] Resolve #3's branch/worktree semantics before expanding persisted workflow state.
 - [x] Implement #4 immediately afterwards: complete the Issue lifecycle and automatic close for explicitly referenced accepted/merged work, before broader workflow testing.
-- [ ] Continue with #5 Change ↔ Issue linking, then #6 backlog ergonomics and #7 help examples.
+- [x] Continue with #5 Change ↔ Issue linking.
+- [ ] Before #6/#7, complete #13 GitHub CLI compatibility cleanup and #14 nested Issue scopes.
+- [ ] Then continue with #6 backlog ergonomics and #7 help examples.
 
 Owner-test conclusion: the CLI-first integration mechanism is validated. The remaining work is product semantics, not proof that Copilot can call local tools.
 
@@ -107,7 +109,7 @@ Exit: create → edit/comment → close/reopen → state-filter → merge-with-c
 
 ## Active Fast Track: first-class Change ↔ Issue links — Issue #5
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED**
 
 Purpose: replace the temporary naming-only convention with a tiny machine-readable layer around native Git branches, without duplicating commits, diffs, branch heads, or merge state.
 
@@ -120,9 +122,34 @@ Purpose: replace the temporary naming-only convention with a tiny machine-readab
 - [x] Keep linked-worktree behavior shared through the repository's common Git configuration.
 - [x] Add focused real-Git and CLI regression tests.
 - [x] Document the productive Issue → develop → commit → accepted-close workflow.
-- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [x] Run the complete deterministic suite and ContextCanon build/check.
 - [x] Keep Draft PR #12 unmerged until explicit owner approval; its body uses `Fixes #5`.
 
-Checkpoint: `issue develop` and `issue changes` are implemented; explicit links use Git branch configuration, conventional legacy branches remain discoverable, conflicting links fail before branch switching, native branch rename preserves the relation, and linked-worktree plus CLI regression coverage is present. Full deterministic suite and ContextCanon build/check remain the owner merge gate.
+Checkpoint: the owner ran the complete deterministic suite, regenerated ContextCanon output, and `contextcanon check --all .` passed. PR #12 was squash-merged to `main` as `a2ea817`; its `Fixes #5` reference automatically closed Issue #5.
 
 Exit: an agent can create or discover the Git branch belonging to an Issue and inspect that relation cheaply as structured data, while Git remains authoritative for all code history.
+
+
+## Active Fast Track: align Issue CLI with GitHub gh — Issue #13
+
+**Fast Track status — ACTIVE**
+
+Purpose: make GitHub CLI vocabulary and behavior the default contract for every supported Issue capability; local deviations must be explicit and documented.
+
+- [x] Replace local-only `issue changes <number>` with GitHub-compatible `issue develop --list <number>`.
+- [x] Make `issue develop <number>` create/link without checkout by default; add GitHub-compatible `--checkout`.
+- [x] Replace local `--branch` with GitHub-compatible `--name`.
+- [x] Add GitHub-compatible `--base` using a local Git branch/ref as the base.
+- [x] Make `issue list` default to open Issues and add the GitHub `issue ls` alias.
+- [x] Make `issue view` show comments only with GitHub-compatible `--comments`.
+- [x] Add low-cost `--comment` support to close/reopen where it maps directly to existing durable comments.
+- [x] Audit/document the supported gh subset and every intentional github.local deviation.
+- [x] Promote GitHub CLI compatibility to an explicit ContextCanon rule and route compatibility work to the current source-contract/trace evidence.
+- [x] Add contributor documentation explaining source inspection vs black-box tracing and the evidence refresh workflow.
+- [x] Update regression tests and daily-use documentation.
+- [ ] Run complete deterministic suite and ContextCanon build/check.
+- [x] Keep Draft PR #15 unmerged until explicit owner approval; its body uses `Fixes #13`.
+
+Checkpoint: the supported Issue surface now follows current `gh` naming/defaults for develop/list/view/close/reopen; `issue changes` and `--branch` are removed before 1.0. The compatibility document records the supported subset and deliberate local extensions (`develop --json`, local-ref `--base`, and existing-branch adoption). Focused regression coverage is updated. Full deterministic suite and ContextCanon build/check remain the owner merge gate.
+
+Exit: an LLM trained on ordinary `gh issue` commands encounters the same names/defaults for the subset github.local implements.

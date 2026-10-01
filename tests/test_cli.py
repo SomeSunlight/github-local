@@ -92,9 +92,13 @@ class CliTests(unittest.TestCase):
         view = self.run_cli("issue", "view", "1")
         self.assertEqual(0, view.returncode, view.stderr)
         self.assertIn("New body", view.stdout)
-        self.assertIn("Visible note", view.stdout)
+        self.assertNotIn("Visible note", view.stdout)
 
-    def test_issue_develop_and_changes_cli(self):
+        view_with_comments = self.run_cli("issue", "view", "1", "--comments")
+        self.assertEqual(0, view_with_comments.returncode, view_with_comments.stderr)
+        self.assertIn("Visible note", view_with_comments.stdout)
+
+    def test_issue_develop_matches_gh_shape(self):
         subprocess.run(["git", "-C", str(self.root), "config", "user.email", "test@example.com"], check=True)
         subprocess.run(["git", "-C", str(self.root), "config", "user.name", "Test"], check=True)
         (self.root / "README.md").write_text("base\n", encoding="utf-8")
@@ -115,22 +119,42 @@ class CliTests(unittest.TestCase):
             {
                 "issue": 1,
                 "branch": "issue-1-implement-thing",
-                "current": True,
+                "current": False,
                 "relation": "explicit",
             },
             json.loads(develop.stdout),
         )
+        self.assertEqual(
+            "main",
+            subprocess.run(
+                ["git", "-C", str(self.root), "branch", "--show-current"],
+                check=True, text=True, stdout=subprocess.PIPE,
+            ).stdout.strip(),
+        )
 
         linked = self.run_cli(
-            "issue", "changes", "1", "--json", "branch,current,relation",
+            "issue", "develop", "--list", "1", "--json", "branch,current,relation",
         )
         self.assertEqual(
             [{
                 "branch": "issue-1-implement-thing",
-                "current": True,
+                "current": False,
                 "relation": "explicit",
             }],
             json.loads(linked.stdout),
+        )
+
+        checkout = self.run_cli(
+            "issue", "develop", "1", "--checkout",
+            "--json", "branch,current,relation",
+        )
+        self.assertEqual(
+            {
+                "branch": "issue-1-implement-thing",
+                "current": True,
+                "relation": "explicit",
+            },
+            json.loads(checkout.stdout),
         )
 
         subprocess.run(
@@ -138,7 +162,7 @@ class CliTests(unittest.TestCase):
             check=True,
         )
         renamed = self.run_cli(
-            "issue", "changes", "1", "--json", "branch,current,relation",
+            "issue", "develop", "--list", "1", "--json", "branch,current,relation",
         )
         self.assertEqual(
             [{
@@ -148,6 +172,37 @@ class CliTests(unittest.TestCase):
             }],
             json.loads(renamed.stdout),
         )
+
+    def test_issue_list_defaults_to_open_and_ls_alias_matches(self):
+        self.assertEqual(0, self.run_cli("init", "--owner", "acme", "--repo", "demo").returncode)
+        self.run_cli("issue", "create", "--title", "Open one")
+        self.run_cli("issue", "create", "--title", "Closed one")
+        self.run_cli("issue", "close", "2")
+
+        listing = self.run_cli("issue", "list", "--json", "number,state")
+        self.assertEqual([{"number": 1, "state": "OPEN"}], json.loads(listing.stdout))
+
+        alias = self.run_cli("issue", "ls", "--state", "all", "--json", "number,state")
+        self.assertEqual(
+            [
+                {"number": 1, "state": "OPEN"},
+                {"number": 2, "state": "CLOSED"},
+            ],
+            json.loads(alias.stdout),
+        )
+
+    def test_close_and_reopen_comment_flags_use_durable_comments(self):
+        self.assertEqual(0, self.run_cli("init", "--owner", "acme", "--repo", "demo").returncode)
+        self.run_cli("issue", "create", "--title", "Lifecycle")
+
+        closed = self.run_cli("issue", "close", "1", "--comment", "Done for now")
+        self.assertEqual(0, closed.returncode, closed.stderr)
+        reopened = self.run_cli("issue", "reopen", "1", "--comment", "Needs more work")
+        self.assertEqual(0, reopened.returncode, reopened.stderr)
+
+        view = self.run_cli("issue", "view", "1", "--comments")
+        self.assertIn("Done for now", view.stdout)
+        self.assertIn("Needs more work", view.stdout)
 
     def test_version_is_available_without_repository_initialization(self):
         result = self.run_cli("--version")

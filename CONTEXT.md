@@ -8,7 +8,7 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.6-draft`
+**Context version:** `0.1.8-draft`
 
 **Resulting imported Contexts:**
 
@@ -86,6 +86,17 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
 <!-- cc:placement-state id="ONB-D72B21BFD852" -->
 - v0.1.0 does not yet support close, reopen, edit, comments, or explicit machine-readable Change ↔ Issue links.
 <!-- contextcanon-placement-state:end -->
+
+### Maintained compatibility baseline
+
+- The current measured GitHub CLI compatibility baseline is `gh 2.101.0`; supported native CLI parity and intentional deviations are maintained in `docs/gh-compatibility.md`.
+  <!-- ctx:state id="GHLS-001" -->
+
+- `spike/gh-2.101.0-source-contract.json` is the machine-readable source-inspection snapshot for that baseline. It explicitly records that the original environment did not execute a real `gh` binary.
+  <!-- ctx:state id="GHLS-002" -->
+
+- `spike/gh_trace_server.py` plus `spike/README.md` provide the reproducible black-box harness for capturing real `gh` HTTP/GraphQL behavior against a small fake GitHub Enterprise-shaped endpoint.
+  <!-- ctx:state id="GHLS-003" -->
 
 ## Local Plan
 
@@ -212,6 +223,10 @@ Prefer stable command names, exit codes, and structured JSON output over interac
 
 Terminal-capable agents must be able to perform the normal workflow through stable CLI commands and structured output; MCP or other adapters are optional additions, not prerequisites.
 
+#### `GHLR-008` — Default to GitHub CLI compatibility
+
+For capabilities that github.local supports, prefer official `gh` command vocabulary, flags, aliases, and user-facing defaults wherever they map cleanly to the local architecture; every deliberate deviation must be explicit, documented, and justified.
+
 #### `GHLR-006` — Keep Issue workflow state project-wide
 
 Ordinary Git branches/worktrees must not silently create divergent canonical backlogs or duplicate Issue identities/numbers.
@@ -292,12 +307,15 @@ When adding or changing `--version`, package version lookup, or Git checkout pro
 
 ### Architecture and provider choice
 
-When deciding between official `gh` compatibility and the native `github-local` CLI, or extending the runtime boundary:
+When deciding between official `gh` compatibility and the native `github-local` CLI, changing the supported CLI surface, reproducing the client protocol, or extending the runtime boundary:
 
 **Required**
 
 - [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md)
 - [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md)
+- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md)
+- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md)
+- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json)
 
 ### Issue storage and CLI behavior
 
@@ -317,12 +335,14 @@ When changing the agent-facing CLI contract, help/discovery behavior, or decidin
 
 ### Route official gh compatibility work
 
-When evaluating official gh compatibility, changing host/protocol behavior, or reproducing the real-client trace:
+When evaluating official gh compatibility, changing the supported CLI surface, changing host/protocol behavior, or reproducing the real-client trace:
 
 **Required**
 
 - [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md)
+- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md)
 - [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md)
+- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json)
 
 ### Route Issue storage work
 

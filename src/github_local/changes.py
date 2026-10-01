@@ -28,9 +28,16 @@ class ChangeStore:
         self.repository = repository
         self.issues = issues
 
-    def develop(self, number: int, *, branch: str | None = None) -> IssueChange:
+    def develop(
+        self,
+        number: int,
+        *,
+        name: str | None = None,
+        base: str | None = None,
+        checkout: bool = False,
+    ) -> IssueChange:
         issue = self.issues.get(number)
-        target = branch or conventional_branch_name(number, issue.title)
+        target = name or conventional_branch_name(number, issue.title)
         self._validate_branch(target)
         if target == self.repository.accepted_branch:
             raise ChangeError(
@@ -46,22 +53,35 @@ class ChangeStore:
             )
 
         if head is None:
-            accepted_head = self.repository.accepted_head()
-            if accepted_head is None:
-                raise ChangeError(
-                    f"accepted branch {self.repository.accepted_branch!r} has no commit yet"
-                )
-            self._require_clean_worktree()
-            completed = _run_git(
-                self.repository.root,
-                "switch",
-                "-c",
-                target,
-                self.repository.accepted_ref,
+            base_ref = base or self.repository.accepted_ref
+            base_head = _git_optional(
+                self.repository.workflow_root,
+                "rev-parse",
+                "--verify",
+                base_ref,
             )
+            if base_head is None:
+                raise ChangeError(f"base Git ref does not exist: {base_ref!r}")
+
+            if checkout:
+                self._require_clean_worktree()
+                completed = _run_git(
+                    self.repository.root,
+                    "switch",
+                    "-c",
+                    target,
+                    base_ref,
+                )
+            else:
+                completed = _run_git(
+                    self.repository.root,
+                    "branch",
+                    target,
+                    base_ref,
+                )
             if completed.returncode != 0:
                 self._raise_git_error(completed)
-        elif current != target:
+        elif checkout and current != target:
             self._require_clean_worktree()
             completed = _run_git(self.repository.root, "switch", target)
             if completed.returncode != 0:
