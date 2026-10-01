@@ -53,4 +53,9 @@ The next product block completes everyday Issue handling. Manual close/reopen, t
 
 The review candidate now supports manual close/reopen, title/body edit with stable identity, visible Markdown comments under `issues/comments/<issue>/`, state-filtered listing, and automatic close from new commits reaching the configured accepted branch with explicit `Fixes/Closes/Resolves #N` references. A per-repository cursor in shared Git metadata prevents historical replay and preserves deliberate reopen behavior. The legacy tracked bootstrap Issue file was removed from the source tree so github.local can operate in its own repository under the accepted #3 semantics.
 
-Draft PR #11 contains the #4 review candidate and uses `Fixes #4` in the PR body. It remains unmerged pending the owner merge gate.
+PR #11 was owner-tested, ContextCanon-regenerated, approved, and squash-merged to `main` as `1eabd3d`. Its `Fixes #4` PR-body reference automatically closed Issue #4, confirming the intended GitHub close workflow.
+
+
+## Issue #5 — first-class Change ↔ Issue links
+
+The next layer stays deliberately Git-native. A Change is represented by a normal Git branch plus one small branch-config relation to its local Issue. github.local does not copy commits, diffs, heads, or merge state. Conventional legacy branch names remain discoverable as a fallback; explicit links created by `issue develop` are first-class and machine-readable.
