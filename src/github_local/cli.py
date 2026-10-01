@@ -74,8 +74,21 @@ def _add_body_group(
     group.add_argument("--body-file", "-F")
 
 
+def _examples(*commands: str) -> str:
+    return "Examples:\n  " + "\n  ".join(commands)
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="github-local", description="Local GitHub-shaped development workflow")
+    parser = argparse.ArgumentParser(
+        prog="github-local",
+        description="Local GitHub-shaped development workflow",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=_examples(
+            "github-local init --owner local --repo my-project",
+            'github-local issue create --title "Add validation" --label bug',
+            "github-local issue list",
+        ),
+    )
     parser.add_argument("--version", action=_RuntimeVersionAction, nargs=0)
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -88,16 +101,44 @@ def build_parser() -> argparse.ArgumentParser:
         help="branch whose reachable commits represent accepted work (default: inferred main/default branch)",
     )
 
-    issue = sub.add_parser("issue", help="work with local Issues")
+    issue = sub.add_parser(
+        "issue",
+        help="work with local Issues",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=_examples(
+            "github-local issue list",
+            'github-local issue create --title "Add validation" --label bug',
+            "github-local issue view 12 --comments",
+            "github-local issue develop 12 --checkout",
+        ),
+    )
     issue_sub = issue.add_subparsers(dest="issue_command", required=True)
 
-    create = issue_sub.add_parser("create", help="create an Issue")
+    create = issue_sub.add_parser(
+        "create",
+        help="create an Issue",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=_examples(
+            'github-local issue create --title "Fix parser" --body "Reject invalid input." --label bug',
+            'github-local issue create --title "Fix parser" --label bug --json number,title,labels',
+        ),
+    )
     create.add_argument("--title", "-t", required=True)
     create.add_argument("--label", "-l", action="append", default=None, help="add a label by name")
     _add_body_group(create, default="")
     _add_issue_json(create)
 
-    list_cmd = issue_sub.add_parser("list", aliases=["ls"], help="list Issues")
+    list_cmd = issue_sub.add_parser(
+        "list",
+        aliases=["ls"],
+        help="list Issues",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=_examples(
+            "github-local issue list",
+            "github-local issue list --label bug --search parser",
+            "github-local issue list --state all --json number,state,title,labels",
+        ),
+    )
     list_cmd.add_argument(
         "--state",
         "-s",
@@ -136,7 +177,15 @@ def build_parser() -> argparse.ArgumentParser:
     comment.add_argument("number", type=int)
     _add_body_group(comment, required=True, default=None)
 
-    develop = issue_sub.add_parser("develop", help="manage linked Git branches for an Issue")
+    develop = issue_sub.add_parser(
+        "develop",
+        help="manage linked Git branches for an Issue",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=_examples(
+            "github-local issue develop 12 --checkout",
+            "github-local issue develop --list 12 --json branch,head,current,relation",
+        ),
+    )
     develop.add_argument("number", type=int)
     develop.add_argument("--base", "-b", default=None, help="Git branch/ref to create the new branch from")
     develop.add_argument("--checkout", "-c", action="store_true", help="checkout the branch after creating or linking it")
