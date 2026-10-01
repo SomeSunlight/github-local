@@ -20,10 +20,20 @@ class CliTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def run_cli(self, *args, input_text=None):
+    def run_cli(self, *args, input_text=None, cwd=None, select_repo=True):
+        argv = list(args)
+        if (
+            select_repo
+            and len(argv) >= 2
+            and argv[0] == "issue"
+            and argv[1] not in ("init", "--help", "-h")
+            and "-R" not in argv
+            and "--repo" not in argv
+        ):
+            argv[2:2] = ["-R", "."]
         return subprocess.run(
-            [sys.executable, "-m", "github_local.cli", *args],
-            cwd=self.root, env=self.env, text=True, input=input_text,
+            [sys.executable, "-m", "github_local.cli", *argv],
+            cwd=cwd or self.root, env=self.env, text=True, input=input_text,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
         )
 
@@ -298,8 +308,8 @@ class CliTests(unittest.TestCase):
                 [
                     "Examples:",
                     "github-local init --owner local --repo my-project",
-                    'github-local issue create --title "Add validation" --label bug',
-                    "github-local issue list",
+                    'github-local issue create -R . --title "Add validation" --label bug',
+                    "github-local issue list -R .",
                 ],
             ),
             (
@@ -308,7 +318,7 @@ class CliTests(unittest.TestCase):
                     "Examples:",
                     "github-local issue list",
                     "github-local issue view 12 --comments",
-                    "github-local issue develop 12 --checkout",
+                    "github-local issue develop -R . 12 --checkout",
                 ],
             ),
             (
@@ -323,8 +333,8 @@ class CliTests(unittest.TestCase):
                 ("issue", "list", "--help"),
                 [
                     "Examples:",
-                    "github-local issue list --label bug --search parser",
-                    "github-local issue list --state all --json number,state,title,labels",
+                    "github-local issue list -R . --label bug --search parser",
+                    "github-local issue list -R . --state all --json number,state,title,labels",
                 ],
             ),
             (
@@ -332,7 +342,7 @@ class CliTests(unittest.TestCase):
                 [
                     "Examples:",
                     "github-local issue develop 12 --checkout",
-                    "github-local issue develop --list 12 --json branch,head,current,relation",
+                    "github-local issue develop -R . --list 12 --json branch,head,current,relation",
                 ],
             ),
         ]
@@ -343,6 +353,86 @@ class CliTests(unittest.TestCase):
                 self.assertEqual(0, result.returncode, result.stderr)
                 for text in expected:
                     self.assertIn(text, result.stdout)
+
+
+    def test_issue_commands_require_explicit_repository_selection(self):
+        self.assertEqual(0, self.run_cli("issue", "init", "--name", "demo").returncode)
+        result = self.run_cli(
+            "issue", "list",
+            select_repo=False,
+        )
+        self.assertEqual(2, result.returncode)
+        self.assertIn("--repo", result.stderr)
+
+    def test_nested_local_issue_repositories_have_independent_numbering(self):
+        product = self.root / "product-a"
+        extension = product / "extension-x"
+        extension.mkdir(parents=True)
+
+        product_init = self.run_cli(
+            "issue", "init", "--owner", "acme", "--name", "product-a",
+            cwd=product,
+        )
+        self.assertEqual(0, product_init.returncode, product_init.stderr)
+        extension_init = self.run_cli(
+            "issue", "init", "--owner", "acme", "--name", "extension-x",
+            cwd=extension,
+        )
+        self.assertEqual(0, extension_init.returncode, extension_init.stderr)
+
+        product_issue = self.run_cli(
+            "issue", "create", "--title", "Product work", "--json", "number,url",
+            cwd=product,
+        )
+        extension_issue = self.run_cli(
+            "issue", "create", "--title", "Extension work", "--json", "number,url",
+            cwd=extension,
+        )
+        self.assertEqual(0, product_issue.returncode, product_issue.stderr)
+        self.assertEqual(0, extension_issue.returncode, extension_issue.stderr)
+        product_payload = json.loads(product_issue.stdout)
+        extension_payload = json.loads(extension_issue.stdout)
+        self.assertEqual(1, product_payload["number"])
+        self.assertEqual(1, extension_payload["number"])
+        self.assertNotEqual(product_payload["url"], extension_payload["url"])
+
+        from_extension = self.run_cli(
+            "issue", "list", "-R", "..", "--json", "number,title",
+            cwd=extension,
+            select_repo=False,
+        )
+        self.assertEqual(
+            [{"number": 1, "title": "Product work"}],
+            json.loads(from_extension.stdout),
+        )
+
+    def test_bulk_delete_and_deinit_are_confirmed_cli_operations(self):
+        self.assertEqual(0, self.run_cli("issue", "init", "--name", "demo").returncode)
+        self.run_cli("issue", "create", "--title", "One")
+        self.run_cli("issue", "create", "--title", "Two")
+
+        aborted = self.run_cli(
+            "issue", "delete", "--all",
+            input_text="n\n",
+        )
+        self.assertEqual(1, aborted.returncode)
+        self.assertEqual(
+            [{"number": 1}, {"number": 2}],
+            json.loads(self.run_cli(
+                "issue", "list", "--state", "all", "--json", "number"
+            ).stdout),
+        )
+
+        deleted = self.run_cli(
+            "issue", "delete", "--all",
+            input_text="y\n",
+        )
+        self.assertEqual(0, deleted.returncode, deleted.stderr)
+        self.assertIn("Deleted 2 Issue(s)", deleted.stdout)
+
+        deinit = self.run_cli("issue", "deinit")
+        self.assertEqual(0, deinit.returncode, deinit.stderr)
+        self.assertFalse((self.root / ".github-local" / "config.json").exists())
 
 
 if __name__ == "__main__":
