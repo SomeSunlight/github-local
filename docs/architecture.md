@@ -19,6 +19,12 @@ The measured official `gh` Issue path requires a substantially larger GitHub Ent
 
 A real corporate Copilot session without MCP successfully used the CLI and native Git. This validates the intended terminal-first split; the maintained agent contract and validation status are in [Project Context](../CONTEXT.md), with detailed evidence in `agent-validation.md`.
 
-## Next architecture boundary
+## Git-native Change links
 
-Before adding richer mutable Issue state, define how the canonical project-wide backlog remains consistent across ordinary Git branches/worktrees (#3). Immediately after that, complete the Issue lifecycle and automatic closure of explicitly referenced accepted work (#4). Change ↔ Issue linking (#5) should add workflow semantics around native Git rather than duplicate Git state.
+Change ↔ Issue linking adds workflow semantics around native Git rather than a second Change-history store.
+
+`github-local issue develop <number>` creates or adopts a normal local Git branch. The first-class relation is stored as one branch-config value (`github-local-issue`) in the repository's shared Git configuration. Branch heads, commits, diffs, renames and deletion remain Git-owned.
+
+`github-local issue changes <number>` enumerates live local refs and returns branch name, current head SHA, current-worktree status and relation source. Explicit branch metadata is authoritative; the historical `issue-N-...` naming convention remains a read-only fallback for compatibility until that branch is adopted through `issue develop`.
+
+This deliberately avoids copying Git state into Markdown, SQLite or another Change database.
