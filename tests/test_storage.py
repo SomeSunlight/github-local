@@ -386,5 +386,22 @@ class StorageTests(unittest.TestCase):
         self.assertEqual("CLOSED", store.get(issue.number).state)
 
 
+    def test_parent_issue_repository_does_not_inherit_child_git(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        company = Path(temp.name) / "company"
+        product = company / "product"
+        src = product / "src"
+        src.mkdir(parents=True)
+        company_repo = Repository.initialize(company, owner="acme", name="company")
+        self.assertFalse(company_repo.has_git)
+
+        self.git(product, "init", "-q", "-b", "main")
+
+        discovered = Repository.discover(src)
+        self.assertEqual(company.resolve(), discovered.workflow_root)
+        self.assertFalse(discovered.has_git)
+
+
 if __name__ == "__main__":
     unittest.main()
