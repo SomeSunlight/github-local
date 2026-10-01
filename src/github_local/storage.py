@@ -43,7 +43,8 @@ def _utc_now() -> str:
 def normalize_labels(values: Iterable[str] | None) -> tuple[str, ...]:
     labels: list[str] = []
     seen: set[str] = set()
-    for raw in values or ():
+    source = (values,) if isinstance(values, str) else (values or ())
+    for raw in source:
         for part in raw.split(","):
             label = part.strip()
             if not label:
