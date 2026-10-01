@@ -161,6 +161,7 @@ class IssueStore:
                 }
             }
             self._write_issue(target, metadata, title, body, new=True)
+            self._write_issue_state(number + 1)
             return self._parse(target)
 
     def list(
@@ -399,7 +400,29 @@ class IssueStore:
             match = ISSUE_RE.match(path.name)
             if match:
                 maximum = max(maximum, int(match.group("number")))
-        return maximum + 1
+
+        next_number = maximum + 1
+        path = self.repository.issue_state_path
+        if path.exists():
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                if payload.get("schema") != 1:
+                    raise ValueError("unsupported Issue state schema")
+                persisted = int(payload["next_number"])
+                if persisted < 1:
+                    raise ValueError("invalid next Issue number")
+                next_number = max(next_number, persisted)
+            except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+                raise StorageError(f"invalid Issue repository state: {path}") from exc
+        return next_number
+
+    def _write_issue_state(self, next_number: int) -> None:
+        payload = {
+            "schema": 1,
+            "next_number": next_number,
+        }
+        text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+        self._atomic_write(self.repository.issue_state_path, text)
 
     def _issue_path(self, number: int) -> Path:
         matches = [
