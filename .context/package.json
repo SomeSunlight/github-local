@@ -2,14 +2,14 @@
   "changes": [],
   "compiler_version": "0.6.0",
   "digests": {
-    "normalized": "d9f893f751c9f614c039a5ce01d0a8bb5452277f8ee5a4b36df872e563a3645d",
-    "package": "678c79db4425ed46e12555b17095d319c8ee5bd33ce842c7e0a08294a57ffd90"
+    "normalized": "e2aba648b5a3c595e31715b38734269aa1b380aa3430a58d55fb6e5d2570a206",
+    "package": "bc03fcbd5af9cf37848fd38fdfc6019ff58ca18e93298d9b7d3be53d736471ce"
   },
   "files": [
     {
       "path": "CONTEXT.md",
-      "sha256": "9088deb5232c6b456b41e726cc001c2c83472c1bf6a46ae9649536344bf7e427",
-      "size": 21476
+      "sha256": "0cc85b12bb46b2bc0e49a02bbb5a75df3886d97573c7ea293b6dcadcec78e463",
+      "size": 21477
     },
     {
       "path": "CONTEXT/README.md",
@@ -33,8 +33,8 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
-      "sha256": "18f9f1e8361a8989bccfe0a44a7b4e2fbd849c5ce6bd3f66e5461d05cb7d7b1d",
-      "size": 2222
+      "sha256": "20781d3e5c5f28093bf3312187a295106a18b68b8ec0cc2ef653edfc1edc4d89",
+      "size": 2538
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md",
@@ -93,7 +93,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.9-draft"
+    "version": "0.1.10-draft"
   },
   "parents": [],
   "removed_rules": [],
