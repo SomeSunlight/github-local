@@ -2,13 +2,13 @@
   "changes": [],
   "compiler_version": "0.6.0",
   "digests": {
-    "normalized": "2deac28c36d1d04f66c5bb1891fc32a829eb0c8402d54ca124eaefd2cda7edc0",
-    "package": "7e80bee0c72b3f7b1180e73b84ae52e8d2182a11313cd58db6a9bcb46445dfe4"
+    "normalized": "b05fe52becc1ca82d8d62f24b225abb7965c25d84c9b1756ba6435ad47822020",
+    "package": "b225d63aae3064388613597d1af59d9c2961d3c21594d12a211763fd7e8f9def"
   },
   "files": [
     {
       "path": "CONTEXT.md",
-      "sha256": "b6ff70d65d45acf6798acecfc20bf579c1dcba0f5220729ebfb261e2fa109dde",
+      "sha256": "86de90249de71d19c09217f555f95f504810ccc874bbff293cd70b4e38a84e46",
       "size": 19499
     },
     {
@@ -23,8 +23,8 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md",
-      "sha256": "ae8873fc28b07b80f1174aef76d21cbf218943e92e2d2d54940287a8347c0779",
-      "size": 7708
+      "sha256": "437df35c48323fdcfbc78e60914812a969e45fa689aa4e671d420190be59f552",
+      "size": 8043
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
@@ -33,8 +33,8 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md",
-      "sha256": "3371abcad7250074323efeabe766bde3d1b97f5255a32a474b7aac208c49179b",
-      "size": 1671
+      "sha256": "b8088530bffc30e501d9c7eef7ca164860b7f26a5035cea208924ae2d37127c0",
+      "size": 2118
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md",
@@ -83,7 +83,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.5-draft"
+    "version": "0.1.6-draft"
   },
   "parents": [],
   "removed_rules": [],
