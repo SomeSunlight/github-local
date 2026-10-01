@@ -189,12 +189,12 @@ Purpose: reduce first-use trial-and-error for humans and terminal-capable agents
 - [x] Reconcile the owner-tested/squash-merged #6 result on `main`.
 - [x] Re-read the ContextCanon routes for agent-facing help/discovery and GitHub CLI compatibility.
 - [x] Confirm current official `gh issue` help uses compact Examples sections.
-- [ ] Add concise examples to top-level `github-local --help`.
-- [ ] Add concise examples to `github-local issue --help`.
-- [ ] Add focused examples to `issue create`, `issue list`, and `issue develop` help.
-- [ ] Include structured `--json` examples for cheap agent inspection.
-- [ ] Add regression tests that pin the examples to supported syntax.
-- [ ] Update agent-validation documentation with the resolved #7 gap.
+- [x] Add concise examples to top-level `github-local --help`.
+- [x] Add concise examples to `github-local issue --help`.
+- [x] Add focused examples to `issue create`, `issue list`, and `issue develop` help.
+- [x] Include structured `--json` examples for cheap agent inspection.
+- [x] Add regression tests that pin the examples to supported syntax.
+- [x] Update agent-validation documentation with the resolved #7 gap.
 - [ ] Run the complete deterministic suite and ContextCanon build/check.
 - [ ] Open a Draft PR with `Fixes #7` and keep it unmerged until explicit owner approval.
 
