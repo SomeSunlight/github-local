@@ -60,8 +60,8 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: Users and agents should never need to discover and manipulate hidden implementation files, while visible Markdown Issues remain intentionally inspectable project artifacts.
   <!-- ctx:rule id="GHLR-012" -->
 
-- **Keep Issue workflow state project-wide:** Ordinary Git branches/worktrees must not silently create divergent canonical backlogs or duplicate Issue identities/numbers.
-  Why: Issues may exist long before implementation branches and represent project workflow state rather than one code branch.
+- **Keep each local Issue repository branch/worktree independent:** Ordinary Git branches and linked worktrees must resolve the same canonical backlog for an initialized local Issue repository rather than silently cloning its Issue identities or number space.
+  Why: Issue state belongs to the explicit workflow boundary declared by `issue init`, not to whichever code branch or worktree happens to be active.
   <!-- ctx:rule id="GHLR-006" -->
 
 - **Let completed work leave the open backlog:** Provide explicit close/reopen semantics and automatically close an Issue when accepted/merged work carries an explicit closing reference; do not treat an arbitrary Issue mention as a closing instruction.
