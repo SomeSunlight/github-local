@@ -57,9 +57,12 @@ class ChangeStore:
         explicit = self._explicit_link(target) if head is not None else None
         if explicit is not None and explicit != (self.repository.repository_id, number):
             linked_repo, linked_issue = explicit
+            if linked_repo == self.repository.repository_id:
+                target_description = f"Issue #{linked_issue}"
+            else:
+                target_description = f"another local repository Issue #{linked_issue}"
             raise ChangeError(
-                f"branch {target!r} is already linked to "
-                f"{linked_repo or 'another repository'} Issue #{linked_issue}"
+                f"branch {target!r} is already linked to {target_description}"
             )
 
         if head is None:
