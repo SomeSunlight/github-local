@@ -154,7 +154,7 @@ class StorageTests(unittest.TestCase):
         self.assertEqual(list(range(1, 13)), sorted(results))
         self.assertEqual(12, len(list((root / "issues").glob("*.md"))))
 
-    def test_legacy_visible_config_is_migrated_to_shared_git_state(self):
+    def test_legacy_visible_config_remains_readable_without_migration(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         root = Path(temp.name)
@@ -169,8 +169,26 @@ class StorageTests(unittest.TestCase):
         repo = Repository.discover(root)
         self.assertEqual("acme", repo.owner)
         self.assertEqual("demo", repo.name)
-        self.assertTrue(repo.config_path.is_file())
-        self.assertTrue(str(repo.config_path).startswith(str((root / ".git").resolve())))
+        self.assertTrue(repo.repository_id.startswith("R_gl_legacy_"))
+        self.assertEqual(legacy.resolve(), repo.config_path.resolve())
+        self.assertEqual(1, json.loads(legacy.read_text(encoding="utf-8"))["schema"])
+
+    def test_issue_repository_can_exist_without_git(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name) / "company"
+        nested = root / "product" / "src"
+        nested.mkdir(parents=True)
+
+        repo = Repository.initialize(root, owner="acme", name="company")
+        self.assertFalse(repo.has_git)
+        created = IssueStore(repo).create("Company backlog")
+        self.assertEqual(1, created.number)
+
+        discovered = Repository.discover(nested)
+        self.assertEqual(root.resolve(), discovered.workflow_root)
+        self.assertEqual(repo.repository_id, discovered.repository_id)
+        self.assertEqual([1], [item.number for item in IssueStore(discovered).list()])
 
     def test_tracked_issues_are_rejected_explicitly(self):
         temp = tempfile.TemporaryDirectory()
