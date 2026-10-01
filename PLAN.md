@@ -111,16 +111,18 @@ Exit: create → edit/comment → close/reopen → state-filter → merge-with-c
 
 Purpose: replace the temporary naming-only convention with a tiny machine-readable layer around native Git branches, without duplicating commits, diffs, branch heads, or merge state.
 
-- [ ] Add `issue develop <number>` to create/switch to a conventional development branch from the accepted branch.
-- [ ] Record the Issue relation as branch-local Git metadata rather than a separate Change history store.
-- [ ] Reuse/adopt an existing conventional branch when safe and reject a branch already linked to another Issue.
-- [ ] Add `issue changes <number>` with stable human and JSON output derived from live Git refs.
-- [ ] Preserve compatibility with legacy `issue-N-...` branches by deriving a convention link when explicit metadata is absent.
-- [ ] Prove native `git branch -m` keeps the first-class link intact.
-- [ ] Keep linked-worktree behavior shared through the repository's common Git configuration.
-- [ ] Add focused real-Git and CLI regression tests.
-- [ ] Document the productive Issue → develop → commit → accepted-close workflow.
+- [x] Add `issue develop <number>` to create/switch to a conventional development branch from the accepted branch.
+- [x] Record the Issue relation as branch-local Git metadata rather than a separate Change history store.
+- [x] Reuse/adopt an existing conventional branch when safe and reject a branch already linked to another Issue.
+- [x] Add `issue changes <number>` with stable human and JSON output derived from live Git refs.
+- [x] Preserve compatibility with legacy `issue-N-...` branches by deriving a convention link when explicit metadata is absent.
+- [x] Prove native `git branch -m` keeps the first-class link intact.
+- [x] Keep linked-worktree behavior shared through the repository's common Git configuration.
+- [x] Add focused real-Git and CLI regression tests.
+- [x] Document the productive Issue → develop → commit → accepted-close workflow.
 - [ ] Run the complete deterministic suite and ContextCanon build/check.
 - [ ] Keep the review PR unmerged until explicit owner approval; PR body must use `Fixes #5`.
+
+Checkpoint: `issue develop` and `issue changes` are implemented; explicit links use Git branch configuration, conventional legacy branches remain discoverable, conflicting links fail before branch switching, native branch rename preserves the relation, and linked-worktree plus CLI regression coverage is present. Full deterministic suite and ContextCanon build/check remain the owner merge gate.
 
 Exit: an agent can create or discover the Git branch belonging to an Issue and inspect that relation cheaply as structured data, while Git remains authoritative for all code history.
