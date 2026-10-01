@@ -291,5 +291,59 @@ class CliTests(unittest.TestCase):
         self.assertEqual([], json.loads(missing.stdout))
 
 
+    def test_help_surfaces_include_concise_supported_examples(self):
+        cases = [
+            (
+                ("--help",),
+                [
+                    "Examples:",
+                    "github-local init --owner local --repo my-project",
+                    'github-local issue create --title "Add validation" --label bug',
+                    "github-local issue list",
+                ],
+            ),
+            (
+                ("issue", "--help"),
+                [
+                    "Examples:",
+                    "github-local issue list",
+                    "github-local issue view 12 --comments",
+                    "github-local issue develop 12 --checkout",
+                ],
+            ),
+            (
+                ("issue", "create", "--help"),
+                [
+                    "Examples:",
+                    'github-local issue create --title "Fix parser" --body "Reject invalid input." --label bug',
+                    '--json number,title,labels',
+                ],
+            ),
+            (
+                ("issue", "list", "--help"),
+                [
+                    "Examples:",
+                    "github-local issue list --label bug --search parser",
+                    "github-local issue list --state all --json number,state,title,labels",
+                ],
+            ),
+            (
+                ("issue", "develop", "--help"),
+                [
+                    "Examples:",
+                    "github-local issue develop 12 --checkout",
+                    "github-local issue develop --list 12 --json branch,head,current,relation",
+                ],
+            ),
+        ]
+
+        for argv, expected in cases:
+            with self.subTest(argv=argv):
+                result = self.run_cli(*argv)
+                self.assertEqual(0, result.returncode, result.stderr)
+                for text in expected:
+                    self.assertIn(text, result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
