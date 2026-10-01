@@ -192,6 +192,7 @@ If the manual smoke test above already passed, the project owner does **not** ne
 
 ## Project documentation
 
+- `CONTRIBUTING.md` — contributor guide, including how `gh` compatibility is measured and updated
 - `PLAN.md` — active/recoverable work block
 - `STATE.md` — current architecture and implementation checkpoint
 - `docs/gh-compatibility.md` — measured current `gh` contract and decision evidence
