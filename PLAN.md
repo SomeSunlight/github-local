@@ -221,6 +221,6 @@ Purpose: let company, product, and extension folders own independent GitHub-like
 - [x] Keep unqualified closing references only where the local Issue repository is the Git root; use `owner/repo#N` for nested repositories.
 - [x] Update README, architecture, storage, compatibility docs, and focused regression coverage.
 - [ ] Run the complete deterministic suite and ContextCanon build/check.
-- [ ] Open a Draft PR with `Fixes #14`; keep it unmerged until explicit owner approval.
+- [x] Open Draft PR #18 with `Fixes #14`; keep it unmerged until explicit owner approval.
 
 Exit: moving through the folder tree and running `issue init` creates deliberate independent backlogs, while every later Issue operation names its target explicitly and no nested Git repositories are required.
