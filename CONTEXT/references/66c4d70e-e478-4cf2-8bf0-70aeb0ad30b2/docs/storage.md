@@ -32,11 +32,12 @@ Runtime coordination state is shared through Git's common metadata directory:
 ```text
 <git-common-dir>/github-local/
 ├── config.json
+├── closing-state.json
 └── locks/
     └── issues.lock
 ```
 
-This shared metadata contains repository identity and locking only. Canonical Issue content remains visible Markdown below the primary worktree's `issues/`; it is not moved into the Git metadata directory or an opaque database.
+This shared metadata contains repository identity, the configured accepted branch, the last accepted commit already checked for closing references, and locking. Canonical Issue content remains visible Markdown below the primary worktree's `issues/`; it is not moved into the Git metadata directory or an opaque database.
 
 Existing pre-#3 projects with `.github-local/config.json` are migrated lazily: github.local reads the visible legacy configuration once and writes the same repository identity into the common Git metadata area.
 
@@ -57,6 +58,35 @@ This separation is intentional:
 - native Git branches/worktrees own code state;
 - github.local owns one local workflow backlog per Git repository;
 - Markdown remains inspectable with normal editors and file tools.
+
+## Lifecycle and comments
+
+Issue state changes, title/body edits, and comments use the same shared lock as creation. Renaming a title may rename the Markdown filename, but the Issue number and stable Issue ID remain unchanged.
+
+Comments are durable Markdown files below the same visible workflow tree:
+
+```text
+issues/comments/0001/0001.md
+issues/comments/0001/0002.md
+```
+
+The Issue body remains in the Issue file; comments remain separate visible discussion records. `issue view` renders both.
+
+## Accepted branch and automatic close
+
+Each repository records one **accepted branch** in shared config. `github-local init` infers it from the remote default branch when available, otherwise from the current branch; `--accepted-branch` can set it explicitly.
+
+Every Issue command reconciles commits newly reachable from that accepted branch. Only explicit closing references are interpreted:
+
+```text
+Fixes #17
+Closes #17
+Resolves #17
+```
+
+An ordinary mention such as `#17` does not close anything. A closing reference on a feature branch does not close the Issue until that commit becomes reachable from the accepted branch.
+
+The shared `closing-state.json` stores the last accepted commit already examined. This prevents historical commit messages from being replayed after an upgrade and prevents a deliberately reopened Issue from being immediately reclosed by an old commit. If accepted history is rewritten so the previous cursor is no longer an ancestor, github.local resets the cursor to the new accepted head rather than replaying ambiguous history.
 
 ## Numbering and concurrency
 
