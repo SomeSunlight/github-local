@@ -283,6 +283,10 @@ class Repository:
         return self.config_dir / "closing-state.json"
 
     @property
+    def issue_state_path(self) -> Path:
+        return self.config_dir / "issue-state.json"
+
+    @property
     def accepted_ref(self) -> str:
         if not self.accepted_branch:
             raise RepositoryError(
