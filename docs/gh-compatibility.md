@@ -6,6 +6,15 @@ Reference client: GitHub CLI **2.101.0** (released 2026-09-15). Source inspectio
 
 This environment could inspect official source and current documentation but could not download or execute the `gh` binary because outbound DNS is disabled. The repository therefore contains a trace/fake server under `spike/` so the same probes can be run with a real current `gh.exe` on Windows. No unmeasured request sequence is presented here as observed runtime evidence.
 
+## Evidence files
+
+The current compatibility decision uses two complementary evidence forms:
+
+- `spike/gh-2.101.0-source-contract.json` — machine-readable snapshot of the `gh v2.101.0` source inspection. It records which source paths and operations informed the decision and explicitly states that no black-box `gh` binary run occurred in the original inspection environment.
+- `spike/gh_trace_server.py` with `spike/README.md` — reproducible black-box harness for redirecting a real `gh` client to a tiny fake GitHub Enterprise-shaped endpoint and recording the resulting HTTP/GraphQL requests as JSONL.
+
+See `CONTRIBUTING.md` for an explanation of how these two evidence forms fit together and why CLI help alone is insufficient for protocol compatibility work.
+
 ## Host/routing facts
 
 - `gh` supports alternate GitHub Enterprise hosts via host configuration / `GH_HOST` and enterprise tokens.
