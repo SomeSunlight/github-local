@@ -35,6 +35,7 @@ Initialization creates:
 <issue-repository>/
 ├── .github-local/
 │   ├── config.json
+│   ├── issue-state.json          # monotonic next-number cursor
 │   ├── closing-state.json        # only meaningful with an associated Git repository
 │   └── locks/
 │       └── issues.lock
@@ -70,7 +71,7 @@ Every local Issue repository has its own monotonically increasing Issue number s
 
 New stable Issue IDs are derived from the stable local repository ID plus the Issue number, not from filesystem paths or mutable display names.
 
-Creation takes an OS-level exclusive lock inside that local repository's `.github-local/locks/`, scans only its canonical `issues/` directory, chooses `max + 1`, and publishes atomically. Independent repositories therefore never share allocators or require global coordination.
+Creation takes an OS-level exclusive lock inside that local repository's `.github-local/locks/`. A tiny `issue-state.json` cursor records the next number so deleting the highest Issue or bulk-deleting the backlog never makes an old number reusable. Existing files are still scanned as a safety floor, so the cursor can be reconstructed conservatively. Independent repositories never share allocators or require global coordination.
 
 ## Git integration is optional
 
