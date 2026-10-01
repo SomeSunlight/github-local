@@ -1,8 +1,8 @@
 # Issue storage
 
-## Canonical form
+## Visible Markdown is canonical
 
-Each Issue is one ordinary Markdown file:
+Each Issue is one ordinary Markdown file below the local Issue repository that owns it:
 
 ```text
 issues/0001-short-title.md
@@ -19,64 +19,95 @@ The file begins with a strict machine-owned front matter block. The content insi
 Issue body.
 ```
 
-The title and body are maintained once as Markdown. Machine metadata does not duplicate them. Labels are lightweight free-form names stored in the same Issue metadata. Existing schema-1 files without a `labels` member remain valid and are read as having no labels; adding labels does not require a format migration.
+The title and body are maintained once as Markdown. Labels are lightweight free-form names stored in the same Issue metadata. Existing schema-1 Issue files without a `labels` member remain valid.
 
-## One backlog per Git repository
+## Local Issue repositories are explicit workflow boundaries
 
-Issue state is **project workflow state**, not ordinary branch state.
-
-The primary Git worktree owns the canonical visible `issues/` directory. Every linked worktree discovers that primary worktree through Git and reads/writes the same Markdown files. Branch switches therefore do not select a different backlog, and linked worktrees do not get separate Issue number spaces.
-
-Runtime coordination state is shared through Git's common metadata directory:
+A folder becomes an Issue repository only through:
 
 ```text
-<git-common-dir>/github-local/
-├── config.json
-├── closing-state.json
-└── locks/
-    └── issues.lock
+github-local issue init
 ```
 
-This shared metadata contains repository identity, the configured accepted branch, the last accepted commit already checked for closing references, and locking. Canonical Issue content remains visible Markdown below the primary worktree's `issues/`; it is not moved into the Git metadata directory or an opaque database.
-
-Existing pre-#3 projects with `.github-local/config.json` are migrated lazily: github.local reads the visible legacy configuration once and writes the same repository identity into the common Git metadata area.
-
-## Keep workflow state out of branch tracking
-
-`github-local init` adds `/issues/` to the repository's shared `.git/info/exclude`. This keeps the canonical local backlog out of normal code-branch status without requiring a project `.gitignore` edit.
-
-If Git already tracks files below `issues/`, github.local refuses project-wide Issue operation rather than pretending the backlog is branch-independent. The migration is deliberately explicit:
+Initialization creates:
 
 ```text
-git rm --cached -r issues
+<issue-repository>/
+├── .github-local/
+│   ├── config.json
+│   ├── issue-state.json          # monotonic next-number cursor
+│   ├── closing-state.json        # only meaningful with an associated Git repository
+│   └── locks/
+│       └── issues.lock
+└── issues/
 ```
 
-Commit that code-state change before using github.local across branches/worktrees. Historical or other active branches that still track `issues/` must likewise receive that migration before github.local is used there.
+The hidden configuration is implementation metadata managed by the CLI. Canonical Issue content stays visible under `issues/`.
 
-This separation is intentional:
+The schema-2 repository config carries a generated stable repository ID plus a human-readable owner/name. The ID is path-independent: moving the initialized folder moves the backlog without changing its identity. Legacy schema-1 config remains readable and receives a deterministic compatibility identity in memory; github.local does not silently rewrite it.
 
-- native Git branches/worktrees own code state;
-- github.local owns one local workflow backlog per Git repository;
-- Markdown remains inspectable with normal editors and file tools.
+Issue-repository boundaries are deliberately independent of Git boundaries:
 
-## Lifecycle and comments
+- an Issue repository may exist without Git;
+- one Git repository may contain several nested local Issue repositories;
+- a parent folder and selected child folders may each own an independent backlog;
+- initializing an Issue repository never requires creating a nested Git repository.
 
-Issue state changes, title/body edits, and comments use the same shared lock as creation. Renaming a title may rename the Markdown filename, but the Issue number and stable Issue ID remain unchanged.
+This models GitHub's repository-level Issue separation without forcing the local filesystem to mirror Git repository boundaries.
 
-Comments are durable Markdown files below the same visible workflow tree:
+## Repository selection is explicit
+
+Ordinary Issue commands require `-R/--repo`.
+
+`-R .` explicitly means: starting at this path, resolve the nearest folder that was initialized as a local Issue repository. A different path selects that repository instead.
+
+The process CWD alone never chooses a target. This is intentional: humans and LLM agents can both lose track of directory context, so the destination of an Issue must be visible in the command itself.
+
+`issue init` is the exception because its meaning is already explicit: “declare this current folder to be an Issue repository.”
+
+## Independent numbering and identity
+
+Every local Issue repository has its own monotonically increasing Issue number space. Two sibling repositories may both contain `#1`.
+
+New stable Issue IDs are derived from the stable local repository ID plus the Issue number, not from filesystem paths or mutable display names.
+
+Creation takes an OS-level exclusive lock inside that local repository's `.github-local/locks/`. A tiny `issue-state.json` cursor records the next number so deleting the highest Issue or bulk-deleting the backlog never makes an old number reusable. Existing files are still scanned as a safety floor, so the cursor can be reconstructed conservatively. Independent repositories never share allocators or require global coordination.
+
+## Git integration is optional
+
+Issue CRUD, labels, search, comments, deletion, and repository initialization work without Git.
+
+When an initialized Issue repository lies inside a Git worktree, github.local additionally discovers:
+
+- the current Git worktree;
+- the primary worktree;
+- the shared Git common directory;
+- the accepted branch when it can be inferred.
+
+The canonical local Issue files live in the corresponding folder of the primary worktree. Linked worktrees map the same relative folder back to that canonical location, preserving the existing guarantee that ordinary Git worktrees do not fork workflow state.
+
+github.local adds path-specific entries for both `issues/` and `.github-local/` to the shared Git `info/exclude`. Workflow state therefore remains outside normal branch tracking without requiring project `.gitignore` changes. If Issue Markdown is already tracked, github.local refuses operation instead of silently changing the Git index.
+
+## Lifecycle, comments, deletion, and teardown
+
+State changes, title/body edits, labels, and comments use the same repository-local lock as creation. Renaming a title may rename the Markdown filename, but the Issue number and stable Issue ID remain unchanged.
+
+Comments are visible Markdown records:
 
 ```text
 issues/comments/0001/0001.md
 issues/comments/0001/0002.md
 ```
 
-The Issue body remains in the Issue file; comments remain separate visible discussion records. `issue view --comments` renders the discussion when requested.
+`issue delete N` follows GitHub CLI vocabulary and requires confirmation unless `--yes` is supplied. github.local additionally supports `issue delete --all` as a local bulk-administration extension; it is confirmation-protected as well.
+
+`issue deinit -R ...` removes local Issue-repository metadata only when the repository is empty. `--delete-issues` explicitly requests destructive teardown and prompts unless `--yes` is supplied. Destructive administration should never require manual deletion of hidden implementation files.
 
 ## Accepted branch and automatic close
 
-Each repository records one **accepted branch** in shared config. `github-local init` infers it from the remote default branch when available, otherwise from the current branch; `--accepted-branch` can set it explicitly.
+If a local Issue repository is associated with Git, it records or infers one accepted branch. Only commits newly reachable from that branch are inspected for closing references.
 
-Every Issue command reconciles commits newly reachable from that accepted branch. Only explicit closing references are interpreted:
+When the local Issue repository is also the Git root, the ordinary GitHub-shaped form remains unambiguous:
 
 ```text
 Fixes #17
@@ -84,32 +115,45 @@ Closes #17
 Resolves #17
 ```
 
-An ordinary mention such as `#17` does not close anything. A closing reference on a feature branch does not close the Issue until that commit becomes reachable from the accepted branch.
+For a nested local Issue repository inside a larger Git repository, unqualified numbers are intentionally not interpreted. Use the GitHub-style cross-repository form:
 
-The shared `closing-state.json` stores the last accepted commit already examined. This prevents historical commit messages from being replayed after an upgrade and prevents a deliberately reopened Issue from being immediately reclosed by an old commit. If accepted history is rewritten so the previous cursor is no longer an ancestor, github.local resets the cursor to the new accepted head rather than replaying ambiguous history.
+```text
+Fixes owner/repository#17
+```
 
-## Numbering and concurrency
+Only a qualified reference whose owner/repository matches the selected local Issue repository may close its Issue. This prevents two nested repositories that both contain `#17` from being confused.
 
-Issue numbers are repository-local monotonically increasing integers. Creation takes an OS-level exclusive lock from the shared Git common directory, scans the one canonical `issues/` directory, chooses `max + 1`, and writes the new file before releasing the lock.
+A plain mention such as `#17` never closes anything. A closing reference on an unmerged feature branch has no effect until it reaches the accepted branch.
 
-Because every linked worktree uses the same directory and the same lock, rapid or concurrent Issue creation across worktrees cannot allocate the same next number.
+Each local Issue repository keeps its own `closing-state.json` cursor. Rewritten accepted history resets that cursor rather than replaying ambiguous historical closes.
 
-The lock uses `msvcrt.locking` on Windows and `fcntl.flock` on POSIX. This is intentionally standard-library only. A crash releases an OS lock when the process exits; a stale lock record therefore does not block later runs.
+## Change links across multiple Issue repositories
+
+Git remains authoritative for branches and commits. A first-class branch relation records both:
+
+- the Issue number;
+- the stable local Issue-repository ID.
+
+That pair, rather than the number alone, identifies the linked Issue.
+
+For an Issue repository at the Git root, the historical default branch form `issue-17-title` remains available. Nested local Issue repositories qualify generated default branch names with the repository name, for example `issue-product-a-17-title`, avoiding collisions when sibling repositories contain the same Issue number.
+
+Legacy number-only branch metadata remains readable for the Git-root Issue repository only; it is never guessed to belong to a nested repository.
 
 ## Atomicity
 
-New content is written to a temporary file in the same directory, flushed and `fsync`ed, then moved into place with `os.replace`. Directory metadata is `fsync`ed where the platform permits it. Readers never treat temporary files as Issues.
+New or changed content is written to a temporary file in the same directory, flushed and `fsync`ed, then moved into place with `os.replace`. Directory metadata is `fsync`ed where the platform permits it. Readers never treat temporary files as Issues.
 
 ## Filenames are presentation, not identity
 
-The numeric prefix is authoritative for discovery. The slug is generated conservatively, ASCII-normalized, and avoids Windows reserved device names. A future title edit may rename the file while preserving the number and stable Issue ID.
+The numeric prefix is authoritative for discovery. The slug is generated conservatively, ASCII-normalized, and avoids Windows reserved device names. A title edit may rename the file while preserving the number and stable Issue ID.
 
 ## Labels and local search
 
-Labels have no separate registry or database in the current slice. They are case-insensitively matched free-form names persisted directly in each Issue's front matter. Repeated label filters use AND semantics.
+Labels have no separate registry or database. They are case-insensitively matched free-form names persisted directly in each Issue's front matter. Repeated label filters use AND semantics.
 
-`issue list --search` scans the canonical Issue files and performs a case-insensitive substring match over title, body, and label names. It deliberately does not reproduce GitHub's hosted advanced-search grammar. This keeps search reconstructable from visible Markdown and avoids introducing an index before one is needed.
+`issue list --search` scans only the selected local Issue repository and performs a case-insensitive substring match over title, body, and label names. It deliberately does not reproduce GitHub's hosted advanced-search grammar.
 
 ## Index/database policy
 
-There is no database in the MVP. If SQLite is added later it is an index/cache only and must be rebuildable from the canonical Markdown Issue files.
+There is no database in the MVP. If SQLite is added later it is an index/cache only and must be rebuildable from the selected local repository's canonical Markdown Issue files.

@@ -9,18 +9,25 @@ from .storage import IssueStore, slugify
 
 CONVENTIONAL_BRANCH_RE = re.compile(r"^issue-(?P<number>[0-9]+)(?:-|$)")
 BRANCH_ISSUE_KEY = "github-local-issue"
+BRANCH_REPOSITORY_KEY = "github-local-repository"
 
 
 class ChangeError(RuntimeError):
     pass
 
 
-def conventional_branch_name(number: int, title: str) -> str:
-    return f"issue-{number}-{slugify(title)}"
+def conventional_branch_name(
+    repository: Repository,
+    number: int,
+    title: str,
+) -> str:
+    if repository.is_git_root_repository:
+        return f"issue-{number}-{slugify(title)}"
+    return f"issue-{slugify(repository.name)}-{number}-{slugify(title)}"
 
 
-def _branch_config_key(branch: str) -> str:
-    return f"branch.{branch}.{BRANCH_ISSUE_KEY}"
+def _branch_config_key(branch: str, key: str) -> str:
+    return f"branch.{branch}.{key}"
 
 
 class ChangeStore:
@@ -36,26 +43,32 @@ class ChangeStore:
         base: str | None = None,
         checkout: bool = False,
     ) -> IssueChange:
+        git_root, _git_primary = self.repository.require_git()
         issue = self.issues.get(number)
-        target = name or conventional_branch_name(number, issue.title)
+        target = name or conventional_branch_name(self.repository, number, issue.title)
         self._validate_branch(target)
-        if target == self.repository.accepted_branch:
+        if self.repository.accepted_branch and target == self.repository.accepted_branch:
             raise ChangeError(
                 f"refusing to link accepted branch {target!r} to Issue #{number}"
             )
 
         current = self._current_branch()
         head = self._branch_head(target)
-        explicit = self._explicit_issue(target) if head is not None else None
-        if explicit is not None and explicit != number:
+        explicit = self._explicit_link(target) if head is not None else None
+        if explicit is not None and explicit != (self.repository.repository_id, number):
+            linked_repo, linked_issue = explicit
+            if linked_repo == self.repository.repository_id:
+                target_description = f"Issue #{linked_issue}"
+            else:
+                target_description = f"another local repository Issue #{linked_issue}"
             raise ChangeError(
-                f"branch {target!r} is already linked to Issue #{explicit}"
+                f"branch {target!r} is already linked to {target_description}"
             )
 
         if head is None:
             base_ref = base or self.repository.accepted_ref
             base_head = _git_optional(
-                self.repository.workflow_root,
+                self.repository.git_workflow_root,
                 "rev-parse",
                 "--verify",
                 base_ref,
@@ -65,49 +78,43 @@ class ChangeStore:
 
             if checkout:
                 self._require_clean_worktree()
-                completed = _run_git(
-                    self.repository.root,
-                    "switch",
-                    "-c",
-                    target,
-                    base_ref,
-                )
+                completed = _run_git(git_root, "switch", "-c", target, base_ref)
             else:
-                completed = _run_git(
-                    self.repository.root,
-                    "branch",
-                    target,
-                    base_ref,
-                )
+                completed = _run_git(git_root, "branch", target, base_ref)
             if completed.returncode != 0:
                 self._raise_git_error(completed)
         elif checkout and current != target:
             self._require_clean_worktree()
-            completed = _run_git(self.repository.root, "switch", target)
+            completed = _run_git(git_root, "switch", target)
             if completed.returncode != 0:
                 self._raise_git_error(completed)
 
-        explicit = self._explicit_issue(target)
+        explicit = self._explicit_link(target)
         if explicit is None:
-            completed = _run_git(
-                self.repository.root,
-                "config",
-                "--local",
-                _branch_config_key(target),
-                str(number),
-            )
-            if completed.returncode != 0:
-                self._raise_git_error(completed)
+            for key, value in (
+                (BRANCH_ISSUE_KEY, str(number)),
+                (BRANCH_REPOSITORY_KEY, self.repository.repository_id),
+            ):
+                completed = _run_git(
+                    git_root,
+                    "config",
+                    "--local",
+                    _branch_config_key(target, key),
+                    value,
+                )
+                if completed.returncode != 0:
+                    self._raise_git_error(completed)
 
         return self._change_for_branch(target, expected_issue=number)
 
     def list(self, number: int) -> list[IssueChange]:
+        self.repository.require_git()
         self.issues.get(number)
         current = self._current_branch()
         changes: list[IssueChange] = []
 
         output = _git(
-            self.repository.workflow_root,
+            self.repository.git_workflow_root,
             "for-each-ref",
             "--format=%(refname:short)%00%(objectname)",
             "refs/heads",
@@ -116,9 +123,13 @@ class ChangeStore:
             if "\x00" not in line:
                 continue
             branch, head = line.split("\x00", 1)
-            explicit = self._explicit_issue(branch)
+            explicit = self._explicit_link(branch)
             if explicit is not None:
-                if explicit == number:
+                linked_repo, linked_issue = explicit
+                if (
+                    linked_repo == self.repository.repository_id
+                    and linked_issue == number
+                ):
                     changes.append(
                         IssueChange(
                             issue=number,
@@ -130,6 +141,8 @@ class ChangeStore:
                     )
                 continue
 
+            if not self.repository.is_git_root_repository:
+                continue
             match = CONVENTIONAL_BRANCH_RE.match(branch)
             if match and int(match.group("number")) == number:
                 changes.append(
@@ -148,10 +161,11 @@ class ChangeStore:
         head = self._branch_head(branch)
         if head is None:
             raise ChangeError(f"development branch disappeared: {branch}")
-        explicit = self._explicit_issue(branch)
-        if explicit != expected_issue:
+        explicit = self._explicit_link(branch)
+        if explicit != (self.repository.repository_id, expected_issue):
             raise ChangeError(
-                f"branch {branch!r} is not linked to Issue #{expected_issue}"
+                f"branch {branch!r} is not linked to "
+                f"{self.repository.owner}/{self.repository.name} Issue #{expected_issue}"
             )
         return IssueChange(
             issue=expected_issue,
@@ -161,26 +175,40 @@ class ChangeStore:
             relation="explicit",
         )
 
-    def _explicit_issue(self, branch: str) -> int | None:
+    def _explicit_link(self, branch: str) -> tuple[str | None, int] | None:
+        git_root, _git_primary = self.repository.require_git()
         value = _git_optional(
-            self.repository.workflow_root,
+            git_root,
             "config",
             "--local",
             "--get",
-            _branch_config_key(branch),
+            _branch_config_key(branch, BRANCH_ISSUE_KEY),
         )
         if value is None:
             return None
         try:
-            return int(value)
+            issue = int(value)
         except ValueError as exc:
             raise ChangeError(
                 f"invalid github.local Issue link on branch {branch!r}: {value!r}"
             ) from exc
 
+        repository_id = _git_optional(
+            git_root,
+            "config",
+            "--local",
+            "--get",
+            _branch_config_key(branch, BRANCH_REPOSITORY_KEY),
+        )
+        if repository_id is None and self.repository.is_git_root_repository:
+            # Legacy links predate explicit local Issue-repository identity.
+            repository_id = self.repository.repository_id
+        return repository_id, issue
+
     def _branch_head(self, branch: str) -> str | None:
+        self.repository.require_git()
         return _git_optional(
-            self.repository.workflow_root,
+            self.repository.git_workflow_root,
             "show-ref",
             "--verify",
             "--hash",
@@ -188,8 +216,9 @@ class ChangeStore:
         )
 
     def _current_branch(self) -> str | None:
+        git_root, _git_primary = self.repository.require_git()
         return _git_optional(
-            self.repository.root,
+            git_root,
             "symbolic-ref",
             "--quiet",
             "--short",
@@ -197,17 +226,14 @@ class ChangeStore:
         )
 
     def _validate_branch(self, branch: str) -> None:
-        completed = _run_git(
-            self.repository.root,
-            "check-ref-format",
-            "--branch",
-            branch,
-        )
+        git_root, _git_primary = self.repository.require_git()
+        completed = _run_git(git_root, "check-ref-format", "--branch", branch)
         if completed.returncode != 0:
             raise ChangeError(f"invalid Git branch name: {branch!r}")
 
     def _require_clean_worktree(self) -> None:
-        status = _git(self.repository.root, "status", "--porcelain")
+        git_root, _git_primary = self.repository.require_git()
+        status = _git(git_root, "status", "--porcelain")
         if status:
             raise ChangeError(
                 "working tree has uncommitted changes; commit or stash them before switching development branches"

@@ -1,6 +1,6 @@
 # Current State
 
-The first Fast Track implementation block is complete locally and remains backed by bootstrap Issue #1.
+The original bootstrap block is complete; current development state is tracked by the active Fast Track Issue and the maintained Context rather than relying on bootstrap Issue #1.
 
 Architecture decision: **CLI-first native provider for the MVP**. Official `gh` remains a valuable vocabulary/reference and a possible later adapter, but current `gh` 2.101.0 Issue operations impose a GitHub Enterprise-shaped HTTPS/GraphQL contract that is disproportionate for the first local slice. See `docs/gh-compatibility.md` and `docs/architecture.md`.
 
@@ -70,7 +70,7 @@ PR #12 was owner-tested, ContextCanon-regenerated, approved, and squash-merged t
 
 ## Issue #13 — GitHub CLI compatibility cleanup
 
-GitHub CLI compatibility is now an explicit product rule: use official `gh issue` names, flags, aliases and defaults wherever they map cleanly to the local architecture. A smaller supported subset is acceptable; accidental syntax divergence is not. Local-only behavior must be documented together with the reason for the deviation. Issue #14 is no longer a blocker: if scopes are later needed, they must remain optional metadata over the one repository-wide Issue store and must not be selected implicitly from CWD.
+GitHub CLI compatibility is now an explicit product rule: use official `gh issue` names, flags, aliases and defaults wherever they map cleanly to the local architecture. A smaller supported subset is acceptable; accidental syntax divergence is not. Local-only behavior must be documented together with the reason for the deviation.
 
 
 ## Issue #13 implementation checkpoint
@@ -81,11 +81,15 @@ PR #15 was owner-tested and squash-merged to `main` as `f22eab4`; its `Fixes #13
 
 The #13 candidate now also promotes GitHub CLI compatibility into authored ContextCanon policy (GHLR-008), routes compatibility work to `CONTRIBUTING.md`, `spike/README.md`, and `spike/gh-2.101.0-source-contract.json`, and documents how source-derived evidence differs from a real-client black-box trace.
 
-## Issue #14 — optional Issue scopes
+## Issue #14 — explicit local Issue repositories
 
-The previous nested-store/CWD design has been rejected. The accepted direction keeps one canonical repository-wide `issues/` store. A future scope, if productive use still justifies it, is optional metadata with stable path-independent identity; a movable marker may help resolve a scope, but ordinary Issue commands remain repository-wide unless scope assignment is explicit. Any future `--scope` syntax is a documented github.local extension rather than an accidental `gh` divergence.
+Real workspace use reversed the earlier central-store/scope direction. A company folder, product, and independently managed extension are conceptually separate GitHub-like workflow units even when creating nested Git repositories would be undesirable. The accepted architecture therefore makes local Issue-repository boundaries explicit and independent of Git boundaries.
 
-#14 is deliberately deferred until after #6 and #7.
+`github-local issue init` declares a folder as a local Issue repository. Each initialized folder owns its own visible `issues/` store, numbering, stable path-independent repository identity, and local coordination metadata. Repositories may be nested and may exist without Git.
+
+Ordinary Issue commands require explicit `-R/--repo` selection. `-R .` explicitly resolves the nearest initialized local Issue repository; plain CWD is never an implicit target. This guards both humans and LLM agents against silently filing work in the wrong backlog.
+
+Active review branch: `issue-14-local-issue-repositories`.
 
 
 ## Issue #6 — backlog filters, labels and search
@@ -112,5 +116,12 @@ Active review branch: `issue-7-cli-help-examples`.
 
 The candidate adds compact `Examples:` epilogs to `github-local --help`, `github-local issue --help`, and the `issue create`, `issue list`, and `issue develop` help surfaces. The examples use only supported github.local syntax, retain GitHub-shaped vocabulary, and expose structured `--json` inspection without duplicating the README. Simpler lifecycle subcommands deliberately remain option-list-only.
 
-CLI regression coverage invokes each help surface without repository initialization and asserts the supported example commands remain present. `docs/agent-validation.md` records #7 as the direct resolution of the final help/discovery gap from the real Copilot debrief. Draft PR #17 contains the candidate with `Fixes #7` and remains unmerged pending the owner test plus ContextCanon gate.
+CLI regression coverage invokes each help surface without repository initialization and asserts the supported example commands remain present. `docs/agent-validation.md` records #7 as the direct resolution of the final help/discovery gap from the real Copilot debrief. The owner ran the deterministic suite successfully, regenerated ContextCanon output, pushed the final updates, and squash-merged PR #17 to `main` as `d1a129e`; Issue #7 closed automatically.
 
+## Issue #14 implementation checkpoint
+
+The candidate moves local repository identity out of Git common metadata and into each explicitly initialized workflow folder. Schema-2 local config carries a generated stable repository ID; legacy schema-1 config remains readable without forced migration. New Issue IDs derive from repository ID plus Issue number, so moving or renaming folders does not change identity.
+
+If Git is present, the selected local Issue repository maps to the corresponding path in the primary worktree so linked worktrees still share one canonical backlog. Path-specific `issues/` and `.github-local/` entries are excluded through shared Git metadata. If Git is absent, normal Issue storage and administration continue to work.
+
+The CLI now requires `-R/--repo` for normal Issue operations and adds `issue init`, `issue deinit`, GitHub-compatible `issue delete N --yes`, and confirmation-protected local bulk deletion. Change branch metadata stores both local repository ID and Issue number. Nested Issue repositories require qualified `owner/repo#N` closing references; unqualified `#N` closing references remain valid only for the Issue repository at the Git root. Draft PR #18 contains the candidate and remains unmerged pending the owner deterministic suite plus ContextCanon build/check.

@@ -1,5 +1,5 @@
 # github.local — Local Context Source
-<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.10-draft" -->
+<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.11-draft" -->
 
 ## Local Overview
 
@@ -44,8 +44,24 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: humans and LLMs already trained on GitHub should be able to transfer that knowledge directly instead of learning accidental local syntax.
   <!-- ctx:rule id="GHLR-008" -->
 
-- **Keep Issue workflow state project-wide:** Ordinary Git branches/worktrees must not silently create divergent canonical backlogs or duplicate Issue identities/numbers.
-  Why: Issues may exist long before implementation branches and represent project workflow state rather than one code branch.
+- **Make local Issue repositories explicit workflow boundaries:** A folder owns an Issue backlog only after an explicit `github-local issue init`; local Issue-repository boundaries are independent of Git repository boundaries and may be nested.
+  Why: A company, product, and independently managed extension can each be a GitHub-like unit of work without forcing nested Git repositories or mixing unrelated work into one label-heavy backlog.
+  <!-- ctx:rule id="GHLR-009" -->
+
+- **Require explicit Issue-repository selection for normal Issue work:** Issue commands must require `-R/--repo`; `-R .` explicitly asks github.local to resolve the nearest initialized local Issue repository from that location. Never select a repository merely because of the process CWD.
+  Why: Humans and LLM agents both lose track of directory context. Making the target part of the command turns a likely silent misfile into an explicit decision that is visible in logs and prompts.
+  <!-- ctx:rule id="GHLR-010" -->
+
+- **Keep each local Issue repository self-contained and movable:** Each initialized folder owns its own visible `issues/` store, numbering, stable path-independent repository identity, and repository-local workflow metadata.
+  Why: Products and extensions must be addable, removable, or moved as coherent units, and future Jira/Bitbucket synchronization needs an unambiguous local group rather than labels in a global backlog.
+  <!-- ctx:rule id="GHLR-011" -->
+
+- **Keep destructive Issue administration explicit and CLI-owned:** Initialization, teardown, Issue deletion, and bulk deletion must be available through github.local; destructive operations require confirmation unless the caller explicitly opts out.
+  Why: Users and agents should never need to discover and manipulate hidden implementation files, while visible Markdown Issues remain intentionally inspectable project artifacts.
+  <!-- ctx:rule id="GHLR-012" -->
+
+- **Keep each local Issue repository branch/worktree independent:** Ordinary Git branches and linked worktrees must resolve the same canonical backlog for an initialized local Issue repository rather than silently cloning its Issue identities or number space.
+  Why: Issue state belongs to the explicit workflow boundary declared by `issue init`, not to whichever code branch or worktree happens to be active.
   <!-- ctx:rule id="GHLR-006" -->
 
 - **Let completed work leave the open backlog:** Provide explicit close/reopen semantics and automatically close an Issue when accepted/merged work carries an explicit closing reference; do not treat an arbitrary Issue mention as a closing instruction.
@@ -120,7 +136,7 @@ Required:
 
 ### Issue storage and CLI behavior
 
-When changing Issue persistence, numbering, Markdown format, locking, atomic writes, or structured output:
+When changing local Issue-repository boundaries or selection, Issue persistence, numbering, Markdown format, locking, atomic writes, deletion, or structured output:
 
 Required:
 - Resource: `docs/storage.md`

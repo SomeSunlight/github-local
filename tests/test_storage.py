@@ -154,7 +154,7 @@ class StorageTests(unittest.TestCase):
         self.assertEqual(list(range(1, 13)), sorted(results))
         self.assertEqual(12, len(list((root / "issues").glob("*.md"))))
 
-    def test_legacy_visible_config_is_migrated_to_shared_git_state(self):
+    def test_legacy_visible_config_remains_readable_without_migration(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         root = Path(temp.name)
@@ -169,8 +169,26 @@ class StorageTests(unittest.TestCase):
         repo = Repository.discover(root)
         self.assertEqual("acme", repo.owner)
         self.assertEqual("demo", repo.name)
-        self.assertTrue(repo.config_path.is_file())
-        self.assertTrue(str(repo.config_path).startswith(str((root / ".git").resolve())))
+        self.assertTrue(repo.repository_id.startswith("R_gl_legacy_"))
+        self.assertEqual(legacy.resolve(), repo.config_path.resolve())
+        self.assertEqual(1, json.loads(legacy.read_text(encoding="utf-8"))["schema"])
+
+    def test_issue_repository_can_exist_without_git(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name) / "company"
+        nested = root / "product" / "src"
+        nested.mkdir(parents=True)
+
+        repo = Repository.initialize(root, owner="acme", name="company")
+        self.assertFalse(repo.has_git)
+        created = IssueStore(repo).create("Company backlog")
+        self.assertEqual(1, created.number)
+
+        discovered = Repository.discover(nested)
+        self.assertEqual(root.resolve(), discovered.workflow_root)
+        self.assertEqual(repo.repository_id, discovered.repository_id)
+        self.assertEqual([1], [item.number for item in IssueStore(discovered).list()])
 
     def test_tracked_issues_are_rejected_explicitly(self):
         temp = tempfile.TemporaryDirectory()
@@ -329,6 +347,60 @@ class StorageTests(unittest.TestCase):
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
         self.assertEqual((), IssueStore(repo).get(second.number).labels)
+
+
+    def test_deleted_issue_numbers_are_never_reused(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.assertEqual(1, store.create("One").number)
+        self.assertEqual(2, store.create("Two").number)
+        store.delete(2)
+        self.assertEqual(3, store.create("Three").number)
+        store.delete_all()
+        self.assertEqual(4, store.create("Four").number)
+
+    def test_nested_repository_requires_qualified_closing_reference(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        self.git(root, "init", "-q", "-b", "main")
+        self.git(root, "config", "user.email", "test@example.com")
+        self.git(root, "config", "user.name", "Test")
+        (root / "README.md").write_text("base\n", encoding="utf-8")
+        self.git(root, "add", "README.md")
+        self.git(root, "commit", "-qm", "base")
+
+        product = root / "product-a"
+        product.mkdir()
+        repo = Repository.initialize(product, owner="acme", name="product-a")
+        store = IssueStore(repo)
+        issue = store.create("Nested close")
+        store.reconcile_closing_references()
+
+        self.git(root, "commit", "--allow-empty", "-qm", "Fixes #1")
+        self.assertEqual([], store.reconcile_closing_references())
+        self.assertEqual("OPEN", store.get(issue.number).state)
+
+        self.git(root, "commit", "--allow-empty", "-qm", "Fixes acme/product-a#1")
+        self.assertEqual([1], store.reconcile_closing_references())
+        self.assertEqual("CLOSED", store.get(issue.number).state)
+
+
+    def test_parent_issue_repository_does_not_inherit_child_git(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        company = Path(temp.name) / "company"
+        product = company / "product"
+        src = product / "src"
+        src.mkdir(parents=True)
+        company_repo = Repository.initialize(company, owner="acme", name="company")
+        self.assertFalse(company_repo.has_git)
+
+        self.git(product, "init", "-q", "-b", "main")
+
+        discovered = Repository.discover(src)
+        self.assertEqual(company.resolve(), discovered.workflow_root)
+        self.assertFalse(discovered.has_git)
 
 
 if __name__ == "__main__":

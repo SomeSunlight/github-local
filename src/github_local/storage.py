@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import tempfile
 import time
 import unicodedata
@@ -19,6 +20,11 @@ from .repository import Repository
 ISSUE_RE = re.compile(r"^(?P<number>[0-9]{4,})-(?P<slug>.+)\.md$")
 CLOSING_RE = re.compile(
     r"\b(?:fix(?:e[sd])?|close[sd]?|resolve[sd]?)\s+#(?P<number>[0-9]+)\b",
+    re.IGNORECASE,
+)
+QUALIFIED_CLOSING_RE = re.compile(
+    r"\b(?:fix(?:e[sd])?|close[sd]?|resolve[sd]?)\s+"
+    r"(?P<owner>[A-Za-z0-9_.-]+)/(?P<repo>[A-Za-z0-9_.-]+)#(?P<number>[0-9]+)\b",
     re.IGNORECASE,
 )
 WINDOWS_RESERVED = {
@@ -66,8 +72,8 @@ def slugify(title: str) -> str:
     return slug
 
 
-def stable_issue_id(owner: str, repo: str, number: int) -> str:
-    digest = hashlib.sha256(f"{owner}/{repo}#{number}".encode("utf-8")).hexdigest()[:16]
+def stable_issue_id(repository_id: str, number: int) -> str:
+    digest = hashlib.sha256(f"{repository_id}#{number}".encode("utf-8")).hexdigest()[:16]
     return f"I_gl_{digest}"
 
 
@@ -140,7 +146,7 @@ class IssueStore:
         with FileLock(self._lock_path):
             number = self._next_number()
             now = self.clock()
-            issue_id = stable_issue_id(self.repository.owner, self.repository.name, number)
+            issue_id = stable_issue_id(self.repository.repository_id, number)
             filename = f"{number:04d}-{slugify(title)}.md"
             target = self.repository.issues_dir / filename
             metadata = {
@@ -155,6 +161,7 @@ class IssueStore:
                 }
             }
             self._write_issue(target, metadata, title, body, new=True)
+            self._write_issue_state(number + 1)
             return self._parse(target)
 
     def list(
@@ -187,6 +194,32 @@ class IssueStore:
 
     def get(self, number: int) -> Issue:
         return self._parse(self._issue_path(number))
+
+    def count(self) -> int:
+        return len(self.list())
+
+    def delete(self, number: int) -> None:
+        with FileLock(self._lock_path):
+            path = self._issue_path(number)
+            path.unlink()
+            comments = self.repository.issues_dir / "comments" / f"{number:04d}"
+            if comments.exists():
+                shutil.rmtree(comments)
+            comments_root = self.repository.issues_dir / "comments"
+            if comments_root.exists() and not any(comments_root.iterdir()):
+                comments_root.rmdir()
+
+    def delete_all(self) -> int:
+        with FileLock(self._lock_path):
+            count = sum(
+                1
+                for path in self.repository.issues_dir.glob("*.md")
+                if ISSUE_RE.match(path.name)
+            )
+            if self.repository.issues_dir.exists():
+                shutil.rmtree(self.repository.issues_dir)
+            self.repository.issues_dir.mkdir(parents=True, exist_ok=True)
+            return count
 
     def close(self, number: int) -> Issue:
         with FileLock(self._lock_path):
@@ -311,10 +344,21 @@ class IssueStore:
                 return []
 
             closed: list[int] = []
+            qualified_name = f"{self.repository.owner}/{self.repository.name}".casefold()
             for sha, message in self.repository.accepted_commits(
                 str(cursor) if cursor else None, head
             ):
-                numbers = {int(match.group("number")) for match in CLOSING_RE.finditer(message)}
+                numbers = {
+                    int(match.group("number"))
+                    for match in QUALIFIED_CLOSING_RE.finditer(message)
+                    if f"{match.group('owner')}/{match.group('repo')}".casefold()
+                    == qualified_name
+                }
+                if self.repository.is_git_root_repository:
+                    numbers.update(
+                        int(match.group("number"))
+                        for match in CLOSING_RE.finditer(message)
+                    )
                 for number in sorted(numbers):
                     try:
                         path = self._issue_path(number)
@@ -356,7 +400,29 @@ class IssueStore:
             match = ISSUE_RE.match(path.name)
             if match:
                 maximum = max(maximum, int(match.group("number")))
-        return maximum + 1
+
+        next_number = maximum + 1
+        path = self.repository.issue_state_path
+        if path.exists():
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                if payload.get("schema") != 1:
+                    raise ValueError("unsupported Issue state schema")
+                persisted = int(payload["next_number"])
+                if persisted < 1:
+                    raise ValueError("invalid next Issue number")
+                next_number = max(next_number, persisted)
+            except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+                raise StorageError(f"invalid Issue repository state: {path}") from exc
+        return next_number
+
+    def _write_issue_state(self, next_number: int) -> None:
+        payload = {
+            "schema": 1,
+            "next_number": next_number,
+        }
+        text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+        self._atomic_write(self.repository.issue_state_path, text)
 
     def _issue_path(self, number: int) -> Path:
         matches = [
@@ -471,7 +537,7 @@ class IssueStore:
         metadata, title, body = self._read_issue(path)
         issue_meta = metadata["github-local"]
         number = int(issue_meta["number"])
-        url = f"github-local://{self.repository.owner}/{self.repository.name}/issues/{number}"
+        url = f"github-local://{self.repository.repository_id}/issues/{number}"
         return Issue(
             number=number,
             issue_id=str(issue_meta["id"]),
