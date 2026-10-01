@@ -98,5 +98,12 @@ Active review branch: `issue-6-backlog-labels-search`. Assignees, milestones, pr
 
 The Draft PR #16 candidate stores optional label-name arrays directly in existing schema-1 Issue front matter; legacy files without `labels` are read as unlabeled. The CLI now supports `create -l/--label`, `edit --add-label/--remove-label`, `list -l/--label`, `list -S/--search`, and stable `labels` JSON. Multiple requested labels use AND filtering. Local search is a case-insensitive substring scan over title, body and labels rather than GitHub's hosted advanced-search grammar; that deviation is documented in `docs/gh-compatibility.md`.
 
-Focused storage/CLI regression tests were added, including legacy-file compatibility. This execution environment cannot resolve `github.com` from its local container, and GitHub App/API-created events did not trigger the temporary branch validation workflow, so the deterministic suite has not been represented as executed here. The temporary workflow was removed again and is absent from the final PR diff. Owner validation remains the normal full unit-suite plus ContextCanon build/check gate. PR #16 stays Draft and unmerged.
+Focused storage/CLI regression tests were added, including legacy-file compatibility. The owner then ran the complete deterministic suite successfully, regenerated ContextCanon output, ran `contextcanon check --all .`, added two missing generated/context files, and committed the final candidate. PR #16 was squash-merged to `main` as `ba732c8`; its `Fixes #6` reference closed Issue #6 automatically.
 
+## Issue #7 — concise CLI examples
+
+The remaining owner-test gap is discoverability rather than capability. The real corporate Copilot test succeeded through nested `--help`, but explicitly reported the lack of concise examples. Current official `gh` help uses compact Examples sections, so github.local will follow the same presentation pattern without copying GitHub-only operations.
+
+The focused slice adds examples to the top-level and `issue` help plus the syntax-heavy `create`, `list`, and `develop` subcommands. Simple lifecycle commands remain discoverable from their options alone. At least one `--json` example must remain visible because structured output is the primary cheap agent inspection path.
+
+Active review branch: `issue-7-cli-help-examples`.
