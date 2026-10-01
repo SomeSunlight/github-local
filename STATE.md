@@ -107,3 +107,10 @@ The remaining owner-test gap is discoverability rather than capability. The real
 The focused slice adds examples to the top-level and `issue` help plus the syntax-heavy `create`, `list`, and `develop` subcommands. Simple lifecycle commands remain discoverable from their options alone. At least one `--json` example must remain visible because structured output is the primary cheap agent inspection path.
 
 Active review branch: `issue-7-cli-help-examples`.
+
+## Issue #7 implementation checkpoint
+
+The candidate adds compact `Examples:` epilogs to `github-local --help`, `github-local issue --help`, and the `issue create`, `issue list`, and `issue develop` help surfaces. The examples use only supported github.local syntax, retain GitHub-shaped vocabulary, and expose structured `--json` inspection without duplicating the README. Simpler lifecycle subcommands deliberately remain option-list-only.
+
+CLI regression coverage invokes each help surface without repository initialization and asserts the supported example commands remain present. `docs/agent-validation.md` records #7 as the direct resolution of the final help/discovery gap from the real Copilot debrief.
+
