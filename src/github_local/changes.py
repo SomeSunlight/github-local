@@ -39,6 +39,12 @@ class ChangeStore:
 
         current = self._current_branch()
         head = self._branch_head(target)
+        explicit = self._explicit_issue(target) if head is not None else None
+        if explicit is not None and explicit != number:
+            raise ChangeError(
+                f"branch {target!r} is already linked to Issue #{explicit}"
+            )
+
         if head is None:
             accepted_head = self.repository.accepted_head()
             if accepted_head is None:
@@ -62,10 +68,6 @@ class ChangeStore:
                 self._raise_git_error(completed)
 
         explicit = self._explicit_issue(target)
-        if explicit is not None and explicit != number:
-            raise ChangeError(
-                f"branch {target!r} is already linked to Issue #{explicit}"
-            )
         if explicit is None:
             completed = _run_git(
                 self.repository.root,
