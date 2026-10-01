@@ -238,8 +238,7 @@ class CliTests(unittest.TestCase):
             "issue", "create",
             "--title", "Parser bug",
             "--body", "Fails on UTF-8 input",
-            "--label", "bug",
-            "-l", "priority:high",
+            "--label", "bug,priority:high",
             "--json", "number,labels",
         )
         self.assertEqual(0, created.returncode, created.stderr)
@@ -247,15 +246,19 @@ class CliTests(unittest.TestCase):
             {"number": 1, "labels": ["bug", "priority:high"]},
             json.loads(created.stdout),
         )
-        self.run_cli(
+        second = self.run_cli(
             "issue", "create",
             "--title", "Parser guide",
             "--body", "Document the parser",
             "--label", "docs",
         )
+        self.assertEqual(0, second.returncode, second.stderr)
 
         by_label = self.run_cli(
-            "issue", "list", "--label", "BUG", "--json", "number,labels",
+            "issue", "list",
+            "--label", "BUG",
+            "--label", "priority:high",
+            "--json", "number,labels",
         )
         self.assertEqual(0, by_label.returncode, by_label.stderr)
         self.assertEqual(
@@ -284,6 +287,7 @@ class CliTests(unittest.TestCase):
         missing = self.run_cli(
             "issue", "list", "-l", "bug", "--json", "number",
         )
+        self.assertEqual(0, missing.returncode, missing.stderr)
         self.assertEqual([], json.loads(missing.stdout))
 
 
