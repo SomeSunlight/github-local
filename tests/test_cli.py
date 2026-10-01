@@ -50,6 +50,50 @@ class CliTests(unittest.TestCase):
         self.assertEqual(0, view.returncode, view.stderr)
         self.assertEqual({"number": 1, "title": "Überprüfung", "body": "Markdown body"}, json.loads(view.stdout))
 
+    def test_issue_lifecycle_cli(self):
+        self.assertEqual(0, self.run_cli("init", "--owner", "acme", "--repo", "demo").returncode)
+        created = self.run_cli(
+            "issue", "create", "--title", "Old title", "--body", "Old body",
+            "--json", "number,state,title",
+        )
+        self.assertEqual(0, created.returncode, created.stderr)
+        self.assertEqual(
+            {"number": 1, "state": "OPEN", "title": "Old title"},
+            json.loads(created.stdout),
+        )
+
+        comment = self.run_cli("issue", "comment", "1", "--body", "Visible note")
+        self.assertEqual(0, comment.returncode, comment.stderr)
+        self.assertEqual("issues/comments/0001/0001.md", comment.stdout.strip())
+
+        edited = self.run_cli(
+            "issue", "edit", "1", "--title", "New title", "--body", "New body",
+            "--json", "number,state,title,body,path",
+        )
+        self.assertEqual(0, edited.returncode, edited.stderr)
+        payload = json.loads(edited.stdout)
+        self.assertEqual("New title", payload["title"])
+        self.assertEqual("New body", payload["body"])
+        self.assertEqual("issues/0001-new-title.md", payload["path"])
+
+        closed = self.run_cli("issue", "close", "1", "--json", "number,state")
+        self.assertEqual(0, closed.returncode, closed.stderr)
+        self.assertEqual({"number": 1, "state": "CLOSED"}, json.loads(closed.stdout))
+
+        open_list = self.run_cli("issue", "list", "--state", "open", "--json", "number")
+        self.assertEqual([], json.loads(open_list.stdout))
+        closed_list = self.run_cli("issue", "list", "--state", "closed", "--json", "number")
+        self.assertEqual([{"number": 1}], json.loads(closed_list.stdout))
+
+        reopened = self.run_cli("issue", "reopen", "1", "--json", "number,state")
+        self.assertEqual(0, reopened.returncode, reopened.stderr)
+        self.assertEqual({"number": 1, "state": "OPEN"}, json.loads(reopened.stdout))
+
+        view = self.run_cli("issue", "view", "1")
+        self.assertEqual(0, view.returncode, view.stderr)
+        self.assertIn("New body", view.stdout)
+        self.assertIn("Visible note", view.stdout)
+
     def test_version_is_available_without_repository_initialization(self):
         result = self.run_cli("--version")
         self.assertEqual(0, result.returncode, result.stderr)
