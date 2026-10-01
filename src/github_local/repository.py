@@ -465,17 +465,19 @@ class Repository:
         (workflow_root / ISSUES_DIR).mkdir(parents=True, exist_ok=True)
         (workflow_root / CONFIG_DIR / "locks").mkdir(parents=True, exist_ok=True)
 
+        branch = (
+            str(payload["accepted_branch"])
+            if payload.get("accepted_branch") is not None
+            else (_infer_accepted_branch(git_primary) if git_primary is not None else None)
+        )
+
         return cls(
             root=local_root,
             workflow_root=workflow_root,
             owner=str(payload["owner"]),
             name=str(payload["repository"]),
             repository_id=str(payload["id"]),
-            accepted_branch=(
-                str(payload["accepted_branch"])
-                if payload.get("accepted_branch") is not None
-                else None
-            ),
+            accepted_branch=branch,
             git_root=git_root,
             git_workflow_root=git_primary,
             git_common_dir=common_dir,
