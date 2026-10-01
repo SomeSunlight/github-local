@@ -65,4 +65,9 @@ The next layer stays deliberately Git-native. A Change is represented by a norma
 
 The review candidate adds `issue develop <number>` and `issue changes <number>`. A first-class link is one `github-local-issue` value in the normal Git branch configuration; live branch name/head/current-worktree status are always read from Git. Existing `issue-N-...` branches remain discoverable as convention links, and `issue develop` upgrades an adopted branch to an explicit relation. Native branch rename moves the config relation with the branch, so github.local does not need a parallel Change-history store.
 
-Draft PR #12 contains the #5 review candidate, uses `Fixes #5`, and remains unmerged pending the owner merge gate.
+PR #12 was owner-tested, ContextCanon-regenerated, approved, and squash-merged to `main` as `a2ea817`. Its `Fixes #5` reference automatically closed Issue #5.
+
+
+## Issue #13 — GitHub CLI compatibility cleanup
+
+GitHub CLI compatibility is now an explicit product rule: use official `gh issue` names, flags, aliases and defaults wherever they map cleanly to the local architecture. A smaller supported subset is acceptable; accidental syntax divergence is not. Local-only behavior must be documented together with the reason for the deviation. Issue #14 (nested Issue scopes) follows immediately after this cleanup and before backlog labels/search.
