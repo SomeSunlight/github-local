@@ -182,7 +182,7 @@ Exit: an agent can classify and find a larger repository-local backlog with fami
 
 ## Active Fast Track: concise CLI examples — Issue #7
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED**
 
 Purpose: reduce first-use trial-and-error for humans and terminal-capable agents without turning CLI help into a second README.
 
@@ -195,7 +195,32 @@ Purpose: reduce first-use trial-and-error for humans and terminal-capable agents
 - [x] Include structured `--json` examples for cheap agent inspection.
 - [x] Add regression tests that pin the examples to supported syntax.
 - [x] Update agent-validation documentation with the resolved #7 gap.
-- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [x] Run the complete deterministic suite and ContextCanon build/check.
 - [x] Open Draft PR #17 with `Fixes #7`; keep it unmerged until explicit owner approval.
 
+Checkpoint: the owner ran the deterministic suite successfully, regenerated ContextCanon output, pushed the final updates, and squash-merged PR #17 to `main` as `d1a129e`; Issue #7 closed automatically.
+
 Exit: a new agent can infer the normal Issue workflow and the structured inspection path from one or two help surfaces instead of probing several commands.
+
+## Active Fast Track: explicit local Issue repositories — Issue #14
+
+**Fast Track status — ACTIVE**
+
+Purpose: let company, product, and extension folders own independent GitHub-like Issue backlogs without requiring nested Git repositories or a global label-based backlog.
+
+- [x] Replace the discarded central-store/scope direction with explicit nested local Issue repositories.
+- [x] Record the durable architectural rules and rationale in authored Context.
+- [x] Add `issue init` as an explicit local workflow-boundary declaration independent of Git.
+- [x] Give every local Issue repository its own visible `issues/` store, number space, lock, and stable path-independent identity.
+- [x] Require explicit `-R/--repo` selection for ordinary Issue commands; `-R .` resolves the nearest initialized local repository.
+- [x] Preserve linked-worktree sharing by mapping initialized paths to the primary worktree when Git exists.
+- [x] Make Issue CRUD usable with no Git repository at all.
+- [x] Add GitHub-shaped `issue delete N --yes` plus confirmation-protected local `--all`.
+- [x] Add confirmation-protected `issue deinit` and destructive `--delete-issues`.
+- [x] Qualify Change links with stable local repository identity so sibling `#1` Issues cannot collide.
+- [x] Keep unqualified closing references only where the local Issue repository is the Git root; use `owner/repo#N` for nested repositories.
+- [x] Update README, architecture, storage, compatibility docs, and focused regression coverage.
+- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [ ] Open a Draft PR with `Fixes #14`; keep it unmerged until explicit owner approval.
+
+Exit: moving through the folder tree and running `issue init` creates deliberate independent backlogs, while every later Issue operation names its target explicitly and no nested Git repositories are required.
