@@ -2,14 +2,14 @@
   "changes": [],
   "compiler_version": "0.6.0",
   "digests": {
-    "normalized": "e2aba648b5a3c595e31715b38734269aa1b380aa3430a58d55fb6e5d2570a206",
-    "package": "bc03fcbd5af9cf37848fd38fdfc6019ff58ca18e93298d9b7d3be53d736471ce"
+    "normalized": "351b645ebe43318a79b4721951497135f6619064481002e230570cd5ffbcd5ae",
+    "package": "9dbe9b21cbb4586277012d04f688710ca8af3d51b5fbbe85694151ef1de5024d"
   },
   "files": [
     {
       "path": "CONTEXT.md",
-      "sha256": "0cc85b12bb46b2bc0e49a02bbb5a75df3886d97573c7ea293b6dcadcec78e463",
-      "size": 21477
+      "sha256": "aedbc3b17674b5ec6da76c007d52132cdf237421c932df3ac794e5d8eb71a690",
+      "size": 22694
     },
     {
       "path": "CONTEXT/README.md",
@@ -28,28 +28,28 @@
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md",
-      "sha256": "af7a31b2f2433b1563809a470072626443fc16d5e8d12b04ded4a4f73b967ac0",
-      "size": 8718
+      "sha256": "e3f6b8a64e253706b516887fc78a2e5979c043de18a8fab9ec9ddd0b35ebe32b",
+      "size": 9995
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
-      "sha256": "20781d3e5c5f28093bf3312187a295106a18b68b8ec0cc2ef653edfc1edc4d89",
-      "size": 2538
+      "sha256": "01c977644b51225be1bce9831bffc92989096fead5819978238707788478de17",
+      "size": 3405
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md",
-      "sha256": "b8088530bffc30e501d9c7eef7ca164860b7f26a5035cea208924ae2d37127c0",
-      "size": 2118
+      "sha256": "bc4ee8a604cd8484103d2af8b334e893e221d973234ef11e510e3cd53af9ea69",
+      "size": 3346
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md",
-      "sha256": "3264b78ced8e93d157bf558f07b843bd23347f214a1368e5fbf522c29df6d512",
-      "size": 7387
+      "sha256": "96189686ddc39b4a697a9807ca45f131fa88d69ec341fe2f0c54b71f9001d1ee",
+      "size": 8210
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md",
-      "sha256": "321e429355606e0bb0dbe6d836b742cd173a9b748319669049336d05cc18db38",
-      "size": 6532
+      "sha256": "ab19ebe6c4b9fe9bfffeecb5e24b933ef8fefc79554d5fa7163aa40712fa6320",
+      "size": 8587
     },
     {
       "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
@@ -93,7 +93,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.10-draft"
+    "version": "0.1.11-draft"
   },
   "parents": [],
   "removed_rules": [],
@@ -310,13 +310,53 @@
     },
     {
       "group": "Rules",
+      "id": "GHLR-009",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "A folder owns an Issue backlog only after an explicit `github-local issue init`; local Issue-repository boundaries are independent of Git repository boundaries and may be nested.",
+      "title": "Make local Issue repositories explicit workflow boundaries",
+      "why": "A company, product, and independently managed extension can each be a GitHub-like unit of work without forcing nested Git repositories or mixing unrelated work into one label-heavy backlog."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-010",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Issue commands must require `-R/--repo`; `-R .` explicitly asks github.local to resolve the nearest initialized local Issue repository from that location. Never select a repository merely because of the process CWD.",
+      "title": "Require explicit Issue-repository selection for normal Issue work",
+      "why": "Humans and LLM agents both lose track of directory context. Making the target part of the command turns a likely silent misfile into an explicit decision that is visible in logs and prompts."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-011",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Each initialized folder owns its own visible `issues/` store, numbering, stable path-independent repository identity, and repository-local workflow metadata.",
+      "title": "Keep each local Issue repository self-contained and movable",
+      "why": "Products and extensions must be addable, removable, or moved as coherent units, and future Jira/Bitbucket synchronization needs an unambiguous local group rather than labels in a global backlog."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-012",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Initialization, teardown, Issue deletion, and bulk deletion must be available through github.local; destructive operations require confirmation unless the caller explicitly opts out.",
+      "title": "Keep destructive Issue administration explicit and CLI-owned",
+      "why": "Users and agents should never need to discover and manipulate hidden implementation files, while visible Markdown Issues remain intentionally inspectable project artifacts."
+    },
+    {
+      "group": "Rules",
       "id": "GHLR-006",
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
-      "statement": "Ordinary Git branches/worktrees must not silently create divergent canonical backlogs or duplicate Issue identities/numbers.",
-      "title": "Keep Issue workflow state project-wide",
-      "why": "Issues may exist long before implementation branches and represent project workflow state rather than one code branch."
+      "statement": "Ordinary Git branches and linked worktrees must resolve the same canonical backlog for an initialized local Issue repository rather than silently cloning its Issue identities or number space.",
+      "title": "Keep each local Issue repository branch/worktree independent",
+      "why": "Issue state belongs to the explicit workflow boundary declared by `issue init`, not to whichever code branch or worktree happens to be active."
     },
     {
       "group": "Rules",
@@ -526,7 +566,7 @@
       "title": "Architecture and provider choice"
     },
     {
-      "condition": "When changing Issue persistence, numbering, Markdown format, locking, atomic writes, or structured output:",
+      "condition": "When changing local Issue-repository boundaries or selection, Issue persistence, numbering, Markdown format, locking, atomic writes, deletion, or structured output:",
       "id": "GHLR-TOPIC-ISSUES",
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",

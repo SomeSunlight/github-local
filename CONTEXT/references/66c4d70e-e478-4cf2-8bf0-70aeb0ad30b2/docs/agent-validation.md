@@ -44,3 +44,11 @@ The next work is tracked in Issues #3–#7. Automatic close is an early requirem
 Assignees and milestones remain deliberately out of scope while the primary workflow is single-owner.
 
 The test demonstrates that future deterministic local tools can use the same general integration pattern where appropriate: a compact discoverable CLI plus structured output can be a practical agent surface even when MCP is unavailable.
+
+## Explicit repository selection follow-up
+
+Issue #14 changes one agent-facing safety property deliberately: ordinary Issue commands now require `-R/--repo`. The original Copilot test relied on one Git repository containing one backlog, so CWD happened to be sufficient. Real corporate workspace use showed that this assumption does not hold when company, product, and extension folders each need independent Issue lists.
+
+The new contract makes the destination explicit. `-R .` is the concise local form: it resolves the nearest folder that was explicitly initialized with `github-local issue init`. An omitted selector is a usage error rather than a guess.
+
+This adds a few characters to each command but removes a more expensive failure mode for terminal-capable agents: silently creating, editing, or closing the right Issue number in the wrong product backlog.

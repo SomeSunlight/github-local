@@ -9,7 +9,7 @@ compiler_version: "0.6.0"
 node:
   id: "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2"
   name: "github.local"
-  version: "0.1.10-draft"
+  version: "0.1.11-draft"
 
 # Accepted semantic Parent packages. Locators are discovery metadata; build uses only exact pins.
 parents: []
@@ -48,7 +48,11 @@ local:
     - {"id": "GHLR-004", "title": "Keep the CLI model-friendly", "group": "Rules"}
     - {"id": "GHLR-005", "title": "Keep the CLI as the primary agent contract", "group": "Rules"}
     - {"id": "GHLR-008", "title": "Default to GitHub CLI compatibility", "group": "Rules"}
-    - {"id": "GHLR-006", "title": "Keep Issue workflow state project-wide", "group": "Rules"}
+    - {"id": "GHLR-009", "title": "Make local Issue repositories explicit workflow boundaries", "group": "Rules"}
+    - {"id": "GHLR-010", "title": "Require explicit Issue-repository selection for normal Issue work", "group": "Rules"}
+    - {"id": "GHLR-011", "title": "Keep each local Issue repository self-contained and movable", "group": "Rules"}
+    - {"id": "GHLR-012", "title": "Keep destructive Issue administration explicit and CLI-owned", "group": "Rules"}
+    - {"id": "GHLR-006", "title": "Keep each local Issue repository branch/worktree independent", "group": "Rules"}
     - {"id": "GHLR-007", "title": "Let completed work leave the open backlog", "group": "Rules"}
     - {"id": "ONB-B49912861E96", "title": "Use native Git for code state", "group": "Onboarding placement"}
     - {"id": "ONB-C16E29C80641", "title": "Keep canonical Issue truth visible", "group": "Onboarding placement"}
@@ -96,7 +100,11 @@ official:
     - {"id": "GHLR-004", "title": "Keep the CLI model-friendly", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-005", "title": "Keep the CLI as the primary agent contract", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-008", "title": "Default to GitHub CLI compatibility", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
-    - {"id": "GHLR-006", "title": "Keep Issue workflow state project-wide", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-009", "title": "Make local Issue repositories explicit workflow boundaries", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-010", "title": "Require explicit Issue-repository selection for normal Issue work", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-011", "title": "Keep each local Issue repository self-contained and movable", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-012", "title": "Keep destructive Issue administration explicit and CLI-owned", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-006", "title": "Keep each local Issue repository branch/worktree independent", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-007", "title": "Let completed work leave the open backlog", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "ONB-B49912861E96", "title": "Use native Git for code state", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "ONB-C16E29C80641", "title": "Keep canonical Issue truth visible", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
@@ -229,5 +237,5 @@ resources:
 
 # Exact deterministic identities. package_digest covers CONTEXT.md plus CONTEXT/ resources.
 package:
-  normalized_digest: "e2aba648b5a3c595e31715b38734269aa1b380aa3430a58d55fb6e5d2570a206"
-  package_digest: "bc03fcbd5af9cf37848fd38fdfc6019ff58ca18e93298d9b7d3be53d736471ce"
+  normalized_digest: "351b645ebe43318a79b4721951497135f6619064481002e230570cd5ffbcd5ae"
+  package_digest: "9dbe9b21cbb4586277012d04f688710ca8af3d51b5fbbe85694151ef1de5024d"

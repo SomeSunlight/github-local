@@ -8,7 +8,7 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.10-draft`
+**Context version:** `0.1.11-draft`
 
 **Resulting imported Contexts:**
 
@@ -227,9 +227,25 @@ Terminal-capable agents must be able to perform the normal workflow through stab
 
 For capabilities that github.local supports, prefer official `gh` command vocabulary, flags, aliases, and user-facing defaults wherever they map cleanly to the local architecture; every deliberate deviation must be explicit, documented, and justified.
 
-#### `GHLR-006` — Keep Issue workflow state project-wide
+#### `GHLR-009` — Make local Issue repositories explicit workflow boundaries
 
-Ordinary Git branches/worktrees must not silently create divergent canonical backlogs or duplicate Issue identities/numbers.
+A folder owns an Issue backlog only after an explicit `github-local issue init`; local Issue-repository boundaries are independent of Git repository boundaries and may be nested.
+
+#### `GHLR-010` — Require explicit Issue-repository selection for normal Issue work
+
+Issue commands must require `-R/--repo`; `-R .` explicitly asks github.local to resolve the nearest initialized local Issue repository from that location. Never select a repository merely because of the process CWD.
+
+#### `GHLR-011` — Keep each local Issue repository self-contained and movable
+
+Each initialized folder owns its own visible `issues/` store, numbering, stable path-independent repository identity, and repository-local workflow metadata.
+
+#### `GHLR-012` — Keep destructive Issue administration explicit and CLI-owned
+
+Initialization, teardown, Issue deletion, and bulk deletion must be available through github.local; destructive operations require confirmation unless the caller explicitly opts out.
+
+#### `GHLR-006` — Keep each local Issue repository branch/worktree independent
+
+Ordinary Git branches and linked worktrees must resolve the same canonical backlog for an initialized local Issue repository rather than silently cloning its Issue identities or number space.
 
 #### `GHLR-007` — Let completed work leave the open backlog
 
@@ -319,7 +335,7 @@ When deciding between official `gh` compatibility and the native `github-local` 
 
 ### Issue storage and CLI behavior
 
-When changing Issue persistence, numbering, Markdown format, locking, atomic writes, or structured output:
+When changing local Issue-repository boundaries or selection, Issue persistence, numbering, Markdown format, locking, atomic writes, deletion, or structured output:
 
 **Required**
 
