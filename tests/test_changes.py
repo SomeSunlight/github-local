@@ -43,7 +43,7 @@ class ChangeTests(unittest.TestCase):
 
         self.assertEqual("issue-1-first-change", change.branch)
         self.assertEqual(main_head, change.head)
-        self.assertTrue(change.current)
+        self.assertFalse(change.current)
         self.assertEqual("explicit", change.relation)
         self.assertEqual(
             "1",
@@ -55,11 +55,29 @@ class ChangeTests(unittest.TestCase):
             ).stdout.strip(),
         )
 
+    def test_develop_can_use_explicit_base_and_checkout(self):
+        temp, root, repo, issues, changes = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        issue = issues.create("Base branch")
+        self.git(root, "branch", "release", "main")
+        release_head = self.git(root, "rev-parse", "release").stdout.strip()
+
+        change = changes.develop(
+            issue.number,
+            name="custom-change",
+            base="release",
+            checkout=True,
+        )
+
+        self.assertEqual("custom-change", change.branch)
+        self.assertEqual(release_head, change.head)
+        self.assertTrue(change.current)
+
     def test_native_branch_rename_preserves_explicit_link(self):
         temp, root, repo, issues, changes = self.make_repo()
         self.addCleanup(temp.cleanup)
         issue = issues.create("Rename me")
-        changes.develop(issue.number)
+        changes.develop(issue.number, checkout=True)
         self.git(root, "branch", "-m", "renamed/change")
 
         linked = changes.list(issue.number)
@@ -79,7 +97,7 @@ class ChangeTests(unittest.TestCase):
         self.assertEqual(1, len(linked))
         self.assertEqual("convention", linked[0].relation)
 
-        adopted = changes.develop(issue.number, branch="issue-1-legacy")
+        adopted = changes.develop(issue.number, name="issue-1-legacy", checkout=True)
         self.assertEqual("explicit", adopted.relation)
         self.assertTrue(adopted.current)
 
@@ -88,11 +106,10 @@ class ChangeTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         first = issues.create("One")
         second = issues.create("Two")
-        changes.develop(first.number, branch="shared-change")
-        self.git(root, "switch", "-q", "main")
+        changes.develop(first.number, name="shared-change")
 
         with self.assertRaisesRegex(ChangeError, "already linked to Issue #1"):
-            changes.develop(second.number, branch="shared-change")
+            changes.develop(second.number, name="shared-change")
 
         self.assertEqual(
             "main",
@@ -104,7 +121,6 @@ class ChangeTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         issue = issues.create("Shared relation")
         changes.develop(issue.number)
-        self.git(root, "switch", "-q", "main")
 
         linked = root.parent / f"{root.name}-linked"
         self.git(root, "worktree", "add", "-q", "-b", "observer", str(linked), "main")
