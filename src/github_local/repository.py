@@ -460,9 +460,15 @@ class Repository:
 
         git_root = git_primary = common_dir = None
         if layout is not None:
-            git_root, git_primary, common_dir = layout
-            relative = _relative_if_within(workflow_root, git_primary)
-            if relative is not None:
+            candidate_root, candidate_primary, candidate_common = layout
+            canonical_relative = _relative_if_within(workflow_root, candidate_primary)
+            local_relative = _relative_if_within(local_root, candidate_root)
+            if canonical_relative is not None and local_relative is not None:
+                git_root, git_primary, common_dir = (
+                    candidate_root,
+                    candidate_primary,
+                    candidate_common,
+                )
                 _ensure_untracked_issue_store(git_primary, workflow_root)
                 _ensure_excluded(common_dir, git_primary, workflow_root)
 
