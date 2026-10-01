@@ -121,7 +121,7 @@ Purpose: replace the temporary naming-only convention with a tiny machine-readab
 - [x] Add focused real-Git and CLI regression tests.
 - [x] Document the productive Issue → develop → commit → accepted-close workflow.
 - [ ] Run the complete deterministic suite and ContextCanon build/check.
-- [ ] Keep the review PR unmerged until explicit owner approval; PR body must use `Fixes #5`.
+- [x] Keep Draft PR #12 unmerged until explicit owner approval; its body uses `Fixes #5`.
 
 Checkpoint: `issue develop` and `issue changes` are implemented; explicit links use Git branch configuration, conventional legacy branches remain discoverable, conflicting links fail before branch switching, native branch rename preserves the relation, and linked-worktree plus CLI regression coverage is present. Full deterministic suite and ContextCanon build/check remain the owner merge gate.
 
