@@ -349,5 +349,42 @@ class StorageTests(unittest.TestCase):
         self.assertEqual((), IssueStore(repo).get(second.number).labels)
 
 
+    def test_deleted_issue_numbers_are_never_reused(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+        self.assertEqual(1, store.create("One").number)
+        self.assertEqual(2, store.create("Two").number)
+        store.delete(2)
+        self.assertEqual(3, store.create("Three").number)
+        store.delete_all()
+        self.assertEqual(4, store.create("Four").number)
+
+    def test_nested_repository_requires_qualified_closing_reference(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        self.git(root, "init", "-q", "-b", "main")
+        self.git(root, "config", "user.email", "test@example.com")
+        self.git(root, "config", "user.name", "Test")
+        (root / "README.md").write_text("base\n", encoding="utf-8")
+        self.git(root, "add", "README.md")
+        self.git(root, "commit", "-qm", "base")
+
+        product = root / "product-a"
+        product.mkdir()
+        repo = Repository.initialize(product, owner="acme", name="product-a")
+        store = IssueStore(repo)
+        issue = store.create("Nested close")
+        store.reconcile_closing_references()
+
+        self.git(root, "commit", "--allow-empty", "-qm", "Fixes #1")
+        self.assertEqual([], store.reconcile_closing_references())
+        self.assertEqual("OPEN", store.get(issue.number).state)
+
+        self.git(root, "commit", "--allow-empty", "-qm", "Fixes acme/product-a#1")
+        self.assertEqual([1], store.reconcile_closing_references())
+        self.assertEqual("CLOSED", store.get(issue.number).state)
+
+
 if __name__ == "__main__":
     unittest.main()
