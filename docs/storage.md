@@ -12,14 +12,14 @@ The file begins with a strict machine-owned front matter block. The content insi
 
 ```markdown
 ---
-{"github-local":{"schema":1,"id":"I_...","number":1,"state":"OPEN","created_at":"...","updated_at":"..."}}
+{"github-local":{"schema":1,"id":"I_...","number":1,"state":"OPEN","labels":["bug","priority:high"],"created_at":"...","updated_at":"..."}}
 ---
 # Human-readable title
 
 Issue body.
 ```
 
-The title and body are maintained once as Markdown. Machine metadata does not duplicate them.
+The title and body are maintained once as Markdown. Machine metadata does not duplicate them. Labels are lightweight free-form names stored in the same Issue metadata. Existing schema-1 files without a `labels` member remain valid and are read as having no labels; adding labels does not require a format migration.
 
 ## One backlog per Git repository
 
@@ -70,7 +70,7 @@ issues/comments/0001/0001.md
 issues/comments/0001/0002.md
 ```
 
-The Issue body remains in the Issue file; comments remain separate visible discussion records. `issue view` renders both.
+The Issue body remains in the Issue file; comments remain separate visible discussion records. `issue view --comments` renders the discussion when requested.
 
 ## Accepted branch and automatic close
 
@@ -103,6 +103,12 @@ New content is written to a temporary file in the same directory, flushed and `f
 ## Filenames are presentation, not identity
 
 The numeric prefix is authoritative for discovery. The slug is generated conservatively, ASCII-normalized, and avoids Windows reserved device names. A future title edit may rename the file while preserving the number and stable Issue ID.
+
+## Labels and local search
+
+Labels have no separate registry or database in the current slice. They are case-insensitively matched free-form names persisted directly in each Issue's front matter. Repeated label filters use AND semantics.
+
+`issue list --search` scans the canonical Issue files and performs a case-insensitive substring match over title, body, and label names. It deliberately does not reproduce GitHub's hosted advanced-search grammar. This keeps search reconstructable from visible Markdown and avoids introducing an index before one is needed.
 
 ## Index/database policy
 
