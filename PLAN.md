@@ -38,8 +38,10 @@ Fast Track closure: the bounded implementation/research block is complete and lo
 - [x] Resolve #3's branch/worktree semantics before expanding persisted workflow state.
 - [x] Implement #4 immediately afterwards: complete the Issue lifecycle and automatic close for explicitly referenced accepted/merged work, before broader workflow testing.
 - [x] Continue with #5 Change ↔ Issue linking.
-- [ ] Before #6/#7, complete #13 GitHub CLI compatibility cleanup and #14 nested Issue scopes.
-- [ ] Then continue with #6 backlog ergonomics and #7 help examples.
+- [x] Complete #13 GitHub CLI compatibility cleanup.
+- [ ] Continue with #6 backlog filters, labels and search.
+- [ ] Then continue with #7 concise CLI help examples.
+- [ ] Re-evaluate #14 optional Issue scopes afterwards; it is no longer a blocker.
 
 Owner-test conclusion: the CLI-first integration mechanism is validated. The remaining work is product semantics, not proof that Copilot can call local tools.
 
@@ -132,7 +134,7 @@ Exit: an agent can create or discover the Git branch belonging to an Issue and i
 
 ## Active Fast Track: align Issue CLI with GitHub gh — Issue #13
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED**
 
 Purpose: make GitHub CLI vocabulary and behavior the default contract for every supported Issue capability; local deviations must be explicit and documented.
 
@@ -147,9 +149,31 @@ Purpose: make GitHub CLI vocabulary and behavior the default contract for every 
 - [x] Promote GitHub CLI compatibility to an explicit ContextCanon rule and route compatibility work to the current source-contract/trace evidence.
 - [x] Add contributor documentation explaining source inspection vs black-box tracing and the evidence refresh workflow.
 - [x] Update regression tests and daily-use documentation.
-- [ ] Run complete deterministic suite and ContextCanon build/check.
+- [x] Run complete deterministic suite and ContextCanon build/check.
 - [x] Keep Draft PR #15 unmerged until explicit owner approval; its body uses `Fixes #13`.
 
-Checkpoint: the supported Issue surface now follows current `gh` naming/defaults for develop/list/view/close/reopen; `issue changes` and `--branch` are removed before 1.0. The compatibility document records the supported subset and deliberate local extensions (`develop --json`, local-ref `--base`, and existing-branch adoption). Focused regression coverage is updated. Full deterministic suite and ContextCanon build/check remain the owner merge gate.
+Checkpoint: the supported Issue surface follows current `gh` naming/defaults for develop/list/view/close/reopen; the owner completed the deterministic suite and ContextCanon checks, and PR #15 was squash-merged to `main` as `f22eab4`. Its `Fixes #13` reference closed Issue #13 automatically.
 
 Exit: an LLM trained on ordinary `gh issue` commands encounters the same names/defaults for the subset github.local implements.
+
+## Active Fast Track: backlog filters, labels and search — Issue #6
+
+**Fast Track status — ACTIVE**
+
+Purpose: make a larger local backlog easy to discover without adding collaboration metadata, a database, or a hosted-search imitation.
+
+- [x] Reconcile the post-#13 merge state and confirm #13 is closed.
+- [x] Reframe #14 around one central Issue store plus optional explicit scope metadata; remove CWD-based store selection from the accepted direction.
+- [x] Re-check current official `gh issue` vocabulary before adding flags.
+- [x] Reduce #6 to the still-missing slice; state filtering already exists.
+- [x] Add lightweight persistent labels while keeping existing schema-1 Issue files readable.
+- [x] Add GitHub-compatible `issue create -l/--label`.
+- [x] Add GitHub-compatible `issue edit --add-label/--remove-label`.
+- [x] Add GitHub-compatible `issue list -l/--label` and `-S/--search`.
+- [x] Add stable `labels` JSON output and concise human rendering.
+- [x] Document deliberately smaller local search semantics and label representation.
+- [x] Add focused storage/CLI regression coverage.
+- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [x] Open Draft PR #16 with `Fixes #6`; keep it unmerged until explicit owner approval.
+
+Exit: an agent can classify and find a larger repository-local backlog with familiar `gh issue` flags while Markdown remains the sole canonical Issue truth.

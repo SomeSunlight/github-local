@@ -69,12 +69,12 @@ Current supported-subset alignment:
 
 | Capability | GitHub CLI shape | github.local |
 | --- | --- | --- |
-| Create | `gh issue create` | same command name; local title/body subset |
-| List | `gh issue list` / `gh issue ls`; default state `open` | same name, alias and default |
+| Create | `gh issue create -l/--label` | same command name and label flag; local title/body/label subset |
+| List | `gh issue list` / `gh issue ls`; `-s/--state`, `-l/--label`, `-S/--search`; default state `open` | same names/flags/default for the supported local subset |
 | View | `gh issue view N --comments` | same core name and `--comments` behavior |
 | Close | `gh issue close N --comment TEXT` | same core name and comment flag; close reasons not yet implemented |
 | Reopen | `gh issue reopen N --comment TEXT` | same core name and comment flag |
-| Edit | `gh issue edit N` | same core name; local title/body subset |
+| Edit | `gh issue edit N --add-label/--remove-label` | same core name and label flags; local title/body/label subset |
 | Comment | `gh issue comment N` | same core name and body/body-file flags; no interactive editor/web flow |
 | Development branch | `gh issue develop N [--base] [--checkout] [--name]` | same names/flags; operates on local Git refs |
 | List linked branches | `gh issue develop --list N` | same syntax; structured local JSON is also available |
@@ -87,6 +87,9 @@ Intentional deviations:
 - `--base` resolves a local Git branch/ref rather than a remote GitHub branch because github.local has no forge-side branch-creation API.
 - `issue develop --json ...` is a github.local extension for cheap agent inspection; official `gh issue develop` has no JSON flag.
 - `issue develop --name EXISTING_BRANCH` may adopt an existing unlinked local branch by attaching the Issue relation. This local convenience has no exact forge-side GitHub equivalent.
+- Labels are free-form Issue metadata. github.local does not currently implement GitHub's repository-wide label objects or a `gh label` management subsystem.
+- `issue list --search` uses a case-insensitive substring match over local title/body/label text. It does not emulate GitHub's hosted advanced-search query language.
+- The local JSON `labels` field is a stable array of label-name strings rather than GitHub-hosted label objects.
 - `--repo`, `--web`, remote authorization, projects, assignees, milestones and similar GitHub-service features are not emulated unless a later local use case justifies them.
 - github.local JSON fields are deliberately small and stable rather than pretending to expose remote GitHub fields that do not exist locally.
 

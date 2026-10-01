@@ -19,6 +19,7 @@ class Issue:
     state: str
     title: str
     body: str
+    labels: tuple[str, ...]
     created_at: str
     updated_at: str
     path: Path
@@ -31,6 +32,7 @@ class Issue:
             "state": self.state,
             "title": self.title,
             "body": self.body,
+            "labels": list(self.labels),
             "createdAt": self.created_at,
             "updatedAt": self.updated_at,
             "path": self.path.as_posix(),

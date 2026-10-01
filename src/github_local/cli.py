@@ -11,7 +11,7 @@ from .storage import IssueNotFound, IssueStore, StorageError
 from .version import display_version
 
 
-JSON_FIELDS = {"id", "number", "state", "title", "body", "createdAt", "updatedAt", "path", "url"}
+JSON_FIELDS = {"id", "number", "state", "title", "body", "labels", "createdAt", "updatedAt", "path", "url"}
 CHANGE_JSON_FIELDS = {"issue", "branch", "head", "current", "relation"}
 
 
@@ -93,6 +93,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     create = issue_sub.add_parser("create", help="create an Issue")
     create.add_argument("--title", "-t", required=True)
+    create.add_argument("--label", "-l", action="append", default=None, help="add a label by name")
     _add_body_group(create, default="")
     _add_issue_json(create)
 
@@ -104,6 +105,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="open",
         help="filter by Issue state (default: open)",
     )
+    list_cmd.add_argument("--label", "-l", action="append", default=None, help="filter by label")
+    list_cmd.add_argument("--search", "-S", default=None, help="search Issue title, body, and labels")
     _add_issue_json(list_cmd)
 
     view = issue_sub.add_parser("view", help="view an Issue")
@@ -124,6 +127,8 @@ def build_parser() -> argparse.ArgumentParser:
     edit = issue_sub.add_parser("edit", help="edit an Issue title or body")
     edit.add_argument("number", type=int)
     edit.add_argument("--title", "-t")
+    edit.add_argument("--add-label", action="append", default=None, help="add a label by name")
+    edit.add_argument("--remove-label", action="append", default=None, help="remove a label by name")
     _add_body_group(edit, default=None)
     _add_issue_json(edit)
 
@@ -172,20 +177,21 @@ def _run(args: argparse.Namespace) -> int:
     changes = ChangeStore(repo, store)
 
     if args.command == "issue" and args.issue_command == "create":
-        issue = store.create(args.title, _read_body(args) or "")
+        issue = store.create(args.title, _read_body(args) or "", labels=args.label)
         _emit_issue(issue, args.json)
         return 0
 
     if args.command == "issue" and args.issue_command in ("list", "ls"):
         wanted = None if args.state == "all" else args.state
-        issues = store.list(state=wanted)
+        issues = store.list(state=wanted, labels=args.label, search=args.search)
         fields = _json_fields(args.json)
         if fields is not None:
             print(json.dumps([_select(item, fields) for item in issues], ensure_ascii=False, separators=(",", ":")))
             return 0
-        print("NUMBER  STATE   TITLE")
+        print("NUMBER  STATE   TITLE  LABELS")
         for item in issues:
-            print(f"{item.number:>6}  {item.state:<6}  {item.title}")
+            labels = ", ".join(item.labels)
+            print(f"{item.number:>6}  {item.state:<6}  {item.title}  {labels}")
         return 0
 
     if args.command == "issue" and args.issue_command == "view":
@@ -196,6 +202,8 @@ def _run(args: argparse.Namespace) -> int:
             return 0
         print(f"#{issue.number} {issue.title}")
         print(f"state: {issue.state}")
+        if issue.labels:
+            print(f"labels: {', '.join(issue.labels)}")
         print(f"file:  {issue.path.as_posix()}")
         if issue.body:
             print()
@@ -226,7 +234,13 @@ def _run(args: argparse.Namespace) -> int:
         return 0
 
     if args.command == "issue" and args.issue_command == "edit":
-        issue = store.edit(args.number, title=args.title, body=_read_body(args))
+        issue = store.edit(
+            args.number,
+            title=args.title,
+            body=_read_body(args),
+            add_labels=args.add_label,
+            remove_labels=args.remove_label,
+        )
         _emit_issue(issue, args.json)
         return 0
 

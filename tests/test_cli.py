@@ -231,5 +231,65 @@ class CliTests(unittest.TestCase):
         self.assertIn("Issue #99 not found", result.stderr)
 
 
+    def test_issue_labels_and_search_match_gh_flag_names(self):
+        self.assertEqual(0, self.run_cli("init", "--owner", "acme", "--repo", "demo").returncode)
+
+        created = self.run_cli(
+            "issue", "create",
+            "--title", "Parser bug",
+            "--body", "Fails on UTF-8 input",
+            "--label", "bug,priority:high",
+            "--json", "number,labels",
+        )
+        self.assertEqual(0, created.returncode, created.stderr)
+        self.assertEqual(
+            {"number": 1, "labels": ["bug", "priority:high"]},
+            json.loads(created.stdout),
+        )
+        second = self.run_cli(
+            "issue", "create",
+            "--title", "Parser guide",
+            "--body", "Document the parser",
+            "--label", "docs",
+        )
+        self.assertEqual(0, second.returncode, second.stderr)
+
+        by_label = self.run_cli(
+            "issue", "list",
+            "--label", "BUG",
+            "--label", "priority:high",
+            "--json", "number,labels",
+        )
+        self.assertEqual(0, by_label.returncode, by_label.stderr)
+        self.assertEqual(
+            [{"number": 1, "labels": ["bug", "priority:high"]}],
+            json.loads(by_label.stdout),
+        )
+
+        by_search = self.run_cli(
+            "issue", "list", "-S", "parser", "--json", "number",
+        )
+        self.assertEqual(0, by_search.returncode, by_search.stderr)
+        self.assertEqual([{"number": 1}, {"number": 2}], json.loads(by_search.stdout))
+
+        edited = self.run_cli(
+            "issue", "edit", "1",
+            "--remove-label", "BUG",
+            "--add-label", "ready",
+            "--json", "number,labels",
+        )
+        self.assertEqual(0, edited.returncode, edited.stderr)
+        self.assertEqual(
+            {"number": 1, "labels": ["priority:high", "ready"]},
+            json.loads(edited.stdout),
+        )
+
+        missing = self.run_cli(
+            "issue", "list", "-l", "bug", "--json", "number",
+        )
+        self.assertEqual(0, missing.returncode, missing.stderr)
+        self.assertEqual([], json.loads(missing.stdout))
+
+
 if __name__ == "__main__":
     unittest.main()

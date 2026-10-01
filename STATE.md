@@ -70,13 +70,33 @@ PR #12 was owner-tested, ContextCanon-regenerated, approved, and squash-merged t
 
 ## Issue #13 — GitHub CLI compatibility cleanup
 
-GitHub CLI compatibility is now an explicit product rule: use official `gh issue` names, flags, aliases and defaults wherever they map cleanly to the local architecture. A smaller supported subset is acceptable; accidental syntax divergence is not. Local-only behavior must be documented together with the reason for the deviation. Issue #14 (nested Issue scopes) follows immediately after this cleanup and before backlog labels/search.
+GitHub CLI compatibility is now an explicit product rule: use official `gh issue` names, flags, aliases and defaults wherever they map cleanly to the local architecture. A smaller supported subset is acceptable; accidental syntax divergence is not. Local-only behavior must be documented together with the reason for the deviation. Issue #14 is no longer a blocker: if scopes are later needed, they must remain optional metadata over the one repository-wide Issue store and must not be selected implicitly from CWD.
 
 
 ## Issue #13 implementation checkpoint
 
 The review candidate removes the local-only `issue changes` command in favor of GitHub-compatible `issue develop --list`, makes branch checkout opt-in through `--checkout`, adopts GitHub's `--name` and `--base` spellings, makes `issue list` default to open with alias `ls`, gates human comment rendering behind `view --comments`, and supports `--comment` on close/reopen. Intentional local extensions and unsupported GitHub-service features are recorded explicitly in `docs/gh-compatibility.md`.
 
-Draft PR #15 contains the #13 compatibility candidate, uses `Fixes #13`, and remains unmerged pending the owner merge gate.
+PR #15 was owner-tested and squash-merged to `main` as `f22eab4`; its `Fixes #13` reference closed Issue #13 automatically.
 
 The #13 candidate now also promotes GitHub CLI compatibility into authored ContextCanon policy (GHLR-008), routes compatibility work to `CONTRIBUTING.md`, `spike/README.md`, and `spike/gh-2.101.0-source-contract.json`, and documents how source-derived evidence differs from a real-client black-box trace.
+
+## Issue #14 — optional Issue scopes
+
+The previous nested-store/CWD design has been rejected. The accepted direction keeps one canonical repository-wide `issues/` store. A future scope, if productive use still justifies it, is optional metadata with stable path-independent identity; a movable marker may help resolve a scope, but ordinary Issue commands remain repository-wide unless scope assignment is explicit. Any future `--scope` syntax is a documented github.local extension rather than an accidental `gh` divergence.
+
+#14 is deliberately deferred until after #6 and #7.
+
+
+## Issue #6 — backlog filters, labels and search
+
+State filtering and the open-by-default list behavior already exist, so #6 has been reduced to the missing backlog-discovery slice. The current official GitHub CLI names map cleanly: `issue create -l/--label`, `issue edit --add-label/--remove-label`, and `issue list -l/--label -S/--search`. The local implementation will keep label metadata lightweight and search deliberately smaller than GitHub's hosted advanced-search language.
+
+Active review branch: `issue-6-backlog-labels-search`. Assignees, milestones, projects, a full label-management subsystem, and any database/index remain out of scope.
+
+## Issue #6 implementation checkpoint
+
+The Draft PR #16 candidate stores optional label-name arrays directly in existing schema-1 Issue front matter; legacy files without `labels` are read as unlabeled. The CLI now supports `create -l/--label`, `edit --add-label/--remove-label`, `list -l/--label`, `list -S/--search`, and stable `labels` JSON. Multiple requested labels use AND filtering. Local search is a case-insensitive substring scan over title, body and labels rather than GitHub's hosted advanced-search grammar; that deviation is documented in `docs/gh-compatibility.md`.
+
+Focused storage/CLI regression tests were added, including legacy-file compatibility. This execution environment cannot resolve `github.com` from its local container, and GitHub App/API-created events did not trigger the temporary branch validation workflow, so the deterministic suite has not been represented as executed here. The temporary workflow was removed again and is absent from the final PR diff. Owner validation remains the normal full unit-suite plus ContextCanon build/check gate. PR #16 stays Draft and unmerged.
+
