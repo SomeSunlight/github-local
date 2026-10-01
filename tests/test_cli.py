@@ -442,5 +442,47 @@ class CliTests(unittest.TestCase):
         self.assertFalse((self.root / ".github-local" / "config.json").exists())
 
 
+    def test_deinit_with_issues_requires_explicit_destructive_confirmation(self):
+        self.assertEqual(0, self.run_cli("issue", "init", "--name", "demo").returncode)
+        self.assertEqual(
+            0,
+            self.run_cli("issue", "create", "--title", "Keep me").returncode,
+        )
+
+        refused = self.run_cli("issue", "deinit")
+        self.assertEqual(3, refused.returncode)
+        self.assertIn("--delete-issues", refused.stderr)
+        self.assertTrue((self.root / ".github-local" / "config.json").exists())
+
+        aborted = self.run_cli(
+            "issue", "deinit", "--delete-issues",
+            input_text="n\n",
+        )
+        self.assertEqual(1, aborted.returncode)
+        self.assertIn("Aborted.", aborted.stdout)
+        self.assertTrue((self.root / "issues").exists())
+
+        removed = self.run_cli(
+            "issue", "deinit", "--delete-issues",
+            input_text="y\n",
+        )
+        self.assertEqual(0, removed.returncode, removed.stderr)
+        self.assertFalse((self.root / ".github-local").exists())
+        self.assertFalse((self.root / "issues").exists())
+
+    def test_single_issue_delete_removes_comments_but_keeps_monotonic_numbers(self):
+        self.assertEqual(0, self.run_cli("issue", "init", "--name", "demo").returncode)
+        self.run_cli("issue", "create", "--title", "Delete me")
+        self.run_cli("issue", "comment", "1", "--body", "Also delete this")
+        deleted = self.run_cli("issue", "delete", "1", "--yes")
+        self.assertEqual(0, deleted.returncode, deleted.stderr)
+        self.assertFalse((self.root / "issues" / "comments" / "0001").exists())
+
+        next_issue = self.run_cli(
+            "issue", "create", "--title", "Next", "--json", "number",
+        )
+        self.assertEqual({"number": 2}, json.loads(next_issue.stdout))
+
+
 if __name__ == "__main__":
     unittest.main()
