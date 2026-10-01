@@ -112,5 +112,5 @@ Active review branch: `issue-7-cli-help-examples`.
 
 The candidate adds compact `Examples:` epilogs to `github-local --help`, `github-local issue --help`, and the `issue create`, `issue list`, and `issue develop` help surfaces. The examples use only supported github.local syntax, retain GitHub-shaped vocabulary, and expose structured `--json` inspection without duplicating the README. Simpler lifecycle subcommands deliberately remain option-list-only.
 
-CLI regression coverage invokes each help surface without repository initialization and asserts the supported example commands remain present. `docs/agent-validation.md` records #7 as the direct resolution of the final help/discovery gap from the real Copilot debrief.
+CLI regression coverage invokes each help surface without repository initialization and asserts the supported example commands remain present. `docs/agent-validation.md` records #7 as the direct resolution of the final help/discovery gap from the real Copilot debrief. Draft PR #17 contains the candidate with `Fixes #7` and remains unmerged pending the owner test plus ContextCanon gate.
 
