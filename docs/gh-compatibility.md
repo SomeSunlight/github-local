@@ -50,3 +50,32 @@ Therefore the first product slice uses `github-local issue ...`. The `gh` surfac
 ## Real-`gh` reproduction on Windows
 
 See `spike/README.md`. The probe uses an isolated GH config, a loopback hostname, a trusted local certificate, and `GH_DEBUG=api`; the fake server writes every request as JSONL. Use a throwaway shell/config so no normal GitHub credentials are exposed to the probe.
+
+
+## Native CLI compatibility policy
+
+The native `github-local issue ...` surface should use official GitHub CLI vocabulary, flags, aliases and defaults whenever the local architecture can support the same intent directly. github.local may implement a smaller subset; it should not invent a different name for an operation that already has a suitable `gh` spelling.
+
+Current supported-subset alignment:
+
+| Capability | GitHub CLI shape | github.local |
+| --- | --- | --- |
+| Create | `gh issue create` | same command name; local title/body subset |
+| List | `gh issue list` / `gh issue ls`; default state `open` | same name, alias and default |
+| View | `gh issue view N --comments` | same core name and `--comments` behavior |
+| Close | `gh issue close N --comment TEXT` | same core name and comment flag; close reasons not yet implemented |
+| Reopen | `gh issue reopen N --comment TEXT` | same core name and comment flag |
+| Edit | `gh issue edit N` | same core name; local title/body subset |
+| Comment | `gh issue comment N` | same core name and body/body-file flags; no interactive editor/web flow |
+| Development branch | `gh issue develop N [--base] [--checkout] [--name]` | same names/flags; operates on local Git refs |
+| List linked branches | `gh issue develop --list N` | same syntax; structured local JSON is also available |
+
+Intentional deviations:
+
+- `github-local init` is local-only because github.local needs repository-local workflow configuration and an accepted branch; GitHub CLI has no equivalent Issue initialization step.
+- `gh issue develop --branch-repo` is not supported: github.local currently links branches inside the one local Git repository only.
+- `gh issue develop --worktree` is not yet supported. Existing Git worktrees are understood by github.local, but worktree creation is not part of the supported Issue-develop subset yet.
+- `--repo`, `--web`, remote authorization, projects, assignees, milestones and similar GitHub-service features are not emulated unless a later local use case justifies them.
+- github.local JSON fields are deliberately small and stable rather than pretending to expose remote GitHub fields that do not exist locally.
+
+Any future syntax deviation should be recorded here with its reason.
