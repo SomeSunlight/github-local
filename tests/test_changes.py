@@ -54,6 +54,15 @@ class ChangeTests(unittest.TestCase):
                 "branch.issue-1-first-change.github-local-issue",
             ).stdout.strip(),
         )
+        self.assertEqual(
+            repo.repository_id,
+            self.git(
+                root,
+                "config",
+                "--get",
+                "branch.issue-1-first-change.github-local-repository",
+            ).stdout.strip(),
+        )
 
     def test_develop_can_use_explicit_base_and_checkout(self):
         temp, root, repo, issues, changes = self.make_repo()
@@ -133,6 +142,36 @@ class ChangeTests(unittest.TestCase):
         self.assertEqual("issue-1-shared-relation", found[0].branch)
         self.assertEqual("explicit", found[0].relation)
         self.assertFalse(found[0].current)
+
+
+    def test_nested_issue_repositories_get_distinct_default_branches(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        self.git(root, "init", "-q", "-b", "main")
+        self.git(root, "config", "user.email", "test@example.com")
+        self.git(root, "config", "user.name", "Test")
+        (root / "README.md").write_text("base\n", encoding="utf-8")
+        self.git(root, "add", "README.md")
+        self.git(root, "commit", "-qm", "base")
+
+        product_root = root / "product-a"
+        extension_root = product_root / "extension-x"
+        extension_root.mkdir(parents=True)
+
+        product_repo = Repository.initialize(product_root, owner="acme", name="product-a")
+        extension_repo = Repository.initialize(extension_root, owner="acme", name="extension-x")
+        product_issues = IssueStore(product_repo)
+        extension_issues = IssueStore(extension_repo)
+        product_issues.create("Same number")
+        extension_issues.create("Same number")
+
+        product_change = ChangeStore(product_repo, product_issues).develop(1)
+        extension_change = ChangeStore(extension_repo, extension_issues).develop(1)
+
+        self.assertEqual("issue-product-a-1-same-number", product_change.branch)
+        self.assertEqual("issue-extension-x-1-same-number", extension_change.branch)
+        self.assertNotEqual(product_change.branch, extension_change.branch)
 
 
 if __name__ == "__main__":
