@@ -64,3 +64,5 @@ The next layer stays deliberately Git-native. A Change is represented by a norma
 ## Issue #5 implementation checkpoint
 
 The review candidate adds `issue develop <number>` and `issue changes <number>`. A first-class link is one `github-local-issue` value in the normal Git branch configuration; live branch name/head/current-worktree status are always read from Git. Existing `issue-N-...` branches remain discoverable as convention links, and `issue develop` upgrades an adopted branch to an explicit relation. Native branch rename moves the config relation with the branch, so github.local does not need a parallel Change-history store.
+
+Draft PR #12 contains the #5 review candidate, uses `Fixes #5`, and remains unmerged pending the owner merge gate.
