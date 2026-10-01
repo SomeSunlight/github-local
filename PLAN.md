@@ -196,6 +196,6 @@ Purpose: reduce first-use trial-and-error for humans and terminal-capable agents
 - [x] Add regression tests that pin the examples to supported syntax.
 - [x] Update agent-validation documentation with the resolved #7 gap.
 - [ ] Run the complete deterministic suite and ContextCanon build/check.
-- [ ] Open a Draft PR with `Fixes #7` and keep it unmerged until explicit owner approval.
+- [x] Open Draft PR #17 with `Fixes #7`; keep it unmerged until explicit owner approval.
 
 Exit: a new agent can infer the normal Issue workflow and the structured inspection path from one or two help surfaces instead of probing several commands.
