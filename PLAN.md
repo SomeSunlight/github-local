@@ -144,6 +144,8 @@ Purpose: make GitHub CLI vocabulary and behavior the default contract for every 
 - [x] Make `issue view` show comments only with GitHub-compatible `--comments`.
 - [x] Add low-cost `--comment` support to close/reopen where it maps directly to existing durable comments.
 - [x] Audit/document the supported gh subset and every intentional github.local deviation.
+- [x] Promote GitHub CLI compatibility to an explicit ContextCanon rule and route compatibility work to the current source-contract/trace evidence.
+- [x] Add contributor documentation explaining source inspection vs black-box tracing and the evidence refresh workflow.
 - [x] Update regression tests and daily-use documentation.
 - [ ] Run complete deterministic suite and ContextCanon build/check.
 - [x] Keep Draft PR #15 unmerged until explicit owner approval; its body uses `Fixes #13`.
