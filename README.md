@@ -86,42 +86,56 @@ python -m github_local.cli --help
 
 ## Daily Issue workflow
 
-Initialize once from the branch that represents accepted work, normally `main`:
+Declare every folder that should own its own backlog:
 
 ```powershell
-github-local init --owner local --repo my-project
+cd .\Product-A
+github-local issue init --owner company --name product-a
+
+cd .\Extension-X
+github-local issue init --owner company --name extension-x
 ```
 
-Then use the backlog directly:
+Git is optional for Issue storage. A company folder, product, and independently managed extension may each own a local Issue repository without creating nested Git repositories.
+
+Normal Issue work always names the target repository explicitly. `-R .` means “the nearest explicitly initialized local Issue repository from here”:
 
 ```powershell
-github-local issue create --title "Add validation" --body "Why this change is needed." --label validation
-github-local issue list --state open
-github-local issue list --label validation
-github-local issue list --search "input validation"
-github-local issue view 1
+github-local issue create -R . --title "Add validation" --body "Why this change is needed." --label validation
+github-local issue list -R . --state open
+github-local issue list -R . --label validation
+github-local issue list -R ..\..\Product-A --search "input validation"
+github-local issue view -R . 1
 
-github-local issue develop 1 --checkout
-github-local issue develop --list 1 --json branch,head,current,relation
+github-local issue develop -R . 1 --checkout
+github-local issue develop -R . --list 1 --json branch,head,current,relation
 
-github-local issue comment 1 --body "Implementation note."
-github-local issue edit 1 --title "Add input validation" --add-label ready
-github-local issue edit 1 --remove-label validation
-github-local issue close 1
-github-local issue reopen 1
+github-local issue comment -R . 1 --body "Implementation note."
+github-local issue edit -R . 1 --title "Add input validation" --add-label ready
+github-local issue close -R . 1
 ```
 
-When accepted Git history contains an explicit closing reference such as:
+There is intentionally no implicit CWD fallback for ordinary Issue commands: omitting `-R/--repo` is an error. This makes the target visible to both humans and terminal-capable agents instead of silently filing an Issue in whichever directory happens to be current.
+
+Each initialized folder owns its own `issues/` directory, Issue numbering, and stable path-independent repository identity. Moving that folder therefore moves its backlog as one unit. `github-local issue deinit -R .` removes an empty local Issue repository; `--delete-issues` makes teardown destructive and requires confirmation unless `--yes` is supplied. `github-local issue delete -R . --all` provides the same confirmation-protected bulk cleanup while keeping the repository initialized.
+
+At a local Issue repository that is also the Git root, accepted Git history may use the usual unqualified closing form:
 
 ```text
 Fixes #1
 ```
 
-the next `github-local issue ...` command reconciles accepted history and closes that Issue automatically. A plain `#1` mention does not close it, and a closing reference on an unmerged feature branch has no effect until it reaches the configured accepted branch.
+For a nested local Issue repository inside a larger Git repository, qualify the target just as GitHub does across repositories:
 
-Labels are lightweight free-form names stored directly with the Issue. Repeating `--label` filters by all requested labels. Local `--search` is intentionally simple: a case-insensitive substring search over title, body, and label names rather than GitHub's hosted advanced-search grammar.
+```text
+Fixes company/extension-x#1
+```
 
-Use `github-local init --accepted-branch <branch>` when the accepted branch cannot be inferred correctly.
+This prevents equal Issue numbers in sibling local repositories from being confused. A plain `#1` mention never closes anything.
+
+Labels remain lightweight free-form names stored directly with the Issue. Repeating `--label` filters by all requested labels. Local `--search` is intentionally a case-insensitive substring search over title, body, and label names.
+
+Use `github-local issue init --accepted-branch <branch>` when a containing Git repository exists but its accepted branch cannot be inferred correctly.
 
 ## First-use smoke tests
 
@@ -136,15 +150,15 @@ mkdir github-local-smoke
 cd github-local-smoke
 git init
 
-github-local init --owner local --repo smoke
+github-local issue init --owner local --name smoke
 
-github-local issue create --title "Prove the local Issue workflow" --body "First manual smoke issue."
-github-local issue create --title "Add issue close" --body "Backlog only; do not implement."
-github-local issue create --title "Add explicit change links" --body "Backlog only; do not implement."
+github-local issue create -R . --title "Prove the local Issue workflow" --body "First manual smoke issue."
+github-local issue create -R . --title "Add issue close" --body "Backlog only; do not implement."
+github-local issue create -R . --title "Add explicit change links" --body "Backlog only; do not implement."
 
-github-local issue list
-github-local issue list --json number,title,state,path
-github-local issue view 1
+github-local issue list -R .
+github-local issue list -R . --json number,title,state,path
+github-local issue view -R . 1
 ```
 
 Expected result:
@@ -162,9 +176,9 @@ If this works, the core v0.1.0 owner smoke test has passed.
 Create the Git branch for Issue #1 through github.local:
 
 ```powershell
-github-local issue develop 1 --checkout
-github-local issue develop --list 1
-github-local issue develop --list 1 --json issue,branch,head,current,relation
+github-local issue develop -R . 1 --checkout
+github-local issue develop -R . --list 1
+github-local issue develop -R . --list 1 --json issue,branch,head,current,relation
 
 "github.local smoke passed" | Set-Content SMOKE.md
 git add SMOKE.md
@@ -185,7 +199,7 @@ This is the more important agent-facing test. Give the following task to an LLM 
 
 > Use only the terminal, local files, Git and `github-local`. Do not create external GitHub Issues and do not use MCP.
 >
-> Initialize github.local in this repository. Create three local Issues: one small Issue that you will act on, plus two backlog Issues that you must not implement. List the Issues both normally and as JSON, then view Issue #1. Use `github-local issue develop 1 --checkout` to start the Change, inspect it with `github-local issue develop --list 1 --json issue,branch,head,current,relation`, make one harmless small file change, and commit it with a message containing `#1`. At the end, show the Issue list, the linked branch, the files below `issues/`, the current branch name, and the latest commit.
+> Initialize a local Issue repository here with `github-local issue init`. Create three local Issues: one small Issue that you will act on, plus two backlog Issues that you must not implement. List the Issues both normally and as JSON, then view Issue #1. Use `github-local issue develop -R . 1 --checkout` to start the Change, inspect it with `github-local issue develop -R . --list 1 --json issue,branch,head,current,relation`, make one harmless small file change, and commit it with a message containing `#1`. At the end, show the Issue list, the linked branch, the files below `issues/`, the current branch name, and the latest commit.
 
 The point of this test is not code quality. It checks whether a terminal-capable agent naturally understands and uses the `github-local` interface.
 
