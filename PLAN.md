@@ -146,7 +146,7 @@ Purpose: make GitHub CLI vocabulary and behavior the default contract for every 
 - [x] Audit/document the supported gh subset and every intentional github.local deviation.
 - [x] Update regression tests and daily-use documentation.
 - [ ] Run complete deterministic suite and ContextCanon build/check.
-- [ ] Keep review PR unmerged until explicit owner approval; PR body must use `Fixes #13`.
+- [x] Keep Draft PR #15 unmerged until explicit owner approval; its body uses `Fixes #13`.
 
 Checkpoint: the supported Issue surface now follows current `gh` naming/defaults for develop/list/view/close/reopen; `issue changes` and `--branch` are removed before 1.0. The compatibility document records the supported subset and deliberate local extensions (`develop --json`, local-ref `--base`, and existing-branch adoption). Focused regression coverage is updated. Full deterministic suite and ContextCanon build/check remain the owner merge gate.
 
