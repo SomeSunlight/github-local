@@ -50,7 +50,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual("Überprüfung", payload["title"])
         self.assertEqual("OPEN", payload["state"])
         self.assertTrue(payload["path"].startswith("issues/0001-"))
-        self.assertEqual("github-local://acme/demo/issues/1", payload["url"])
+        self.assertRegex(payload["url"], r"^github-local://R_gl_[^/]+/issues/1$")
 
         listing = self.run_cli("issue", "list", "--json", "number,title,state")
         self.assertEqual(0, listing.returncode, listing.stderr)
@@ -226,7 +226,7 @@ class CliTests(unittest.TestCase):
     def test_not_initialized_is_stable_exit_code(self):
         result = self.run_cli("issue", "list")
         self.assertEqual(3, result.returncode)
-        self.assertIn("not initialized", result.stderr)
+        self.assertIn("no local Issue repository selected", result.stderr)
 
     def test_unknown_json_field_is_usage_error(self):
         self.assertEqual(0, self.run_cli("init").returncode)
@@ -307,7 +307,7 @@ class CliTests(unittest.TestCase):
                 ("--help",),
                 [
                     "Examples:",
-                    "github-local init --owner local --repo my-project",
+                    "github-local issue init",
                     'github-local issue create -R . --title "Add validation" --label bug',
                     "github-local issue list -R .",
                 ],
@@ -316,8 +316,8 @@ class CliTests(unittest.TestCase):
                 ("issue", "--help"),
                 [
                     "Examples:",
-                    "github-local issue list",
-                    "github-local issue view 12 --comments",
+                    "github-local issue list -R .",
+                    "github-local issue view -R . 12 --comments",
                     "github-local issue develop -R . 12 --checkout",
                 ],
             ),
@@ -325,7 +325,7 @@ class CliTests(unittest.TestCase):
                 ("issue", "create", "--help"),
                 [
                     "Examples:",
-                    'github-local issue create --title "Fix parser" --body "Reject invalid input." --label bug',
+                    'github-local issue create -R . --title "Fix parser" --body "Reject invalid input." --label bug',
                     '--json number,title,labels',
                 ],
             ),
@@ -341,7 +341,7 @@ class CliTests(unittest.TestCase):
                 ("issue", "develop", "--help"),
                 [
                     "Examples:",
-                    "github-local issue develop 12 --checkout",
+                    "github-local issue develop -R . 12 --checkout",
                     "github-local issue develop -R . --list 12 --json branch,head,current,relation",
                 ],
             ),
