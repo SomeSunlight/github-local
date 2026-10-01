@@ -166,14 +166,14 @@ Purpose: make a larger local backlog easy to discover without adding collaborati
 - [x] Reframe #14 around one central Issue store plus optional explicit scope metadata; remove CWD-based store selection from the accepted direction.
 - [x] Re-check current official `gh issue` vocabulary before adding flags.
 - [x] Reduce #6 to the still-missing slice; state filtering already exists.
-- [ ] Add lightweight persistent labels while keeping existing schema-1 Issue files readable.
-- [ ] Add GitHub-compatible `issue create -l/--label`.
-- [ ] Add GitHub-compatible `issue edit --add-label/--remove-label`.
-- [ ] Add GitHub-compatible `issue list -l/--label` and `-S/--search`.
-- [ ] Add stable `labels` JSON output and concise human rendering.
-- [ ] Document deliberately smaller local search semantics and label representation.
-- [ ] Add focused storage/CLI regression coverage.
+- [x] Add lightweight persistent labels while keeping existing schema-1 Issue files readable.
+- [x] Add GitHub-compatible `issue create -l/--label`.
+- [x] Add GitHub-compatible `issue edit --add-label/--remove-label`.
+- [x] Add GitHub-compatible `issue list -l/--label` and `-S/--search`.
+- [x] Add stable `labels` JSON output and concise human rendering.
+- [x] Document deliberately smaller local search semantics and label representation.
+- [x] Add focused storage/CLI regression coverage.
 - [ ] Run the complete deterministic suite and ContextCanon build/check.
-- [ ] Keep the Draft PR unmerged until explicit owner approval; its body must use `Fixes #6`.
+- [x] Open Draft PR #16 with `Fixes #6`; keep it unmerged until explicit owner approval.
 
 Exit: an agent can classify and find a larger repository-local backlog with familiar `gh issue` flags while Markdown remains the sole canonical Issue truth.
