@@ -78,3 +78,5 @@ GitHub CLI compatibility is now an explicit product rule: use official `gh issue
 The review candidate removes the local-only `issue changes` command in favor of GitHub-compatible `issue develop --list`, makes branch checkout opt-in through `--checkout`, adopts GitHub's `--name` and `--base` spellings, makes `issue list` default to open with alias `ls`, gates human comment rendering behind `view --comments`, and supports `--comment` on close/reopen. Intentional local extensions and unsupported GitHub-service features are recorded explicitly in `docs/gh-compatibility.md`.
 
 Draft PR #15 contains the #13 compatibility candidate, uses `Fixes #13`, and remains unmerged pending the owner merge gate.
+
+The #13 candidate now also promotes GitHub CLI compatibility into authored ContextCanon policy (GHLR-008), routes compatibility work to `CONTRIBUTING.md`, `spike/README.md`, and `spike/gh-2.101.0-source-contract.json`, and documents how source-derived evidence differs from a real-client black-box trace.
