@@ -364,6 +364,13 @@ class CliTests(unittest.TestCase):
         self.assertEqual(2, result.returncode)
         self.assertIn("--repo", result.stderr)
 
+        inherited = self.run_cli(
+            "issue", "-R", ".", "list", "--json", "number",
+            select_repo=False,
+        )
+        self.assertEqual(0, inherited.returncode, inherited.stderr)
+        self.assertEqual([], json.loads(inherited.stdout))
+
     def test_nested_local_issue_repositories_have_independent_numbering(self):
         product = self.root / "product-a"
         extension = product / "extension-x"
