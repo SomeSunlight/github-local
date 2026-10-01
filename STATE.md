@@ -59,3 +59,8 @@ PR #11 was owner-tested, ContextCanon-regenerated, approved, and squash-merged t
 ## Issue #5 — first-class Change ↔ Issue links
 
 The next layer stays deliberately Git-native. A Change is represented by a normal Git branch plus one small branch-config relation to its local Issue. github.local does not copy commits, diffs, heads, or merge state. Conventional legacy branch names remain discoverable as a fallback; explicit links created by `issue develop` are first-class and machine-readable.
+
+
+## Issue #5 implementation checkpoint
+
+The review candidate adds `issue develop <number>` and `issue changes <number>`. A first-class link is one `github-local-issue` value in the normal Git branch configuration; live branch name/head/current-worktree status are always read from Git. Existing `issue-N-...` branches remain discoverable as convention links, and `issue develop` upgrades an adopted branch to an explicit relation. Native branch rename moves the config relation with the branch, so github.local does not need a parallel Change-history store.
