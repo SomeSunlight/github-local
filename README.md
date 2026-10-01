@@ -95,15 +95,18 @@ github-local init --owner local --repo my-project
 Then use the backlog directly:
 
 ```powershell
-github-local issue create --title "Add validation" --body "Why this change is needed."
+github-local issue create --title "Add validation" --body "Why this change is needed." --label validation
 github-local issue list --state open
+github-local issue list --label validation
+github-local issue list --search "input validation"
 github-local issue view 1
 
 github-local issue develop 1 --checkout
 github-local issue develop --list 1 --json branch,head,current,relation
 
 github-local issue comment 1 --body "Implementation note."
-github-local issue edit 1 --title "Add input validation"
+github-local issue edit 1 --title "Add input validation" --add-label ready
+github-local issue edit 1 --remove-label validation
 github-local issue close 1
 github-local issue reopen 1
 ```
@@ -115,6 +118,8 @@ Fixes #1
 ```
 
 the next `github-local issue ...` command reconciles accepted history and closes that Issue automatically. A plain `#1` mention does not close it, and a closing reference on an unmerged feature branch has no effect until it reaches the configured accepted branch.
+
+Labels are lightweight free-form names stored directly with the Issue. Repeating `--label` filters by all requested labels. Local `--search` is intentionally simple: a case-insensitive substring search over title, body, and label names rather than GitHub's hosted advanced-search grammar.
 
 Use `github-local init --accepted-branch <branch>` when the accepted branch cannot be inferred correctly.
 
