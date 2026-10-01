@@ -99,6 +99,9 @@ github-local issue create --title "Add validation" --body "Why this change is ne
 github-local issue list --state open
 github-local issue view 1
 
+github-local issue develop 1
+github-local issue changes 1 --json branch,head,current,relation
+
 github-local issue comment 1 --body "Implementation note."
 github-local issue edit 1 --title "Add input validation"
 github-local issue close 1
@@ -149,26 +152,27 @@ That is all that **visible backlog** means here: Issues #2 and #3 exist as ordin
 
 If this works, the core v0.1.0 owner smoke test has passed.
 
-### 2. Optional Git-reference smoke test
+### 2. Development-branch smoke test
 
-This does **not** test extra github.local behavior yet. It only demonstrates the temporary convention for associating normal Git work with an Issue number until explicit Change ↔ Issue links are implemented.
+Create the Git branch for Issue #1 through github.local:
 
 ```powershell
-git switch -c issue-1-smoke-workflow
+github-local issue develop 1
+github-local issue changes 1
+github-local issue changes 1 --json issue,branch,head,current,relation
+
 "github.local smoke passed" | Set-Content SMOKE.md
 git add SMOKE.md
 git commit -m "docs: prove local Issue workflow (#1)"
-
-git branch --show-current
-git log -1 --oneline
 ```
 
 Expected result:
 
-- the current branch name contains `issue-1`;
-- the latest commit message contains `#1`.
+- the conventional branch is created from the accepted branch and checked out;
+- `issue changes 1` reports that branch as an explicit relation;
+- the JSON form reports the live Git branch head rather than copied Change history.
 
-No checkout comparison is required. github.local does not interpret this relationship in v0.1.0; it is only a visible human/agent convention for now.
+The relation is stored as branch metadata in Git itself. Native `git branch -m` keeps the relation when the branch is renamed. Existing legacy branches named `issue-1-...` are still discoverable as convention-based links until adopted explicitly.
 
 ### 3. LLM / Copilot smoke test
 
@@ -176,7 +180,7 @@ This is the more important agent-facing test. Give the following task to an LLM 
 
 > Use only the terminal, local files, Git and `github-local`. Do not create external GitHub Issues and do not use MCP.
 >
-> Initialize github.local in this repository. Create three local Issues: one small Issue that you will act on, plus two backlog Issues that you must not implement. List the Issues both normally and as JSON, then view Issue #1. Create a Git branch whose name contains `issue-1`, make one harmless small file change, and commit it with a message containing `#1`. At the end, show the Issue list, the files below `issues/`, the current branch name, and the latest commit.
+> Initialize github.local in this repository. Create three local Issues: one small Issue that you will act on, plus two backlog Issues that you must not implement. List the Issues both normally and as JSON, then view Issue #1. Use `github-local issue develop 1` to start the Change, inspect it with `github-local issue changes 1 --json issue,branch,head,current,relation`, make one harmless small file change, and commit it with a message containing `#1`. At the end, show the Issue list, the Change relation, the files below `issues/`, the current branch name, and the latest commit.
 
 The point of this test is not code quality. It checks whether a terminal-capable agent naturally understands and uses the `github-local` interface.
 

@@ -5,12 +5,14 @@ import json
 import sys
 from pathlib import Path
 
+from .changes import ChangeError, ChangeStore
 from .repository import Repository, RepositoryError
 from .storage import IssueNotFound, IssueStore, StorageError
 from .version import display_version
 
 
 JSON_FIELDS = {"id", "number", "state", "title", "body", "createdAt", "updatedAt", "path", "url"}
+CHANGE_JSON_FIELDS = {"issue", "branch", "head", "current", "relation"}
 
 
 def _json_fields(value: str | None) -> list[str] | None:
@@ -25,6 +27,21 @@ def _json_fields(value: str | None) -> list[str] | None:
 
 def _select(issue, fields: list[str]) -> dict[str, object]:
     data = issue.to_dict()
+    return {field: data[field] for field in fields}
+
+
+def _change_json_fields(value: str | None) -> list[str] | None:
+    if value is None:
+        return None
+    fields = [field.strip() for field in value.split(",") if field.strip()]
+    unknown = sorted(set(fields) - CHANGE_JSON_FIELDS)
+    if unknown:
+        raise ValueError(f"unknown Change JSON field(s): {', '.join(unknown)}")
+    return fields or sorted(CHANGE_JSON_FIELDS)
+
+
+def _select_change(change, fields: list[str]) -> dict[str, object]:
+    data = change.to_dict()
     return {field: data[field] for field in fields}
 
 
@@ -110,6 +127,15 @@ def build_parser() -> argparse.ArgumentParser:
     comment.add_argument("number", type=int)
     _add_body_group(comment, required=True, default=None)
 
+    develop = issue_sub.add_parser("develop", help="create or switch to a Git branch linked to an Issue")
+    develop.add_argument("number", type=int)
+    develop.add_argument("--branch", default=None, help="use or adopt this branch instead of the conventional name")
+    develop.add_argument("--json", metavar="FIELDS", nargs="?", const="", default=None)
+
+    changes = issue_sub.add_parser("changes", help="show Git branches linked to an Issue")
+    changes.add_argument("number", type=int)
+    changes.add_argument("--json", metavar="FIELDS", nargs="?", const="", default=None)
+
     return parser
 
 
@@ -140,6 +166,7 @@ def _run(args: argparse.Namespace) -> int:
     repo = Repository.discover()
     store = IssueStore(repo)
     store.reconcile_closing_references()
+    changes = ChangeStore(repo, store)
 
     if args.command == "issue" and args.issue_command == "create":
         issue = store.create(args.title, _read_body(args) or "")
@@ -201,6 +228,30 @@ def _run(args: argparse.Namespace) -> int:
         print(comment.path.as_posix())
         return 0
 
+    if args.command == "issue" and args.issue_command == "develop":
+        change = changes.develop(args.number, branch=args.branch)
+        fields = _change_json_fields(args.json)
+        if fields is None:
+            print(change.branch)
+        else:
+            print(json.dumps(_select_change(change, fields), ensure_ascii=False, separators=(",", ":")))
+        return 0
+
+    if args.command == "issue" and args.issue_command == "changes":
+        linked = changes.list(args.number)
+        fields = _change_json_fields(args.json)
+        if fields is not None:
+            print(json.dumps([_select_change(item, fields) for item in linked], ensure_ascii=False, separators=(",", ":")))
+            return 0
+        if not linked:
+            print(f"No development branches linked to Issue #{args.number}.")
+            return 0
+        print("BRANCH  HEAD     CURRENT  RELATION")
+        for item in linked:
+            current = "yes" if item.current else ""
+            print(f"{item.branch}  {item.head[:7]}  {current:<7}  {item.relation}")
+        return 0
+
     raise AssertionError("unreachable")
 
 
@@ -218,7 +269,7 @@ def main(argv: list[str] | None = None) -> int:
     except IssueNotFound as exc:
         print(f"github-local: error: {exc}", file=sys.stderr)
         return 4
-    except StorageError as exc:
+    except (StorageError, ChangeError) as exc:
         print(f"github-local: error: {exc}", file=sys.stderr)
         return 5
 

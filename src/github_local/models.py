@@ -36,3 +36,21 @@ class Issue:
             "path": self.path.as_posix(),
             "url": self.url,
         }
+
+
+@dataclass(frozen=True, slots=True)
+class IssueChange:
+    issue: int
+    branch: str
+    head: str
+    current: bool
+    relation: str
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "issue": self.issue,
+            "branch": self.branch,
+            "head": self.head,
+            "current": self.current,
+            "relation": self.relation,
+        }

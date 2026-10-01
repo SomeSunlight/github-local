@@ -36,7 +36,7 @@ Fast Track closure: the bounded implementation/research block is complete and lo
 - [x] Keep Assignees and milestones out of current scope.
 - [x] After PR #2 is owner-approved and squash-merged, onboard `github-local` with ContextCanon and compose the reusable GitHub / Development Workflow context.
 - [x] Resolve #3's branch/worktree semantics before expanding persisted workflow state.
-- [ ] Implement #4 immediately afterwards: complete the Issue lifecycle and automatic close for explicitly referenced accepted/merged work, before broader workflow testing.
+- [x] Implement #4 immediately afterwards: complete the Issue lifecycle and automatic close for explicitly referenced accepted/merged work, before broader workflow testing.
 - [ ] Continue with #5 Change ↔ Issue linking, then #6 backlog ergonomics and #7 help examples.
 
 Owner-test conclusion: the CLI-first integration mechanism is validated. The remaining work is product semantics, not proof that Copilot can call local tools.
@@ -84,7 +84,7 @@ Exit: one Git repository has one visible local Issue backlog and one number allo
 
 ## Active Fast Track: complete the Issue lifecycle — Issue #4
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED**
 
 Purpose: make github.local useful for a real daily backlog: Issues can be edited, discussed, closed/reopened, filtered, and automatically leave the open backlog after accepted code reaches the configured accepted branch with an explicit closing reference.
 
@@ -97,9 +97,32 @@ Purpose: make github.local useful for a real daily backlog: Issues can be edited
 - [x] Keep old config/Issue files backwards compatible and migration explicit.
 - [x] Add focused real-Git lifecycle and auto-close regression tests.
 - [x] Update README/storage docs for productive daily use.
-- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [x] Run the complete deterministic suite and ContextCanon build/check.
 - [x] Keep Draft PR #11 unmerged until explicit owner approval; its body uses `Fixes #4` so GitHub should close Issue #4 automatically after merge.
 
-Checkpoint: lifecycle storage, CLI commands, accepted-branch commit cursor, explicit-closing-reference reconciliation, visible comments, README/storage guidance, and focused regression coverage are implemented. The old tracked bootstrap Issue file was removed from the versioned source tree so the repository itself no longer violates #3 semantics. Full owner suite plus ContextCanon build/check remain the merge gate.
+Checkpoint: the owner ran the complete deterministic suite, regenerated ContextCanon output, and `contextcanon check --all .` passed. PR #11 was squash-merged to `main` as `1eabd3d`. Because its PR body used `Fixes #4`, GitHub automatically closed Issue #4 as intended.
 
 Exit: create → edit/comment → close/reopen → state-filter → merge-with-closing-reference works with one visible project-wide backlog.
+
+
+## Active Fast Track: first-class Change ↔ Issue links — Issue #5
+
+**Fast Track status — ACTIVE**
+
+Purpose: replace the temporary naming-only convention with a tiny machine-readable layer around native Git branches, without duplicating commits, diffs, branch heads, or merge state.
+
+- [x] Add `issue develop <number>` to create/switch to a conventional development branch from the accepted branch.
+- [x] Record the Issue relation as branch-local Git metadata rather than a separate Change history store.
+- [x] Reuse/adopt an existing conventional branch when safe and reject a branch already linked to another Issue.
+- [x] Add `issue changes <number>` with stable human and JSON output derived from live Git refs.
+- [x] Preserve compatibility with legacy `issue-N-...` branches by deriving a convention link when explicit metadata is absent.
+- [x] Prove native `git branch -m` keeps the first-class link intact.
+- [x] Keep linked-worktree behavior shared through the repository's common Git configuration.
+- [x] Add focused real-Git and CLI regression tests.
+- [x] Document the productive Issue → develop → commit → accepted-close workflow.
+- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [x] Keep Draft PR #12 unmerged until explicit owner approval; its body uses `Fixes #5`.
+
+Checkpoint: `issue develop` and `issue changes` are implemented; explicit links use Git branch configuration, conventional legacy branches remain discoverable, conflicting links fail before branch switching, native branch rename preserves the relation, and linked-worktree plus CLI regression coverage is present. Full deterministic suite and ContextCanon build/check remain the owner merge gate.
+
+Exit: an agent can create or discover the Git branch belonging to an Issue and inspect that relation cheaply as structured data, while Git remains authoritative for all code history.

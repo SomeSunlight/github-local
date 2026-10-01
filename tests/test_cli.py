@@ -94,6 +94,61 @@ class CliTests(unittest.TestCase):
         self.assertIn("New body", view.stdout)
         self.assertIn("Visible note", view.stdout)
 
+    def test_issue_develop_and_changes_cli(self):
+        subprocess.run(["git", "-C", str(self.root), "config", "user.email", "test@example.com"], check=True)
+        subprocess.run(["git", "-C", str(self.root), "config", "user.name", "Test"], check=True)
+        (self.root / "README.md").write_text("base\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.root), "add", "README.md"], check=True)
+        subprocess.run(["git", "-C", str(self.root), "commit", "-qm", "base"], check=True)
+
+        self.assertEqual(0, self.run_cli("init", "--owner", "acme", "--repo", "demo").returncode)
+        created = self.run_cli(
+            "issue", "create", "--title", "Implement thing", "--json", "number",
+        )
+        self.assertEqual({"number": 1}, json.loads(created.stdout))
+
+        develop = self.run_cli(
+            "issue", "develop", "1", "--json", "issue,branch,current,relation",
+        )
+        self.assertEqual(0, develop.returncode, develop.stderr)
+        self.assertEqual(
+            {
+                "issue": 1,
+                "branch": "issue-1-implement-thing",
+                "current": True,
+                "relation": "explicit",
+            },
+            json.loads(develop.stdout),
+        )
+
+        linked = self.run_cli(
+            "issue", "changes", "1", "--json", "branch,current,relation",
+        )
+        self.assertEqual(
+            [{
+                "branch": "issue-1-implement-thing",
+                "current": True,
+                "relation": "explicit",
+            }],
+            json.loads(linked.stdout),
+        )
+
+        subprocess.run(
+            ["git", "-C", str(self.root), "branch", "-m", "renamed/change"],
+            check=True,
+        )
+        renamed = self.run_cli(
+            "issue", "changes", "1", "--json", "branch,current,relation",
+        )
+        self.assertEqual(
+            [{
+                "branch": "renamed/change",
+                "current": True,
+                "relation": "explicit",
+            }],
+            json.loads(renamed.stdout),
+        )
+
     def test_version_is_available_without_repository_initialization(self):
         result = self.run_cli("--version")
         self.assertEqual(0, result.returncode, result.stderr)
