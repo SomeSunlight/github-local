@@ -69,6 +69,7 @@ Current supported-subset alignment:
 
 | Capability | GitHub CLI shape | github.local |
 | --- | --- | --- |
+| Repository selection | inherited `-R/--repo` | same flag names; github.local resolves a local filesystem path rather than `[HOST/]OWNER/REPO` |
 | Create | `gh issue create -l/--label` | same command name and label flag; local title/body/label subset |
 | List | `gh issue list` / `gh issue ls`; `-s/--state`, `-l/--label`, `-S/--search`; default state `open` | same names/flags/default for the supported local subset |
 | View | `gh issue view N --comments` | same core name and `--comments` behavior |
@@ -76,13 +77,16 @@ Current supported-subset alignment:
 | Reopen | `gh issue reopen N --comment TEXT` | same core name and comment flag |
 | Edit | `gh issue edit N --add-label/--remove-label` | same core name and label flags; local title/body/label subset |
 | Comment | `gh issue comment N` | same core name and body/body-file flags; no interactive editor/web flow |
+| Delete | `gh issue delete N --yes` | same command and confirmation-skip flag; github.local also supports local bulk `--all` |
 | Development branch | `gh issue develop N [--base] [--checkout] [--name]` | same names/flags; operates on local Git refs |
 | List linked branches | `gh issue develop --list N` | same syntax; structured local JSON is also available |
 
 Intentional deviations:
 
-- `github-local init` is local-only because github.local needs repository-local workflow configuration and an accepted branch; GitHub CLI has no equivalent Issue initialization step.
-- `gh issue develop --branch-repo` is not supported: github.local currently links branches inside the one local Git repository only.
+- `github-local issue init` / `issue deinit` are local-only because folders must explicitly declare and remove local Issue-repository boundaries; GitHub CLI has no equivalent local initialization step. Top-level `github-local init` remains a compatibility alias.
+- `-R/--repo` keeps the official flag spelling but intentionally takes a local filesystem path. `-R .` explicitly resolves the nearest initialized local Issue repository from that path. Unlike `gh`, ordinary github.local Issue commands require repository selection so CWD cannot silently misfile work.
+- `issue delete --all` is a github.local bulk-administration extension. Destructive delete/deinit operations prompt unless `--yes` is supplied.
+- `gh issue develop --branch-repo` is not supported: github.local links branches in the containing local Git repository.
 - `gh issue develop --worktree` is not yet supported. Existing Git worktrees are understood by github.local, but worktree creation is not part of the supported Issue-develop subset yet.
 - `--base` resolves a local Git branch/ref rather than a remote GitHub branch because github.local has no forge-side branch-creation API.
 - `issue develop --json ...` is a github.local extension for cheap agent inspection; official `gh issue develop` has no JSON flag.
@@ -90,7 +94,7 @@ Intentional deviations:
 - Labels are free-form Issue metadata. github.local does not currently implement GitHub's repository-wide label objects or a `gh label` management subsystem.
 - `issue list --search` uses a case-insensitive substring match over local title/body/label text. It does not emulate GitHub's hosted advanced-search query language.
 - The local JSON `labels` field is a stable array of label-name strings rather than GitHub-hosted label objects.
-- `--repo`, `--web`, remote authorization, projects, assignees, milestones and similar GitHub-service features are not emulated unless a later local use case justifies them.
+- Hosted `--repo [HOST/]OWNER/REPO` semantics, `--web`, remote authorization, projects, assignees, milestones and similar GitHub-service features are not emulated unless a later local use case justifies them.
 - github.local JSON fields are deliberately small and stable rather than pretending to expose remote GitHub fields that do not exist locally.
 
 Any future syntax deviation should be recorded here with its reason.
