@@ -79,7 +79,7 @@ def _add_repo_selector(parser: argparse.ArgumentParser) -> None:
         "--repo",
         "-R",
         dest="repo_selector",
-        required=True,
+        default=argparse.SUPPRESS,
         metavar="PATH",
         help="select a local Issue repository by path; use '.' for the local environment",
     )
@@ -123,6 +123,7 @@ def build_parser() -> argparse.ArgumentParser:
             "github-local issue develop -R . 12 --checkout",
         ),
     )
+    _add_repo_selector(issue)
     issue_sub = issue.add_subparsers(dest="issue_command", required=True)
 
     issue_init = issue_sub.add_parser(
@@ -260,7 +261,12 @@ def _initialize_here(owner: str, name: str | None, accepted_branch: str | None) 
 
 
 def _selected_repository(args: argparse.Namespace) -> Repository:
-    selector = Path(args.repo_selector)
+    value = getattr(args, "repo_selector", None)
+    if value is None:
+        raise ValueError(
+            "Issue repository required; use -R/--repo PATH (use '-R .' for the local environment)"
+        )
+    selector = Path(value)
     if not selector.is_absolute():
         selector = Path.cwd() / selector
     return Repository.discover(selector)
