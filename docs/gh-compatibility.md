@@ -75,6 +75,9 @@ Intentional deviations:
 - `github-local init` is local-only because github.local needs repository-local workflow configuration and an accepted branch; GitHub CLI has no equivalent Issue initialization step.
 - `gh issue develop --branch-repo` is not supported: github.local currently links branches inside the one local Git repository only.
 - `gh issue develop --worktree` is not yet supported. Existing Git worktrees are understood by github.local, but worktree creation is not part of the supported Issue-develop subset yet.
+- `--base` resolves a local Git branch/ref rather than a remote GitHub branch because github.local has no forge-side branch-creation API.
+- `issue develop --json ...` is a github.local extension for cheap agent inspection; official `gh issue develop` has no JSON flag.
+- `issue develop --name EXISTING_BRANCH` may adopt an existing unlinked local branch by attaching the Issue relation. This local convenience has no exact forge-side GitHub equivalent.
 - `--repo`, `--web`, remote authorization, projects, assignees, milestones and similar GitHub-service features are not emulated unless a later local use case justifies them.
 - github.local JSON fields are deliberately small and stable rather than pretending to expose remote GitHub fields that do not exist locally.
 
