@@ -293,5 +293,43 @@ class StorageTests(unittest.TestCase):
             store.list()
 
 
+    def test_labels_filter_search_edit_and_legacy_compatibility(self):
+        temp, root, repo, store = self.make_repo()
+        self.addCleanup(temp.cleanup)
+
+        first = store.create(
+            "Parser bug",
+            "Fails on UTF-8 input",
+            labels=["bug", "priority:high", "BUG"],
+        )
+        second = store.create("Parser guide", "Document the parser", labels=["docs"])
+
+        self.assertEqual(("bug", "priority:high"), first.labels)
+        self.assertEqual([1], [item.number for item in store.list(labels=["BUG"])])
+        self.assertEqual(
+            [1],
+            [item.number for item in store.list(labels=["bug", "priority:high"])],
+        )
+        self.assertEqual([1, 2], [item.number for item in store.list(search="parser")])
+        self.assertEqual([1], [item.number for item in store.list(search="UTF-8")])
+        self.assertEqual([2], [item.number for item in store.list(search="DOCS")])
+
+        edited = store.edit(
+            first.number,
+            add_labels=["ready", "Priority:High"],
+            remove_labels=["BUG"],
+        )
+        self.assertEqual(("priority:high", "ready"), edited.labels)
+
+        path = root / second.path
+        lines = path.read_text(encoding="utf-8").splitlines()
+        metadata = json.loads(lines[1])
+        metadata["github-local"].pop("labels")
+        lines[1] = json.dumps(metadata, ensure_ascii=False, separators=(",", ":"))
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+        self.assertEqual((), IssueStore(repo).get(second.number).labels)
+
+
 if __name__ == "__main__":
     unittest.main()
