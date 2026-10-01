@@ -93,3 +93,10 @@ The previous nested-store/CWD design has been rejected. The accepted direction k
 State filtering and the open-by-default list behavior already exist, so #6 has been reduced to the missing backlog-discovery slice. The current official GitHub CLI names map cleanly: `issue create -l/--label`, `issue edit --add-label/--remove-label`, and `issue list -l/--label -S/--search`. The local implementation will keep label metadata lightweight and search deliberately smaller than GitHub's hosted advanced-search language.
 
 Active review branch: `issue-6-backlog-labels-search`. Assignees, milestones, projects, a full label-management subsystem, and any database/index remain out of scope.
+
+## Issue #6 implementation checkpoint
+
+The Draft PR #16 candidate stores optional label-name arrays directly in existing schema-1 Issue front matter; legacy files without `labels` are read as unlabeled. The CLI now supports `create -l/--label`, `edit --add-label/--remove-label`, `list -l/--label`, `list -S/--search`, and stable `labels` JSON. Multiple requested labels use AND filtering. Local search is a case-insensitive substring scan over title, body and labels rather than GitHub's hosted advanced-search grammar; that deviation is documented in `docs/gh-compatibility.md`.
+
+Focused storage/CLI regression tests were added, including legacy-file compatibility. This execution environment cannot resolve `github.com` from its local container, and GitHub App/API-created events did not trigger the temporary branch validation workflow, so the deterministic suite has not been represented as executed here. The temporary workflow was removed again and is absent from the final PR diff. Owner validation remains the normal full unit-suite plus ContextCanon build/check gate. PR #16 stays Draft and unmerged.
+
