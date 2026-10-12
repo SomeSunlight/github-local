@@ -152,7 +152,7 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         self.assertRegex(comments[0].path.name, r"^C_gl_[0-9a-f]{32}[.]md$")
         self.assertFalse(comment.exists())
         self.assertEqual("# A note, not a numbered Issue\n", unrelated.read_text())
-        self.assertEqual([], IssueStore(repo)._collision_groups())
+        self.assertEqual({}, IssueStore(repo)._collision_groups())
 
         # Running migration twice must not generate new IDs or touch the data.
         after = source.read_bytes()
