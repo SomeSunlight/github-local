@@ -99,8 +99,8 @@ Details: CONTEXT-format.md
   Why: The meaning of an Issue evolves with the code and project's Context. A historical commit must reproduce the corresponding historical Issue state, with normal PyCharm/Git semantics.
   <!-- ctx:rule id="GHLR-006" -->
 
-- **Separate immutable identity from short Issue numbers:** Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers.
-  Why: People communicate using `#33`, while persistent identities survive exceptional numbering changes. Only identity, not the short display number, defines the record.
+- **Separate immutable identity from short, human-readable identifiers:** Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers. Comment Markdown filenames must start with a sortable per-Issue sequence and readable summary; a short UUID suffix prevents parallel Git branches from overwriting each other's comments.
+  Why: People communicate using `#33` and browse discussions using `0001`, `0002`, `0003`; opaque UUID-only filenames and randomly ordered comments destroy that human workflow. The internal UUID, not the short display number, remains the technical identity.
   <!-- ctx:rule id="GHLR-013" -->
 
 - **Repair rare post-merge number collisions explicitly:** Accept normal Git merges, detect different UUIDs bearing the same number, block unsafe writes, preview which Issue retains the number, and renumber others to unused integers only after confirmation. Preserve old numbers, dates and available branch provenance in the renamed Issue, and never guess the meaning of ambiguous text/commit/external references.
