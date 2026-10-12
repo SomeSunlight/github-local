@@ -27,6 +27,8 @@ class MigratedNestedCollisionTests(unittest.TestCase):
         self.root_repo = Repository.initialize(self.root, owner="acme", name="P1")
         self.git("add", "-A")
         self.git("commit", "-qm", "initialize")
+        (self.root / "F2").mkdir()
+        (self.root / "doc").mkdir()
         self.f2 = Repository.initialize(self.root / "F2", owner="acme", name="F2")
         self.doc = Repository.initialize(self.root / "doc", owner="acme", name="doc")
         # All these were legitimate independently numbered Issues before
