@@ -100,7 +100,7 @@ github-local issue reconcile -R . --dry-run
 github-local issue reconcile -R . --source-branch "Windows"
 ```
 
-The read-only status/report detects when **different immutable Issue IDs have the same number within a Git checkout**. Number-dependent writes and automatic closure are blocked until this is resolved. Reconciliation previews a proposal, prefers the Issue from the *first parent* of a conventional merge commit, and otherwise chooses deterministically. You may select the Issue that retains the old number with `--keep-id I_gl_...`. `--yes` confirms non-interactively.
+The read-only status/report detects when **different immutable Issue IDs have the same number within a Git checkout**. Number-dependent writes and automatic closure are blocked until this is resolved. Reconciliation uses a unique *first-parent* Issue only where ordinary merge ancestry identifies it unambiguously. Otherwise it requires the owner to select a keeper interactively. It never chooses by alphabetical path or arbitrary UUID order. You may select the Issue that retains the old number with `--keep-id I_gl_...`. `--yes` confirms non-interactively.
 
 Other colliding Issues receive the next available ordinary **integer** numbers, not special suffixes. The affected Issue retains its original UUID, gains an explicit machine-readable `renames` entry, and appends a visible record such as:
 
