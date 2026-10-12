@@ -319,7 +319,14 @@ class Repository:
             # repository's visible Issue files even before explicit migration.
             relative = self.workflow_root.relative_to(self.git_root)
             paths.update((root / relative / "issues").glob("*.md"))
-        return sorted(p for p in paths if p.is_file())
+        # A folder merely named "issues" is NOT an Issue repository. For
+        # example, doc/issues/ may contain imported reference documents.
+        # Explicit issue init at the folder root is the authority (GHLR-009).
+        return sorted(
+            path for path in paths
+            if path.is_file()
+            and (path.parent.parent / CONFIG_DIR / CONFIG_FILE).is_file()
+        )
 
     def migrate_exclusions(self) -> list[str]:
         if not self.has_git or self.git_common_dir is None:
