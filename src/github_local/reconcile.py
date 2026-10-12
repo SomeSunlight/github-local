@@ -96,3 +96,104 @@ def collision_report(repo: Repository, *, keep_id: str | None = None,
         "note": "Text references, past Git commits and external documents must be reviewed manually.",
     }
 
+
+def _associated_comments(issue_path: Path, issue_id: str, old: int,
+                         new: int) -> list[tuple[Path, Path, dict, list[str]]]:
+    source = issue_path.parent / "comments" / f"{old:04d}"
+    target = issue_path.parent / "comments" / f"{new:04d}"
+    if not source.is_dir():
+        return []
+    edits = []
+    for path in sorted(source.glob("*.md")):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        try:
+            end = lines.index("---", 1)
+            data = json.loads("\n".join(lines[1:end]))
+            meta = data["github-local-comment"]
+        except (ValueError, KeyError, TypeError) as exc:
+            raise StorageError(f"invalid comment: {path}") from exc
+        if not meta.get("issue_id"):
+            raise StorageError(
+                f"cannot assign legacy comment {path} to one of two Issues "
+                f"numbered #{old}; manual attribution is required"
+            )
+        if meta["issue_id"] == issue_id:
+            data["github-local-comment"]["issue"] = new
+            edits.append((path, target / path.name, data, lines[end + 1:]))
+    return edits
+
+
+def apply_reconciliation(repo: Repository, *, keep_id: str | None = None,
+                         source_branch: str | None = None) -> dict:
+    if repo.has_git and _git_optional(repo.git_root, "ls-files", "-u"):
+        raise StorageError("resolve ordinary Git merge conflicts before reconciling Issues")
+
+    with FileLock(repo.allocation_lock_path):
+        report = collision_report(repo, keep_id=keep_id,
+                                  source_branch=source_branch)
+        plan = []
+        for collision in report["collisions"]:
+            for change in collision["rename"]:
+                source = Path(change["path"])
+                old, new = change["from"], change["to"]
+                record, title, body = _record(source)
+                target = source.with_name(f"{new:04d}-{slugify(title)}.md")
+                if target.exists():
+                    raise StorageError(f"reconciliation target exists: {target}")
+                comments = _associated_comments(source, change["id"], old, new)
+                for _, dest, _, _ in comments:
+                    if dest.exists():
+                        raise StorageError(f"comment target exists: {dest}")
+                plan.append((source, target, record, title, body, comments, change))
+        originals: dict[Path, bytes | None] = {}
+        def backup(path: Path) -> None:
+            if path not in originals:
+                originals[path] = path.read_bytes() if path.exists() else None
+        try:
+            for src, dst, record, title, body, comments, change in plan:
+                backup(src)
+                backup(dst)
+                date = _utc_now()
+                entry = record["github-local"]
+                entry.setdefault("renames", []).append({
+                    "at": date, "from": change["from"],
+                    "source_branch": change["source_branch"],
+                    "original_path": str(src.relative_to(
+                        repo.git_root if repo.has_git else repo.workflow_root)),
+                })
+                entry["number"] = change["to"]
+                entry["updated_at"] = date
+                annotation = (
+                    f"Renamed on {date} from #{change['from']} "
+                    f"of branch {change['source_branch']}."
+                )
+                local = IssueStore(Repository.discover(src.parent.parent))
+                local._write_issue(dst, record, title,
+                                   body.rstrip() + "\n\n---\n\n> " + annotation, new=True)
+                for source_comment, target_comment, data, lines in comments:
+                    backup(source_comment)
+                    backup(target_comment)
+                    new_text = "---\n" + json.dumps(
+                        data, ensure_ascii=False, separators=(",", ":")
+                    ) + "\n---\n" + "\n".join(lines).rstrip() + "\n"
+                    local._atomic_write(target_comment, new_text, new=True)
+                    source_comment.unlink()
+                src.unlink()
+            if plan:
+                IssueStore(repo)._write_issue_state(
+                    max(entry["to"] for *_, entry in plan) + 1
+                )
+                # Skip previously merged ambiguous Fixes #N messages; later
+                # explicit references still work after collision repair.
+                if repo.has_git and repo.accepted_head():
+                    IssueStore(repo)._write_closing_state(repo.accepted_head())
+        except Exception:
+            for path, data in originals.items():
+                if data is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(data)
+            raise
+        report["applied"] = bool(plan)
+        return report
