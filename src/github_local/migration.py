@@ -14,15 +14,52 @@ ISSUE_UUID = re.compile(r"^I_gl_[0-9a-f]{32}$")
 COMMENT_UUID = re.compile(r"^C_gl_[0-9a-f]{32}$")
 
 
-def _frontmatter(path: Path) -> tuple[dict, list[str]]:
-    lines = path.read_text(encoding="utf-8").splitlines()
+def _frontmatter(path: Path, *, comment: bool = False) -> tuple[dict, list[str]]:
+    """Explain precisely why a legacy Markdown record is not machine-readable.
+
+    Do not silently turn an unrelated Markdown document into an Issue, or
+    invent missing metadata during a migration that should preserve history.
+    """
+    kind = "comment" if comment else "Issue"
+    key = "github-local-comment" if comment else "github-local"
     try:
-        if not lines or lines[0] != "---":
-            raise ValueError("missing metadata")
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise StorageError(f"cannot read legacy {kind} {path}: {exc}") from exc
+    if not lines or lines[0] != "---":
+        reason = ("a UTF-8 byte-order mark before '---'"
+                  if lines and lines[0].startswith("\ufeff---")
+                  else "the first line is not '---'")
+        raise StorageError(
+            f"cannot migrate legacy {kind} {path}: missing JSON front matter "
+            f"({reason}). Expected '---', a JSON object containing '{key}', "
+            "then '---', before the Markdown title. Preserve this file and "
+            "check its original source; plain Markdown needs explicit adoption."
+        )
+    try:
         end = lines.index("---", 1)
-        return json.loads("\n".join(lines[1:end])), lines[end + 1:]
-    except (ValueError, KeyError, TypeError) as exc:
-        raise StorageError(f"invalid legacy Issue file: {path}") from exc
+    except ValueError as exc:
+        raise StorageError(
+            f"cannot migrate legacy {kind} {path}: missing closing '---' "
+            "for JSON front matter"
+        ) from exc
+    try:
+        data = json.loads("\n".join(lines[1:end]))
+    except json.JSONDecodeError as exc:
+        raise StorageError(
+            f"cannot migrate legacy {kind} {path}: invalid JSON in front matter "
+            f"at line {exc.lineno + 1}, column {exc.colno}: {exc.msg}"
+        ) from exc
+    if not isinstance(data, dict) or not isinstance(data.get(key), dict):
+        raise StorageError(
+            f"cannot migrate legacy {kind} {path}: front matter must contain "
+            f"the '{key}' metadata object"
+        )
+    if not data[key].get("id") and not comment:
+        raise StorageError(
+            f"cannot migrate legacy Issue {path}: missing '{key}.id' metadata"
+        )
+    return data, lines[end + 1:]
 
 
 def _render(meta: dict, content: list[str]) -> str:
@@ -45,7 +82,7 @@ def migration_report(repo: Repository) -> dict:
             old_ids += 1
         directory = repo.issues_dir / "comments" / path.name.split("-", 1)[0]
         for comment in directory.glob("*.md"):
-            meta, _ = _frontmatter(comment)
+            meta, _ = _frontmatter(comment, comment=True)
             if not COMMENT_UUID.fullmatch(str(meta["github-local-comment"].get("id", ""))):
                 old_comments += 1
     return {
@@ -83,7 +120,7 @@ def apply_migration(repo: Repository) -> dict:
                     store._atomic_write(path, _render(data, content))
                 directory = repo.issues_dir / "comments" / f"{int(meta['number']):04d}"
                 for comment in sorted(directory.glob("*.md")):
-                    comment_data, comment_content = _frontmatter(comment)
+                    comment_data, comment_content = _frontmatter(comment, comment=True)
                     cm = comment_data["github-local-comment"]
                     cid = str(cm.get("id", ""))
                     if not COMMENT_UUID.fullmatch(cid):
