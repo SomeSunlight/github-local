@@ -301,6 +301,28 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         self.checkpoint(root, "Git-track migrated workflow state")
         self.assertEqual("", self.git(root, "status", "--porcelain"))
 
+    def test_linked_worktrees_share_comment_sequence_even_before_commit(self):
+        parent, root, repo = self.project()
+        IssueStore(repo).create("Shared discussion")
+        self.checkpoint(root, "shared Issue")
+        linked = parent / "linked"
+        self.git(root, "worktree", "add", "-q", "-b", "observer", str(linked))
+        linked_store = IssueStore(Repository.discover(linked))
+
+        main = IssueStore(repo).comment(1, "Initial thought")
+        sibling = linked_store.comment(1, "New thought")
+        next_main = IssueStore(repo).comment(1, "Follow-up thought")
+
+        self.assertEqual([1, 2, 3],
+                         [main.number, sibling.number, next_main.number])
+        self.assertRegex(main.path.name, r"^0001-initial-thought-[0-9a-f]{8}[.]md$")
+        self.assertRegex(sibling.path.name, r"^0002-new-thought-[0-9a-f]{8}[.]md$")
+        self.assertRegex(next_main.path.name, r"^0003-follow-up-thought-[0-9a-f]{8}[.]md$")
+        self.assertEqual([1, 3],
+                         [x.number for x in IssueStore(repo).comments(1)])
+        self.assertEqual([2],
+                         [x.number for x in linked_store.comments(1)])
+
     def test_comments_from_parallel_branches_use_unique_filenames(self):
         _, root, repo = self.project()
         issue = IssueStore(repo).create("Shared")
