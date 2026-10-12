@@ -224,3 +224,22 @@ Purpose: let company, product, and extension folders own independent GitHub-like
 - [x] Open Draft PR #18 with `Fixes #14`; keep it unmerged until explicit owner approval.
 
 Exit: moving through the folder tree and running `issue init` creates deliberate independent backlogs, while every later Issue operation names its target explicitly and no nested Git repositories are required.
+
+
+## Active Fast Track: ordinary Git-tracked workflow state — Issue #20
+
+**Fast Track status — ACTIVE** (owner approved coherent implementation direction 2026-10-12).
+
+Purpose: keep code and Markdown Issues in one ordinary Git history, with one shared local Issue number allocator per containing Git repository, immutable UUID identities, and a rare explicit post-merge number-collision repair. `-R` and nested Issue repository ownership remain explicit.
+
+- [x] Record the product decision in GitHub Issue #20 and begin an isolated review branch.
+- [ ] Replace branch-independent primary-worktree Issue storage and implicit Git info/exclude writes with worktree-local canonical Markdown; preserve Git-free operation.
+- [ ] Track durable repository identity and Issue files with Git, exclude only reconstructable runtime files, and document migration from older ignored stores.
+- [ ] Implement shared per-Git number allocation across nested Issue repositories and linked worktrees, plus UUID Issue/comment identities.
+- [ ] Add safe collision diagnostics and confirmable post-merge reconciliation into next free integer number; preserve old number, timestamp, and source evidence and report ambiguous references.
+- [ ] Address change links, closing references, comments, and legacy format compatibility; add focused regression tests.
+- [ ] Update authored Context rules, README, storage, architecture, and CLI compatibility documentation.
+- [ ] Run focused/full deterministic tests, ContextCanon build/check, and record exact verification evidence.
+- [ ] Open Draft PR for owner review; **never merge without explicit owner approval**.
+
+Exit: normal Git clone/switch/merge/push carries Issue state alongside code; exceptional collisions are diagnosed and repaired without silently changing unknown references. Full merge gate follows owner review.
