@@ -110,6 +110,16 @@ class MigratedNestedCollisionTests(unittest.TestCase):
         conflicts = IssueStore(self.root_repo)._collision_groups()
         self.assertEqual([2], sorted(conflicts))
         self.assertEqual(6, IssueStore(self.root_repo)._next_number())
+        # The same doc archive must not reserve #99 in Git's history after
+        # commit + clone, when the allocator's local cursor is absent.
+        self.git("add", "-A")
+        self.git("commit", "-qm", "historical issues and doc archive")
+        clone = Path(self.temp.name) / "other-clone"
+        subprocess.run(
+            ["git", "clone", "-q", str(self.root), str(clone)],
+            check=True, capture_output=True, text=True,
+        )
+        self.assertEqual(6, IssueStore(Repository.discover(clone))._next_number())
         response = self.cli("status", "-R", ".")
         self.assertEqual(0, response.returncode, response.stderr)
         self.assertIn("ACTION REQUIRED: 1 duplicate Issue numbers (#2)", response.stdout)
