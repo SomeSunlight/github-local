@@ -102,9 +102,9 @@ class MigratedNestedCollisionTests(unittest.TestCase):
         self.doc.config_path.unlink()
         stray = self.doc.issues_dir / "0099-imported-archive.md"
         stray.write_text(
-            '---\\n{"github-local":{"schema":1,"number":99,'
-            '"id":"I_gl_00000000000000000000000000000001"}}\\n---\\n'
-            '# Imported archive\\n',
+            '---\n{"github-local":{"schema":1,"number":99,'
+            '"id":"I_gl_00000000000000000000000000000001"}}\n---\n'
+            '# Imported archive\n',
             encoding="utf-8",
         )
         conflicts = IssueStore(self.root_repo)._collision_groups()
