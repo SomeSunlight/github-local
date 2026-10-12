@@ -104,7 +104,7 @@ git push
 **Migrating an older github-local checkout?** First inspect, then explicitly adopt the old excluded records:
 
 ```bash
-github-local issue status -R .
+github-local status -R .
 github-local issue migrate -R . --dry-run
 github-local issue migrate -R .
 git status
@@ -115,7 +115,7 @@ Commit the newly visible `issues/`, `.github-local/config.json`, root identity a
 **Parallel branches and independent copies:** One containing local Git repository shares an integer Issue number series across nested Issue folders and linked worktrees. Independent offline clones may both create `#33`. Merge with Git normally, then inspect and repair the uncommon collision:
 
 ```bash
-github-local issue status -R . --json
+github-local status -R . --json
 github-local issue reconcile -R . --dry-run
 github-local issue reconcile -R . --source-branch "Windows"
 ```
