@@ -104,6 +104,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action=_RuntimeVersionAction, nargs=0)
     sub = parser.add_subparsers(dest="command", required=True)
 
+    top_status = sub.add_parser(
+        "status", help="inspect local Git and Issue repository diagnostics"
+    )
+    _add_repo_selector(top_status)
+    top_status.add_argument("--json", action="store_true")
+
     init = sub.add_parser(
         "init",
         help="initialize a local Issue repository in the current directory (compatibility alias)",
@@ -324,7 +330,9 @@ def _run(args: argparse.Namespace) -> int:
     repo = _selected_repository(args)
     store = IssueStore(repo)
 
-    if args.command == "issue" and args.issue_command == "status":
+    if args.command == "status" or (
+        args.command == "issue" and args.issue_command == "status"
+    ):
         diag = {
             "repository": f"{repo.owner}/{repo.name}",
             "root": str(repo.workflow_root),
