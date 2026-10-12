@@ -149,7 +149,7 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         comments = IssueStore(repo).comments(4)
         self.assertEqual(1, len(comments))
         self.assertEqual("Original discussion\n\nSecond paragraph.", comments[0].body)
-        self.assertRegex(comments[0].path.name, r"^C_gl_[0-9a-f]{32}[.]md$")
+        self.assertRegex(comments[0].path.name, r"^0001-original-discussion-[0-9a-f]{8}[.]md$")
         self.assertFalse(comment.exists())
         self.assertEqual("# A note, not a numbered Issue\n", unrelated.read_text())
         self.assertEqual({}, IssueStore(repo)._collision_groups())
