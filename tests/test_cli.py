@@ -363,7 +363,7 @@ class CliTests(unittest.TestCase):
             ["git", "-C", str(self.root), "status", "--porcelain"],
             check=True, text=True, stdout=subprocess.PIPE,
         ).stdout
-        top = self.run_cli("status", "--json")
+        top = self.run_cli("status", "-R", ".", "--json")
         inner = self.run_cli("issue", "status", "--json")
         self.assertEqual(0, top.returncode, top.stderr)
         self.assertEqual(0, inner.returncode, inner.stderr)
