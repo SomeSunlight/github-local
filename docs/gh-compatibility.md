@@ -98,3 +98,15 @@ Intentional deviations:
 - github.local JSON fields are deliberately small and stable rather than pretending to expose remote GitHub fields that do not exist locally.
 
 Any future syntax deviation should be recorded here with its reason.
+
+## Git-tracked workflow state (Issue #20)
+
+The new implementation continues to use familiar `gh issue` command names for create/list/view/edit/close/comment/develop. The following **local-only** subcommands are intentional additions because the official GitHub CLI delegates storage and issue numbering to GitHub's hosted service:
+
+- `github-local issue status -R PATH [--json]`: read-only diagnostics about the selected Issue repository, containing Git repository, versioned identity, potentially ignored canonical files, and post-merge number collisions.
+- `github-local issue migrate -R PATH [--dry-run] [--yes]`: explicit adoption of prior local-only ignored markdown and legacy Issue/comment identities; no automatic Git add/commit.
+- `github-local issue reconcile -R PATH [--dry-run] [--keep-id ID] [--source-branch LABEL] [--yes] [--json]`: preview and explicitly repair duplicate short Issue numbers introduced by a normal Git merge of independently numbered clones. Colliding numbers are changed to free ordinary integers; immutable IDs remain unchanged.
+
+Ordinary Git now owns Issue history as well as code history, rather than the earlier project-wide branch-independent local-only Issue store. Within one containing Git repository the number series spans nested initialized Issue repositories. Immutable UUIDs and visible rename history permit exceptional renumbering without changing technical identity. `#N` still denotes an Issue to a human, but an unqualified text reference from merged divergent histories can be ambiguous; the tool reports possible references rather than guessing. The `-R` selector remains required for normal Issue commands, and Git-free Issue folders remain supported.
+
+The native CLI neither performs automated merges nor silently commits, stages or pushes Markdown. Git-accepted-branch automatic closure remains a local behavior. No hosted GitHub PR/review/check implementation is claimed by this storage change.
