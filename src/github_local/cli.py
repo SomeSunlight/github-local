@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from .changes import ChangeError, ChangeStore
+from .reconcile import apply_reconciliation, collision_report
 from .repository import Repository, RepositoryError
 from .storage import IssueNotFound, IssueStore, StorageError
 from .version import display_version
@@ -222,6 +223,27 @@ def build_parser() -> argparse.ArgumentParser:
     delete.add_argument("--all", action="store_true", help="delete all Issues (github.local extension)")
     delete.add_argument("--yes", action="store_true", help="confirm deletion without prompting")
 
+    status = issue_sub.add_parser("status", help="inspect selected repository and Git Issue collisions")
+    _add_repo_selector(status)
+    status.add_argument("--json", action="store_true", help="print structured diagnostics")
+
+    reconcile = issue_sub.add_parser(
+        "reconcile", help="review and repair post-merge duplicate Issue numbers"
+    )
+    _add_repo_selector(reconcile)
+    reconcile.add_argument("--keep-id", help="immutable Issue ID which retains its old number")
+    reconcile.add_argument("--source-branch", help="provenance label for renamed Issues")
+    reconcile.add_argument("--dry-run", action="store_true", help="preview without writing")
+    reconcile.add_argument("--yes", action="store_true", help="confirm the proposed renumbering")
+    reconcile.add_argument("--json", action="store_true", help="print machine-readable plan")
+
+    migrate = issue_sub.add_parser(
+        "migrate", help="adopt legacy ignored Issue files for normal Git tracking"
+    )
+    _add_repo_selector(migrate)
+    migrate.add_argument("--yes", action="store_true", help="confirm migration")
+    migrate.add_argument("--dry-run", action="store_true", help="show migration impact")
+
     develop = issue_sub.add_parser(
         "develop",
         help="manage linked Git branches for an Issue",
@@ -301,6 +323,67 @@ def _run(args: argparse.Namespace) -> int:
 
     repo = _selected_repository(args)
     store = IssueStore(repo)
+
+    if args.command == "issue" and args.issue_command == "status":
+        diag = {
+            "repository": f"{repo.owner}/{repo.name}",
+            "root": str(repo.workflow_root),
+            "gitRoot": str(repo.git_root) if repo.has_git else None,
+            "gitIdentity": repo.git_repository_id,
+            "issueStore": str(repo.issues_dir),
+            "legacyExclusions": repo.legacy_exclusions(),
+            "collisions": collision_report(repo)["collisions"],
+            "capabilities": {"issues": True, "changes": repo.has_git,
+                             "pullRequests": False, "reviews": False},
+        }
+        if args.json:
+            print(json.dumps(diag, ensure_ascii=False, indent=2))
+        else:
+            for key, value in diag.items():
+                print(f"{key}: {value}")
+        return 0
+
+    if args.command == "issue" and args.issue_command == "reconcile":
+        report = collision_report(repo, keep_id=args.keep_id,
+                                  source_branch=args.source_branch)
+        if not args.json:
+            for entry in report["collisions"]:
+                print(f"Collision #{entry['number']}: keep {entry['keep']['id']}")
+                for change in entry["rename"]:
+                    print(f"  rename {change['id']}: #{change['from']} -> #{change['to']}")
+            print(report["note"])
+            for number, hits in report["references"].items():
+                if hits:
+                    print(f"  #{number}: {len(hits)} possible text references (review manually)")
+            if not report["collisions"]:
+                print("No Issue number collisions.")
+        if not args.dry_run and report["collisions"]:
+            if not args.yes and not _confirm(
+                "Rename the proposed Issues and their UUID-matched comments? "
+                "Free-text references will NOT be changed."
+            ):
+                print("Aborted.")
+                return 1
+            report = apply_reconciliation(repo, keep_id=args.keep_id,
+                                          source_branch=args.source_branch)
+        if args.json:
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0
+
+    if args.command == "issue" and args.issue_command == "migrate":
+        from .migration import migration_report, apply_migration
+        report = migration_report(repo)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        if args.dry_run:
+            return 0
+        if not args.yes and not _confirm(
+            "Remove legacy hidden Git excludes and adopt canonical Issue files? "
+            "Git commit/push remains your responsibility."
+        ):
+            print("Aborted.")
+            return 1
+        print(json.dumps(apply_migration(repo), ensure_ascii=False, indent=2))
+        return 0
 
     if args.command == "issue" and args.issue_command == "deinit":
         count = store.count()
