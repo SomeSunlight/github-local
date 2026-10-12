@@ -90,3 +90,67 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         self.checkpoint(a, "reconcile post-merge numbering")
         self.assertEqual("", self.git(a, "status", "--porcelain"))
 
+    def test_adopt_legacy_ignored_issues_without_index_mutation(self):
+        _, root, repo = self.project()
+        store = IssueStore(repo)
+        issue = store.create("Legacy")
+        comment = store.comment(issue.number, "Old comment")
+        issue_file = root / issue.path
+        lines = issue_file.read_text(encoding="utf-8").splitlines()
+        meta = json.loads(lines[1])
+        meta["github-local"]["id"] = "I_gl_" + "a" * 16
+        lines[1] = json.dumps(meta, separators=(",", ":"))
+        issue_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        original_comment = root / comment.path
+        legacy_comment = original_comment.with_name("0001.md")
+        lines = original_comment.read_text(encoding="utf-8").splitlines()
+        cmeta = json.loads(lines[1])
+        del cmeta["github-local-comment"]["id"]
+        del cmeta["github-local-comment"]["issue_id"]
+        lines[1] = json.dumps(cmeta, separators=(",", ":"))
+        legacy_comment.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        original_comment.unlink()
+        exclude = root / ".git" / "info" / "exclude"
+        exclude.write_text("/issues/\n/.github-local/\n", encoding="utf-8")
+        self.assertEqual(2, len(repo.legacy_exclusions()))
+        before = self.git(root, "ls-files", "--", "issues")
+        self.assertEqual("", before)
+        preview = migration_report(repo)
+        self.assertEqual(1, preview["legacyIssueIds"])
+        self.assertEqual(1, preview["legacyComments"])
+        applied = apply_migration(repo)
+        self.assertTrue(applied["migrated"])
+        self.assertEqual([], repo.legacy_exclusions())
+        self.assertEqual("", self.git(root, "ls-files", "--", "issues"))
+        self.assertRegex(store.get(1).issue_id, r"^I_gl_[0-9a-f]{32}$")
+        self.assertEqual(1, len(store.comments(1)))
+        self.assertIn("issues/", self.git(root, "status", "--short"))
+        self.checkpoint(root, "Git-track migrated workflow state")
+        self.assertEqual("", self.git(root, "status", "--porcelain"))
+
+    def test_comments_from_parallel_branches_use_unique_filenames(self):
+        _, root, repo = self.project()
+        issue = IssueStore(repo).create("Shared")
+        self.checkpoint(root, "one shared Issue")
+        self.git(root, "branch", "feature")
+        first = IssueStore(repo).comment(issue.number, "main comment")
+        self.checkpoint(root, "main discussion")
+        self.git(root, "switch", "-q", "feature")
+        branch_repo = Repository.discover(root)
+        second = IssueStore(branch_repo).comment(issue.number, "feature comment")
+        self.checkpoint(root, "feature discussion")
+        self.assertNotEqual(first.path, second.path)
+        self.git(root, "switch", "-q", "main")
+        self.git(root, "merge", "-q", "--no-ff", "-m", "merge comments", "feature")
+        bodies = {entry.body for entry in IssueStore(repo).comments(issue.number)}
+        self.assertEqual({"main comment", "feature comment"}, bodies)
+
+    def test_status_has_no_side_effects(self):
+        _, root, repo = self.project()
+        self.assertEqual("", self.git(root, "status", "--porcelain"))
+        self.assertEqual([], collision_report(repo)["collisions"])
+        self.assertEqual("", self.git(root, "status", "--porcelain"))
+
+
+if __name__ == "__main__":
+    unittest.main()
