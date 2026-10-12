@@ -124,7 +124,7 @@ def _render(meta: dict, content: list[str]) -> str:
 
 def migration_report(repo: Repository) -> dict:
     """Read-only preview; generates no timestamps, UUIDs or filesystem changes."""
-    issues = old_ids = old_comments = plain_issues = plain_comments = 0
+    issues = old_ids = old_comments = plain_issues = plain_comments = comment_renames = 0
     for path in sorted(repo.issues_dir.glob("*.md")):
         if not ISSUE_RE.match(path.name):
             continue
@@ -136,13 +136,22 @@ def migration_report(repo: Repository) -> dict:
             old_ids += 1
         directory = repo.issues_dir / "comments" / path.name.split("-", 1)[0]
         for comment in sorted(directory.glob("*.md")):
-            record, _, plain_comment = _comment_record(comment)
+            record, content, plain_comment = _comment_record(comment)
             if plain_comment:
                 plain_comments += 1
-            if not COMMENT_UUID.fullmatch(
-                str(record.get("github-local-comment", {}).get("id", ""))
-            ):
+            meta = record.get("github-local-comment", {})
+            cid = str(meta.get("id", ""))
+            if not COMMENT_UUID.fullmatch(cid):
                 old_comments += 1
+                comment_renames += 1  # New UUID will also create a readable name.
+            else:
+                try:
+                    expected = comment_filename(int(meta["number"]),
+                                                "\n".join(content), cid)
+                except (TypeError, ValueError, KeyError) as exc:
+                    raise StorageError(f"invalid comment number in {comment}") from exc
+                if comment.name != expected:
+                    comment_renames += 1
     return {
         "repository": f"{repo.owner}/{repo.name}",
         "issues": issues,
@@ -150,6 +159,7 @@ def migration_report(repo: Repository) -> dict:
         "legacyIssueIds": old_ids,
         "plainMarkdownComments": plain_comments,
         "legacyComments": old_comments,
+        "commentFileRenames": comment_renames,
         "legacyExclusions": repo.legacy_exclusions(),
         "gitIdentity": repo.git_repository_id,
         "note": (
