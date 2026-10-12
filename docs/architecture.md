@@ -4,41 +4,45 @@
 
 ```text
 Copilot / LLM / human
-        ├── filesystem + PowerShell + git  → optional code state
-        └── github-local CLI               → workflow objects
-                                               └── explicit local Issue repositories
+        ├── native filesystem + Git → code, branches, commits, merges, issue history
+        └── github-local CLI        → local workflow operations over visible Markdown
+                                       └── explicit nested Issue repositories
 ```
 
-The MVP uses the native `github-local` command while retaining GitHub-shaped vocabulary. This is a provider runtime, not a ContextCanon subsystem. The durable ownership boundary is maintained in [Project Context](../CONTEXT.md).
+The CLI remains the primary interface for terminal-capable agents in restricted environments. A compatible implementation of the official `gh` protocol requires substantially more HTTPS/GraphQL infrastructure; it remains an optional future adapter. No external network or service is necessary.
 
-## Client and layer decision
+## One ordinary Git history
 
-The measured official `gh` Issue path requires a substantially larger GitHub Enterprise-shaped HTTPS and GraphQL surface than the first local slice. The native CLI therefore remains primary, with future adapters isolated from the application service and canonical Issue files. Maintained boundaries are in [Project Context](../CONTEXT.md); detailed measurements and the reproducible trace remain in `gh-compatibility.md` and `../spike/`.
+**Code, Context, Issues, comments and durable workflow configuration travel in the same ordinary Git branch.** Switching to an older commit restores its historical workflow state as well as its code. There is no second Issue branch, hidden canonical database, or special Git worktree. Git performs merges as usual; github-local does not proxy or automatically commit Git operations.
 
+Each initialized folder has an independent visible `issues/` backlog and stable local workflow repository identity. The containing Git **root** additionally has the versioned `.github-local/git-identity.json` for the logical project. Multiple initialized Issue subfolders inside that Git repository share a globally short-numbered Issue series. Git-free local Issue folders remain possible and use their own allocator.
 
+Concurrent creation in branches/worktrees of the *same* local Git repository uses an OS lock and local Git-common cursor; its data loss cannot destroy Issue Markdown. Multiple clones have distinct local cursors, so their rare collision case is handled *after normal Git merge*, not by pretending to have a central online number service.
 
-## Local Issue repositories versus Git repositories
+## IDs versus short numbers
 
-The durable Issue boundary is declared by `github-local issue init`, not by `.git`.
+A new Issue or comment has an independent immutable UUID in front matter. Short Issue numbers such as `#33` are convenient addresses, not durable technical identities.
 
-A local Issue repository is a GitHub-like unit of workflow ownership: it has its own visible `issues/` store, number space, stable repository identity, and later can carry its own external Jira/Bitbucket mapping. These boundaries may be nested and may exist with no Git at all.
+Two offline clones can both create a different `#33`. After Git merges their distinct Markdown files, `issue status` detects the collision; normal number-dependent operations are blocked. `issue reconcile` previews a winner, lets the owner select a retained UUID, and, on confirmation, renumbers the other Issue to the next unused integer. The record keeps its UUID, gains provenance in metadata and prose, and UUID-linked comments follow. Unknown free-text `#33` references are reported for human review rather than rewritten by guesswork.
 
-Git remains a separate code-state boundary. One Git repository may therefore contain multiple local Issue repositories. This avoids nested-Git complexity while preserving the user-facing property that a company, product, or independently managed extension can each show only its own backlog.
+No special merge driver, mandatory hooks, automatic Git history rewriting, or forced renumbering during the happy path.
 
-Ordinary Issue commands require explicit `-R/--repo` selection. This is not merely CLI ergonomics: it prevents both humans and LLM agents from silently filing work into the wrong backlog because their current directory was not what they assumed.
+## Local state and safety
 
-## Validated agent integration
+Only locks, allocator cursors, automatic-close cursors and temporary scratch are ignored through a visible managed `.gitignore` block. The previous hidden `.git/info/exclude` rule that hid canonical workflow data is retired via explicit `issue migrate`. The Git index and commits are not modified by the tool.
 
-A real corporate Copilot session without MCP successfully used the CLI and native Git. This validates the intended terminal-first split; the maintained agent contract and validation status are in [Project Context](../CONTEXT.md), with detailed evidence in `agent-validation.md`.
+Git-root identity and Issue-repository configurations are regular files. An `issue deinit` operation on the Git root must not delete the Git identity still used by nested Issue repositories. If canonical files remain ignored, mutating commands fail with a migration hint.
+
+Issue files remain atomic Markdown writes; a database, when introduced, may only be a reconstructable index. There is no silent forge synchronization.
 
 ## Git-native Change links
 
-Change ↔ Issue linking adds workflow semantics around native Git rather than a second Change-history store.
+`github-local issue develop -R <path> N` uses ordinary native Git branches. Git branch configuration stores a local Issue repository ID, short number, and immutable Issue UUID. Renumbering is therefore not a new technical Issue identity. Historical number-only links remain readable for compatibility.
 
-`github-local issue develop -R <path> <number>` requires the selected local Issue repository to be inside Git. The first-class branch relation stores both the stable local repository ID and the Issue number in Git branch configuration. Branch heads, commits, diffs, renames and deletion remain Git-owned.
+For accepted history, closing references are interpreted only while the accepted branch is checked out and only when Issue numbers are unambiguous. Nested Issue repositories continue to require qualified closing syntax `Fixes owner/repository#N`. This protects distinct contexts during a merge.
 
-This composite relation is necessary because several local Issue repositories inside one Git repository may legitimately contain the same Issue number. Generated branch names for nested repositories therefore include the local repository name as a collision-resistant human hint.
+## Agent and operational constraints
 
-Historical number-only branch metadata and `issue-N-...` convention fallback remain compatible only for an Issue repository at the Git root; github.local never guesses that such an ambiguous legacy relation belongs to a nested repository.
+An agent must still select the Issue repository with explicit `-R/--repo`; `-R .` searches for the nearest initialized parent from the given location. `issue status -R . --json` and `issue reconcile -R . --dry-run --json` provide inexpensive non-destructive inspection.
 
-This deliberately avoids copying Git state into Markdown, SQLite or another Change database.
+See [storage.md](storage.md) for canonical Markdown formats and migration examples, and [agent-validation.md](agent-validation.md) for original corporate Copilot evidence.
