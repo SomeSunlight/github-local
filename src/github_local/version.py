@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import json
+import re
 import subprocess
 import tomllib
-from importlib.metadata import PackageNotFoundError, version as distribution_version
+from importlib.metadata import (
+    PackageNotFoundError,
+    distribution,
+    version as distribution_version,
+)
 from pathlib import Path
 
 
@@ -90,9 +96,51 @@ def git_provenance(project_root: Path | None = None) -> str | None:
     return result
 
 
+def installed_git_provenance() -> str | None:
+    """PEP 610 identity of an installed Git URL, without a working Git checkout.
+
+    uv and pip record the *resolved* immutable commit in direct_url.json.
+    The requested revision is orientation, not the authority. Never inspect
+    the user's current Git working directory: it belongs to a different tool.
+    """
+    try:
+        direct_url = distribution(_DISTRIBUTION_NAME).read_text("direct_url.json")
+    except (PackageNotFoundError, OSError):
+        return None
+
+    if not direct_url:
+        return None
+    try:
+        metadata = json.loads(direct_url)
+        info = metadata["vcs_info"]
+        if info["vcs"] != "git":
+            return None
+        commit = info["commit_id"]
+        if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}", commit):
+            return None
+        requested = info.get("requested_revision")
+        resolved = info.get("resolved_revision")
+        revision = requested or resolved or "git"
+        if not isinstance(revision, str):
+            return None
+        revision = revision.removeprefix("refs/heads/").removeprefix("refs/tags/")
+        if not revision or any(c in revision for c in "\r\n\t"):
+            return None
+        # If a commit rather than a branch/tag was requested, mark it detached.
+        if re.fullmatch(r"[0-9a-fA-F]{7,64}", revision):
+            revision = "detached"
+        return f"{revision}@{commit[:7].lower()}"
+    except (ValueError, KeyError, TypeError, AttributeError):
+        return None
+
+
 def display_version(project_root: Path | None = None) -> str:
     release = release_version(project_root)
     provenance = git_provenance(project_root)
+    if provenance is None and project_root is None:
+        # A VCS URL installation has no .git directory at runtime; prefer its
+        # installed PEP 610 metadata over accidental process CWD provenance.
+        provenance = installed_git_provenance()
     return f"{release} ({provenance})" if provenance else release
 
 
