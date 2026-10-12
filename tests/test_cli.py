@@ -74,7 +74,7 @@ class CliTests(unittest.TestCase):
 
         comment = self.run_cli("issue", "comment", "1", "--body", "Visible note")
         self.assertEqual(0, comment.returncode, comment.stderr)
-        self.assertEqual("issues/comments/0001/0001.md", comment.stdout.strip())
+        self.assertRegex(comment.stdout.strip(), r"^issues/comments/0001/C_gl_[0-9a-f]{32}[.]md$")
 
         edited = self.run_cli(
             "issue", "edit", "1", "--title", "New title", "--body", "New body",
@@ -120,6 +120,8 @@ class CliTests(unittest.TestCase):
             "issue", "create", "--title", "Implement thing", "--json", "number",
         )
         self.assertEqual({"number": 1}, json.loads(created.stdout))
+        subprocess.run(["git", "-C", str(self.root), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.root), "commit", "-qm", "commit Issue"], check=True)
 
         develop = self.run_cli(
             "issue", "develop", "1", "--json", "issue,branch,current,relation",
@@ -371,7 +373,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(0, inherited.returncode, inherited.stderr)
         self.assertEqual([], json.loads(inherited.stdout))
 
-    def test_nested_local_issue_repositories_have_independent_numbering(self):
+    def test_nested_local_issue_repositories_share_git_numbering(self):
         product = self.root / "product-a"
         extension = product / "extension-x"
         extension.mkdir(parents=True)
@@ -400,7 +402,7 @@ class CliTests(unittest.TestCase):
         product_payload = json.loads(product_issue.stdout)
         extension_payload = json.loads(extension_issue.stdout)
         self.assertEqual(1, product_payload["number"])
-        self.assertEqual(1, extension_payload["number"])
+        self.assertEqual(2, extension_payload["number"])
         self.assertNotEqual(product_payload["url"], extension_payload["url"])
 
         from_extension = self.run_cli(
@@ -467,7 +469,8 @@ class CliTests(unittest.TestCase):
             input_text="y\n",
         )
         self.assertEqual(0, removed.returncode, removed.stderr)
-        self.assertFalse((self.root / ".github-local").exists())
+        self.assertFalse((self.root / ".github-local" / "config.json").exists())
+        self.assertTrue((self.root / ".github-local" / "git-identity.json").exists())
         self.assertFalse((self.root / "issues").exists())
 
     def test_single_issue_delete_removes_comments_but_keeps_monotonic_numbers(self):
