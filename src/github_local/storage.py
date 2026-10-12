@@ -163,6 +163,7 @@ class IssueStore:
         return {number: items for number, items in grouped.items() if len(items) > 1}
 
     def ensure_no_collisions(self) -> None:
+        self.repository.ensure_trackable()
         conflicts = self._collision_groups()
         if conflicts:
             numbers = ", ".join(f"#{n}" for n in sorted(conflicts))
@@ -374,6 +375,12 @@ class IssueStore:
         return sorted(comments, key=lambda item: (item.created_at, item.path.name))
 
     def reconcile_closing_references(self) -> list[int]:
+        # Read-only commands remain available before explicit legacy migration.
+        if self.repository.has_git and (
+            self.repository.git_repository_id is None
+            or self.repository.ignored_durable_paths()
+        ):
+            return []
         # Accepted history must not mutate a different checked-out feature branch.
         if self.repository.has_git:
             current = _git_optional(self.repository.git_root,
