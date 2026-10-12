@@ -503,7 +503,7 @@ class Repository:
 
         git_root = git_primary = common_dir = None
         git_identity = None
-        if layout is not None:
+        if layout is not None and _relative_if_within(workflow_root, layout[0]) is not None:
             git_root, git_primary, common_dir = layout
             git_identity = _git_identity(git_root, initialize=False)
 
