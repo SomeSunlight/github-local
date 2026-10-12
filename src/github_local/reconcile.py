@@ -65,39 +65,104 @@ def _references(repo: Repository, number: int) -> list[str]:
     return (result or "").splitlines()
 
 
-def collision_report(repo: Repository, *, keep_id: str | None = None,
-                     source_branch: str | None = None) -> dict:
+def collision_report(
+    repo: Repository, *, keep_id: str | list[str] | None = None,
+    source_branch: str | None = None,
+) -> dict:
+    """Preview collisions; never select a winner by arbitrary path ordering.
+
+    A first-parent Git merge can identify a single retained record. After a
+    migration of historically independent Issue folders there is no such
+    evidence: the owner must explicitly select one Issue per duplicated number.
+    """
     store = IssueStore(repo)
     conflicts = store._collision_groups()
-    parents = _first_parent_ids(repo)
     if not conflicts:
-        return {"collisions": [], "references": {}, "note": "No collisions."}
-    if keep_id and not any(keep_id == ident for group in conflicts.values() for _, ident in group):
-        raise StorageError(f"unknown --keep-id: {keep_id}")
+        return {"collisions": [], "references": {}, "note": "No collisions.",
+                "manualChoiceRequired": False}
+
+    choices = [keep_id] if isinstance(keep_id, str) else list(keep_id or [])
+    if len(set(choices)) != len(choices):
+        raise StorageError("the same --keep-id was supplied more than once")
+    available = {
+        issue_id: number
+        for number, items in conflicts.items()
+        for _, issue_id in items
+    }
+    for issue_id in choices:
+        if issue_id not in available:
+            raise StorageError(f"unknown --keep-id: {issue_id}")
+    explicit: dict[int, str] = {}
+    for issue_id in choices:
+        number = available[issue_id]
+        if number in explicit:
+            raise StorageError(
+                f"more than one --keep-id supplied for collision #{number}; "
+                "choose exactly one Issue to keep this number"
+            )
+        explicit[number] = issue_id
+
+    first_parent = _first_parent_ids(repo)
     next_number = store._next_number()
     results = []
     for number, items in sorted(conflicts.items()):
-        parents_here = [entry for entry in items if entry[1] in parents]
-        ordered = sorted(parents_here or items, key=lambda x: (str(x[0]), x[1]))
-        keep = next((item for item in items if item[1] == keep_id), ordered[0])
-        moved = []
-        for path, issue_id in sorted(items, key=lambda x: str(x[0])):
-            if (path, issue_id) == keep:
-                continue
-            moved.append({
-                "id": issue_id, "path": str(path), "from": number,
-                "to": next_number, "source_branch": source_branch or "unknown",
+        candidates = []
+        for path, issue_id in sorted(items, key=lambda x: (str(x[0]), x[1])):
+            _, title, _ = _record(path)
+            base = repo.git_root if repo.has_git else repo.workflow_root
+            candidates.append({
+                "id": issue_id,
+                "path": str(path),
+                "relativePath": path.relative_to(base).as_posix(),
+                "title": title,
             })
-            next_number += 1
+
+        chosen_id = explicit.get(number)
+        selection = "explicit" if chosen_id else "manual"
+        if chosen_id is None:
+            # First-parent ancestry is evidence only when one record, not
+            # multiple ambiguous records, is present in that parent.
+            from_parent = [item for item in items if item[1] in first_parent]
+            if len(from_parent) == 1:
+                chosen_id = from_parent[0][1]
+                selection = "first-parent"
+
+        keep = next((candidate for candidate in candidates
+                     if candidate["id"] == chosen_id), None)
+        changes = []
+        if keep is not None:
+            for candidate in candidates:
+                if candidate["id"] == keep["id"]:
+                    continue
+                changes.append({
+                    "id": candidate["id"],
+                    "path": candidate["path"],
+                    "relativePath": candidate["relativePath"],
+                    "title": candidate["title"],
+                    "from": number,
+                    "to": next_number,
+                    "source_branch": source_branch,
+                })
+                next_number += 1
+
         results.append({
             "number": number,
-            "keep": {"id": keep[1], "path": str(keep[0])},
-            "rename": moved,
+            "candidates": candidates,
+            "keep": keep,
+            "selection": selection,
+            "manualChoiceRequired": keep is None,
+            "rename": changes,
         })
     return {
         "collisions": results,
         "references": {str(n): _references(repo, n) for n in sorted(conflicts)},
-        "note": "Text references, past Git commits and external documents must be reviewed manually.",
+        "manualChoiceRequired": any(r["manualChoiceRequired"] for r in results),
+        "note": (
+            "Duplicates may result from former per-folder Issue numbering or "
+            "independent Git clones. A missing branch name is not proof of "
+            "a Git merge. Text references, historic Git commits and external "
+            "documents must be reviewed manually."
+        ),
     }
 
 
@@ -127,7 +192,7 @@ def _associated_comments(issue_path: Path, issue_id: str, old: int,
     return edits
 
 
-def apply_reconciliation(repo: Repository, *, keep_id: str | None = None,
+def apply_reconciliation(repo: Repository, *, keep_id: str | list[str] | None = None,
                          source_branch: str | None = None) -> dict:
     repo.ensure_trackable()
     if repo.has_git and _git_optional(repo.git_root, "ls-files", "-u"):
@@ -136,6 +201,13 @@ def apply_reconciliation(repo: Repository, *, keep_id: str | None = None,
     with FileLock(repo.allocation_lock_path):
         report = collision_report(repo, keep_id=keep_id,
                                   source_branch=source_branch)
+        if report["manualChoiceRequired"]:
+            pending = ", ".join(f"#{item['number']}" for item in report["collisions"]
+                                if item["manualChoiceRequired"])
+            raise StorageError(
+                f"no unambiguous Issue to keep for {pending}; "
+                "choose one --keep-id per unresolved collision before applying"
+            )
         plan = []
         for collision in report["collisions"]:
             for change in collision["rename"]:
@@ -168,10 +240,17 @@ def apply_reconciliation(repo: Repository, *, keep_id: str | None = None,
                 })
                 entry["number"] = change["to"]
                 entry["updated_at"] = date
-                annotation = (
-                    f"Renamed on {date} from #{change['from']} "
-                    f"of branch {change['source_branch']}."
-                )
+                if change["source_branch"]:
+                    annotation = (
+                        f"Renamed on {date} from #{change['from']} "
+                        f"of branch {change['source_branch']}."
+                    )
+                else:
+                    annotation = (
+                        f"Renamed on {date} from #{change['from']} "
+                        f"(source branch not recorded; original path "
+                        f"{change['relativePath']})."
+                    )
                 local = IssueStore(Repository.discover(src.parent.parent))
                 local._write_issue(dst, record, title,
                                    body.rstrip() + "\n\n---\n\n> " + annotation, new=True)
