@@ -167,6 +167,68 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         self.assertEqual(comment_after, (nested / comments[0].path).read_bytes())
         self.assertEqual(result.issue_id, IssueStore(repo).get(4).issue_id)
 
+    def test_migrated_comment_sequence_and_new_comment_sort_by_number(self):
+        _, root, _ = self.project()
+        nested = root / "F2"
+        nested.mkdir()
+        repo = Repository.initialize(nested, owner="acme", name="F2")
+        issue = nested / "issues" / "0004-discussion.md"
+        issue.write_text("# Discussion\n\n## Why\nSort the discussion.\n",
+                         encoding="utf-8")
+        directory = nested / "issues" / "comments" / "0004"
+        directory.mkdir(parents=True)
+        for n, text in [
+            (1, "First answer"), (2, "Second answer"), (3, "Third answer")
+        ]:
+            (directory / f"{n:04d}.md").write_text(text + "\n", encoding="utf-8")
+        # Reverse file mtimes deliberately: lexical/sequence order must win.
+        for n in (1, 2, 3):
+            os.utime(directory / f"{n:04d}.md",
+                     (1_700_000_000 + (4 - n), 1_700_000_000 + (4 - n)))
+        before = migration_report(repo)
+        self.assertEqual(3, before["plainMarkdownComments"])
+        apply_migration(repo)
+
+        first = IssueStore(repo).comments(4)
+        self.assertEqual([1, 2, 3], [comment.number for comment in first])
+        self.assertEqual(
+            ["First answer", "Second answer", "Third answer"],
+            [comment.body for comment in first]
+        )
+        self.assertEqual(
+            ["0001-first-answer-", "0002-second-answer-", "0003-third-answer-"],
+            [comment.path.name[:18] for comment in first]
+        )
+        next_comment = IssueStore(repo).comment(4, "Fourth answer")
+        self.assertEqual(4, next_comment.number)
+        self.assertRegex(next_comment.path.name,
+                         r"^0004-fourth-answer-[0-9a-f]{8}[.]md$")
+        self.assertEqual(
+            [1, 2, 3, 4],
+            [comment.number for comment in IssueStore(repo).comments(4)]
+        )
+
+    def test_existing_uuid_only_comment_can_be_read_and_then_imported_readably(self):
+        _, root, repo = self.project()
+        issue = IssueStore(repo).create("Discussion")
+        old = IssueStore(repo).comment(issue.number, "Legacy UUID-only comment")
+        current = root / old.path
+        metadata = json.loads(current.read_text(encoding="utf-8").splitlines()[1])
+        comment_id = metadata["github-local-comment"]["id"]
+        uuid_path = current.with_name(f"{comment_id}.md")
+        current.rename(uuid_path)
+        self.assertEqual("Legacy UUID-only comment", IssueStore(repo).comments(1)[0].body)
+        preview = migration_report(repo)
+        self.assertEqual(0, preview["legacyComments"])
+        apply_migration(repo)
+        self.assertFalse(uuid_path.exists())
+        found = IssueStore(repo).comments(1)
+        self.assertEqual(1, len(found))
+        self.assertEqual(old.number, found[0].number)
+        self.assertEqual(old.body, found[0].body)
+        self.assertRegex(found[0].path.name,
+                         r"^0001-legacy-uuid-only-comment-[0-9a-f]{8}[.]md$")
+
     def test_migration_rejects_malformed_structured_metadata(self):
         with tempfile.TemporaryDirectory() as workspace:
             path = Path(workspace) / "0004-abc.md"
