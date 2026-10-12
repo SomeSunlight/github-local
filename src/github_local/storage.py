@@ -512,12 +512,30 @@ class IssueStore:
         path = self.repository.issue_state_path
         if (self.repository.has_git and not path.exists()
                 and _git_optional(self.repository.git_root, "rev-parse", "--verify", "HEAD")):
+            # Only historically *initialized* Issue repositories reserve
+            # numbers. An unrelated doc/issues/*.md archive must not make the
+            # allocator leap forward or manufacture Issue collisions.
+            config_history = _git_optional(
+                self.repository.git_root, "log", "--all", "--name-only",
+                "--format=", "--", ":(glob)**/.github-local/config.json"
+            ) or ""
+            owners = {
+                Path(line).parent.parent
+                for line in config_history.splitlines()
+                if Path(line).name == "config.json"
+                and Path(line).parent.name == ".github-local"
+            }
+            for item in candidates:
+                owners.add(item.parent.parent.relative_to(self.repository.git_root))
             history = _git_optional(
                 self.repository.git_root, "log", "--all", "--name-only",
                 "--format=", "--", ":(glob)**/issues/*.md"
             ) or ""
             for line in history.splitlines():
-                match = ISSUE_RE.match(Path(line).name)
+                candidate = Path(line)
+                if candidate.parent.parent not in owners:
+                    continue
+                match = ISSUE_RE.match(candidate.name)
                 if match:
                     maximum = max(maximum, int(match.group("number")))
 
