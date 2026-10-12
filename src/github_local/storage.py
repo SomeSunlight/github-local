@@ -465,9 +465,12 @@ class IssueStore:
         # After a fresh clone the local cursor has gone; deleted Issues still
         # count because their numbers remain recoverable from Git history.
         path = self.repository.issue_state_path
-        if self.repository.has_git and not path.exists():
-            history = _git(self.repository.git_root, "log", "--all", "--name-only",
-                           "--format=", "--", ":(glob)**/issues/*.md")
+        if (self.repository.has_git and not path.exists()
+                and _git_optional(self.repository.git_root, "rev-parse", "--verify", "HEAD")):
+            history = _git_optional(
+                self.repository.git_root, "log", "--all", "--name-only",
+                "--format=", "--", ":(glob)**/issues/*.md"
+            ) or ""
             for line in history.splitlines():
                 match = ISSUE_RE.match(Path(line).name)
                 if match:
