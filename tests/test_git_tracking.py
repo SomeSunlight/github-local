@@ -11,7 +11,7 @@ from pathlib import Path
 from github_local.repository import Repository
 from github_local.storage import IssueStore, StorageError
 from github_local.reconcile import collision_report, apply_reconciliation
-from github_local.migration import migration_report, apply_migration
+from github_local.migration import migration_report, apply_migration, _frontmatter
 
 
 class GitTrackedWorkflowTests(unittest.TestCase):
@@ -105,6 +105,38 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         self.assertTrue(self.git(a, "status", "--porcelain"))
         self.checkpoint(a, "reconcile post-merge numbering")
         self.assertEqual("", self.git(a, "status", "--porcelain"))
+
+    def test_migration_dry_run_reports_missing_issue_front_matter_clearly(self):
+        _, root, repo = self.project()
+        path = root / "issues" / "0004-abc.md"
+        path.write_text("# abc\n\n## Why\nSomething fails.\n\n## Scope\nCheck it.\n",
+                        encoding="utf-8")
+        with self.assertRaises(StorageError) as caught:
+            migration_report(repo)
+        error = str(caught.exception)
+        self.assertIn("0004-abc.md", error)
+        self.assertIn("first line is not '---'", error)
+        self.assertIn("plain Markdown needs explicit adoption", error)
+        self.assertEqual("# abc", path.read_text(encoding="utf-8").splitlines()[0])
+
+    def test_migration_identifies_malformed_json_and_missing_metadata(self):
+        with tempfile.TemporaryDirectory() as workspace:
+            path = Path(workspace) / "0004-abc.md"
+            path.write_text('---\n{"github-local": invalid}\n---\n# abc\n',
+                            encoding="utf-8")
+            with self.assertRaisesRegex(StorageError,
+                                        r"invalid JSON in front matter at line 2, column"):
+                _frontmatter(path)
+            path.write_text('---\n{"title": "abc"}\n---\n# abc\n',
+                            encoding="utf-8")
+            with self.assertRaisesRegex(StorageError,
+                                        r"must contain the 'github-local' metadata object"):
+                _frontmatter(path)
+            path.write_text('---\n{"github-local": {"schema": 1}}\n---\n# abc\n',
+                            encoding="utf-8")
+            with self.assertRaisesRegex(StorageError,
+                                        r"missing 'github-local.id' metadata"):
+                _frontmatter(path)
 
     def test_adopt_legacy_ignored_issues_without_index_mutation(self):
         _, root, repo = self.project()
