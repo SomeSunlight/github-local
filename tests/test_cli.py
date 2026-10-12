@@ -357,6 +357,24 @@ class CliTests(unittest.TestCase):
                     self.assertIn(text, result.stdout)
 
 
+    def test_top_level_status_matches_issue_status_json_without_git_changes(self):
+        self.assertEqual(0, self.run_cli("issue", "init", "--name", "demo").returncode)
+        before = subprocess.run(
+            ["git", "-C", str(self.root), "status", "--porcelain"],
+            check=True, text=True, stdout=subprocess.PIPE,
+        ).stdout
+        top = self.run_cli("status", "--json")
+        inner = self.run_cli("issue", "status", "--json")
+        self.assertEqual(0, top.returncode, top.stderr)
+        self.assertEqual(0, inner.returncode, inner.stderr)
+        self.assertEqual(json.loads(top.stdout), json.loads(inner.stdout))
+        self.assertEqual([], json.loads(top.stdout)["collisions"])
+        after = subprocess.run(
+            ["git", "-C", str(self.root), "status", "--porcelain"],
+            check=True, text=True, stdout=subprocess.PIPE,
+        ).stdout
+        self.assertEqual(before, after)
+
     def test_issue_commands_require_explicit_repository_selection(self):
         self.assertEqual(0, self.run_cli("issue", "init", "--name", "demo").returncode)
         result = self.run_cli(
