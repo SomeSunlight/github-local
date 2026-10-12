@@ -1,24 +1,59 @@
 # github.local — Local Context Source
 <!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.12-draft" -->
 
+<!-- contextcanon:format Node
+Format: Node metadata follows the # title: ctx:node id="..." name="..." version="...". Preserve existing identity.
+Details: CONTEXT-format.md
+-->
+
+<!-- contextcanon:source-help:intro:start -->
+Edit this local Context source; ContextCanon generates CONTEXT.md from it.
+Some sections use a strict syntax. The comments below show the expected format.
+New Rules, Topics and Resources receive IDs automatically during build; preserve existing IDs.
+See [the source format guide](CONTEXT-format.md) for examples and editing instructions.
+<!-- contextcanon:source-help:intro:end -->
+
+## Context Imports
+
+<!-- contextcanon:format Context Imports
+Format: - [Name](location) — `version` — `relationship=parent|reference`; optional indented Why:, then ctx:source metadata. Preserve exact pins; use source list/adopt/update for package identity.
+Details: CONTEXT-format.md
+-->
+
+<!-- contextcanon-placement-sources:start -->
+- [GitHub](contextcanon.yaml) — `0.1.5-draft` — `relationship=parent`
+  Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted.
+  <!-- ctx:source id="ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc" version="0.1.5-draft" normalized-digest="a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65" package-digest="0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd" -->
+<!-- contextcanon-placement-sources:end -->
+
 ## Local Overview
+
+<!-- contextcanon:format Local Overview
+Format: Ordinary Markdown orientation, local to this Node. Any existing placement identity follows its paragraph/item; do not change it.
+Details: CONTEXT-format.md
+-->
 
 `github.local` is a deliberately small local development-workflow provider for projects where code and development history must remain local. Agents and humans should keep using the familiar vocabulary **Issue → branch → Pull Request → review → checks → merge**, while ordinary code work stays on the local filesystem and in native Git.
 
 The first executable slice is intentionally CLI-first. It stores Issues as visible Markdown under `issues/` and does not require MCP, Docker, a browser UI, a cloud service, or a background daemon.
 
 <!-- contextcanon-placement-overview:start -->
-<!-- cc:placement-overview id="ONB-573AFDCD2A2F" -->
 - github.local is a deliberately small local development-workflow provider for projects where code and development history must remain local.
+  <!-- cc:placement-overview id="ONB-573AFDCD2A2F" -->
 
-<!-- cc:placement-overview id="ONB-D4E7F2562CC6" -->
 - github.local supplies local workflow operations; it is a provider implementation, not a ContextCanon subsystem.
+  <!-- cc:placement-overview id="ONB-D4E7F2562CC6" -->
 
-<!-- cc:placement-overview id="ONB-FAE8EAE354F9" -->
 - Agents and humans use the familiar vocabulary Issue → branch → Pull Request → review → checks → merge while ordinary code work stays in the local filesystem and native Git.
+  <!-- cc:placement-overview id="ONB-FAE8EAE354F9" -->
 <!-- contextcanon-placement-overview:end -->
 
 ## Local Rules
+
+<!-- contextcanon:format Local Rules
+Format: ### Group, then - **Title:** Statement, then indented Why: Rationale. build adds a missing ctx:rule ID after the entry; preserve existing IDs.
+Details: CONTEXT-format.md
+-->
 
 - **Keep project truth visible:** Canonical Issue content lives in ordinary Markdown below `issues/`; caches or indexes may accelerate access later but must remain reconstructable.
   Why: development reasoning is durable project knowledge, not opaque runtime state.
@@ -134,16 +169,26 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
 
 ## Local Topics
 
+<!-- contextcanon:format Local Topics
+Format: ### Title, condition text, Required: and/or Optional:, then - Resource: `path` or - Context Node: `node-path`. Resource may have indented Why:. build adds missing Topic/Resource IDs after their entries; preserve existing IDs.
+Details: CONTEXT-format.md
+-->
+
 ### Architecture and provider choice
 
 When deciding between official `gh` compatibility and the native `github-local` CLI, changing the supported CLI surface, reproducing the client protocol, or extending the runtime boundary:
 
 Required:
 - Resource: `docs/architecture.md`
+  <!-- ctx:resource id="RESOURCE-6A7948522CB7" -->
 - Resource: `docs/gh-compatibility.md`
+  <!-- ctx:resource id="RESOURCE-9308EC2680A8" -->
 - Resource: `CONTRIBUTING.md`
+  <!-- ctx:resource id="RESOURCE-2E0E3666C830" -->
 - Resource: `spike/README.md`
+  <!-- ctx:resource id="RESOURCE-E160697A4178" -->
 - Resource: `spike/gh-2.101.0-source-contract.json`
+  <!-- ctx:resource id="RESOURCE-1D254EFEDCA3" -->
 <!-- ctx:topic id="GHLR-TOPIC-ARCH" -->
 
 ### Issue storage and CLI behavior
@@ -152,6 +197,7 @@ When changing local Issue-repository boundaries or selection, Issue persistence,
 
 Required:
 - Resource: `docs/storage.md`
+  <!-- ctx:resource id="RESOURCE-AE1A0D0EF341" -->
 <!-- ctx:topic id="GHLR-TOPIC-ISSUES" -->
 
 ### Agent integration evidence
@@ -160,6 +206,7 @@ When changing the agent-facing CLI contract, help/discovery behavior, or decidin
 
 Required:
 - Resource: `docs/agent-validation.md`
+  <!-- ctx:resource id="RESOURCE-18D65FB143AD" -->
 <!-- ctx:topic id="GHLR-TOPIC-AGENT" -->
 
 <!-- contextcanon-placement-topics:start -->
@@ -171,9 +218,11 @@ Required:
 - Resource: `docs/gh-compatibility.md`
   <!-- ctx:resource id="RESOURCE-9308EC2680A8" -->
 - Resource: `CONTRIBUTING.md`
+  <!-- ctx:resource id="RESOURCE-2E0E3666C830" -->
 - Resource: `spike/README.md`
   <!-- ctx:resource id="RESOURCE-E160697A4178" -->
 - Resource: `spike/gh-2.101.0-source-contract.json`
+  <!-- ctx:resource id="RESOURCE-1D254EFEDCA3" -->
 
 <!-- ctx:topic id="ONB-1DE6FDEDE8CF" -->
 
@@ -210,57 +259,62 @@ Required:
 
 ## Local State
 
+<!-- contextcanon:format Local State
+Format: Ordinary Markdown describing the current local situation. Any existing placement identity follows its paragraph/item; preserve it.
+Details: CONTEXT-format.md
+-->
+
 <!-- contextcanon-placement-state:start -->
-<!-- cc:placement-state id="ONB-0CFB25FEF085" -->
 - The MVP uses the native github-local CLI; official gh remains a measured optional future adapter.
+  <!-- cc:placement-state id="ONB-0CFB25FEF085" -->
 
-<!-- cc:placement-state id="ONB-C7397BA8C299" -->
 - The last documented check used gh 2.101.0, whose alternate-host Issue operations require GitHub Enterprise-shaped HTTPS, feature detection, and GraphQL behavior; binary execution was not available in the inspection environment.
+  <!-- cc:placement-state id="ONB-C7397BA8C299" -->
 
-<!-- cc:placement-state id="ONB-2A0D9DB9CE94" -->
 - github-local init creates repository-local configuration.
+  <!-- cc:placement-state id="ONB-2A0D9DB9CE94" -->
 
-<!-- cc:placement-state id="ONB-0FA4677C99F9" -->
 - The executable runtime currently supplies Issues; Pull Request, review, and checks operations remain future slices.
+  <!-- cc:placement-state id="ONB-0FA4677C99F9" -->
 
-<!-- cc:placement-state id="ONB-7594DA134D05" -->
 - issue create writes one canonical Markdown Issue atomically.
+  <!-- cc:placement-state id="ONB-7594DA134D05" -->
 
-<!-- cc:placement-state id="ONB-8A039C0E8489" -->
 - issue list and issue view reload canonical state from disk, including after restart.
+  <!-- cc:placement-state id="ONB-8A039C0E8489" -->
 
-<!-- cc:placement-state id="ONB-D64F234D9DFB" -->
 - The CLI provides stable selected-field --json output for agent use.
+  <!-- cc:placement-state id="ONB-D64F234D9DFB" -->
 
-<!-- cc:placement-state id="ONB-CC5013E28126" -->
 - The installable wheel has no runtime dependencies.
+  <!-- cc:placement-state id="ONB-CC5013E28126" -->
 
-<!-- cc:placement-state id="ONB-EB8702686598" -->
 - The frozen candidate passes all 12 deterministic tests.
+  <!-- cc:placement-state id="ONB-EB8702686598" -->
 
-<!-- cc:placement-state id="ONB-F8D077AA9B38" -->
 - Python compilation passes for the frozen candidate.
+  <!-- cc:placement-state id="ONB-F8D077AA9B38" -->
 
-<!-- cc:placement-state id="ONB-2388F784A444" -->
 - The wheel builds successfully for the frozen candidate.
+  <!-- cc:placement-state id="ONB-2388F784A444" -->
 
-<!-- cc:placement-state id="ONB-867FF7195FBD" -->
 - An installed-wheel smoke test completes init → create → list → view in a fresh Git repository.
+  <!-- cc:placement-state id="ONB-867FF7195FBD" -->
 
-<!-- cc:placement-state id="ONB-AC230FD47742" -->
 - Manual testing and a corporate GitHub Copilot test with Claude Sonnet 5 (Medium, 264k context) succeeded without MCP, validating the CLI as a practical agent integration surface.
+  <!-- cc:placement-state id="ONB-AC230FD47742" -->
 
-<!-- cc:placement-unresolved id="ONB-54373873C2CE" -->
 - Open question: How should the canonical project-wide Issue backlog remain consistent across ordinary Git branches and worktrees?
+  <!-- cc:placement-unresolved id="ONB-54373873C2CE" -->
 
-<!-- cc:placement-state id="ONB-A0D4599D0703" -->
 - Assignees and milestones remain out of scope while the primary workflow is single-owner.
+  <!-- cc:placement-state id="ONB-A0D4599D0703" -->
 
-<!-- cc:placement-state id="ONB-9D51655FF5B4" -->
 - The frozen snapshot contains authored root CONTEXT.src.md but no generated CONTEXT.md or accepted package state because the bootstrap environment lacked the contextcanon executable.
+  <!-- cc:placement-state id="ONB-9D51655FF5B4" -->
 
-<!-- cc:placement-state id="ONB-D72B21BFD852" -->
 - v0.1.0 does not yet support close, reopen, edit, comments, or explicit machine-readable Change ↔ Issue links.
+  <!-- cc:placement-state id="ONB-D72B21BFD852" -->
 <!-- contextcanon-placement-state:end -->
 
 ### Maintained compatibility baseline
@@ -276,27 +330,24 @@ Required:
 
 ## Local Plan
 
+<!-- contextcanon:format Local Plan
+Format: Ordinary Markdown describing intended local work. Any existing placement identity follows its paragraph/item; preserve it.
+Details: CONTEXT-format.md
+-->
+
 <!-- contextcanon-placement-plan:start -->
-<!-- cc:placement-plan id="ONB-23D6597B221C" -->
 - Implement #4 next: close, reopen, edit, comment, state filtering, and automatic closure for accepted or merged work carrying an explicit closing reference.
+  <!-- cc:placement-plan id="ONB-23D6597B221C" -->
 
-<!-- cc:placement-plan id="ONB-F5537BFB06ED" -->
 - Implement #5 first-class Change ↔ Issue linking around native Git without duplicating Git state.
+  <!-- cc:placement-plan id="ONB-F5537BFB06ED" -->
 
-<!-- cc:placement-plan id="ONB-CE7AE84864D9" -->
 - Implement #6 backlog filters, labels, and search after Change ↔ Issue linking.
+  <!-- cc:placement-plan id="ONB-CE7AE84864D9" -->
 
-<!-- cc:placement-plan id="ONB-233538BB01FB" -->
 - Implement #7 concise examples in CLI help.
+  <!-- cc:placement-plan id="ONB-233538BB01FB" -->
 
-<!-- cc:placement-plan id="ONB-95C18B6F9F9A" -->
 - After PR #2 is accepted and squash-merged, complete ContextCanon onboarding and compose the reusable GitHub provider and Development Workflow Source before the next product implementation block.
+  <!-- cc:placement-plan id="ONB-95C18B6F9F9A" -->
 <!-- contextcanon-placement-plan:end -->
-
-## Sources
-
-<!-- contextcanon-placement-sources:start -->
-- [GitHub](contextcanon.yaml) — `0.1.5-draft`
-  Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted.
-  <!-- ctx:source id="ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc" version="0.1.5-draft" normalized-digest="a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65" package-digest="0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd" -->
-<!-- contextcanon-placement-sources:end -->

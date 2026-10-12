@@ -1,65 +1,25 @@
 {
   "changes": [],
-  "compiler_version": "0.6.0",
+  "compiler_version": "0.8.0",
   "digests": {
-    "normalized": "351b645ebe43318a79b4721951497135f6619064481002e230570cd5ffbcd5ae",
-    "package": "9dbe9b21cbb4586277012d04f688710ca8af3d51b5fbbe85694151ef1de5024d"
+    "normalized": "2c816016be6bd92f846b6157be66fd3ab1c9d195f2bc76329ddad2d382fc4a7d",
+    "package": "cdb06d34337a48c1fa620e69f58bdf1dc5123853b6aca4c787bf1d53775e5d5c"
   },
   "files": [
     {
+      "path": ".context/resource-origins.json",
+      "sha256": "190223384c65b963cda9eb92fec24f8bf6408fe2be31d880d924066d62583735",
+      "size": 2308
+    },
+    {
       "path": "CONTEXT.md",
-      "sha256": "aedbc3b17674b5ec6da76c007d52132cdf237421c932df3ac794e5d8eb71a690",
-      "size": 22694
+      "sha256": "9af2531a0c47773e770b0b757bba986cfbdaeeeb74d28d77b295c4b4eddd72c8",
+      "size": 23892
     },
     {
       "path": "CONTEXT/README.md",
-      "sha256": "933428c92391d1c0429d6e3b96804b67d6e4aa1ce1ae5d82a272198a681bcbbe",
-      "size": 2088
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTEXT.md",
-      "sha256": "e3d74914f467a7c57024254488d640663ef8feb489ed1f4335d07039b9987483",
-      "size": 261
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md",
-      "sha256": "6da40bfbc54452511df9945eeffd3226e3e7f797cfdb2ba307360f7cce7a5ab4",
-      "size": 5803
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md",
-      "sha256": "e3f6b8a64e253706b516887fc78a2e5979c043de18a8fab9ec9ddd0b35ebe32b",
-      "size": 9995
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
-      "sha256": "01c977644b51225be1bce9831bffc92989096fead5819978238707788478de17",
-      "size": 3405
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md",
-      "sha256": "bc4ee8a604cd8484103d2af8b334e893e221d973234ef11e510e3cd53af9ea69",
-      "size": 3346
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md",
-      "sha256": "96189686ddc39b4a697a9807ca45f131fa88d69ec341fe2f0c54b71f9001d1ee",
-      "size": 8210
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md",
-      "sha256": "ab19ebe6c4b9fe9bfffeecb5e24b933ef8fefc79554d5fa7163aa40712fa6320",
-      "size": 8587
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
-      "sha256": "b18dc4bfd10c19660dc2f787b2106c1ee9f9f7c87f244f592549ec6256e0efac",
-      "size": 2944
-    },
-    {
-      "path": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json",
-      "sha256": "c09b2579c04568fbe62d963c8a8585b4dbe0d6dbfb6d8494df5cbde4b4fdc1fa",
-      "size": 2564
+      "sha256": "37bdcad600896b9c2995e058911dfd9cc25433d9cf924c0bcbe15e41941f0ebb",
+      "size": 2146
     },
     {
       "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md",
@@ -70,6 +30,51 @@
       "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md",
       "sha256": "124440f4a2ed17d7bfbf265ac2936fa38695e6699069acc94f19f38a92b4351f",
       "size": 6107
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/CONTEXT.md",
+      "sha256": "e3d74914f467a7c57024254488d640663ef8feb489ed1f4335d07039b9987483",
+      "size": 261
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/CONTRIBUTING.md",
+      "sha256": "6da40bfbc54452511df9945eeffd3226e3e7f797cfdb2ba307360f7cce7a5ab4",
+      "size": 5803
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/README.md",
+      "sha256": "75392fc1f3d7f2940ffe6c34eef6a8cd76d7bd347e1f30f7d1d6972d65fdf455",
+      "size": 12600
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/docs/agent-validation.md",
+      "sha256": "f4220f8daac2ca8d57fdbefa3b0f85865b6d9baa423e68669df3d3a2998c7de1",
+      "size": 4487
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/docs/architecture.md",
+      "sha256": "140fcce96926c771c57763717df20eb595b1eb129c9cdf7238d439030bd38e24",
+      "size": 4552
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/docs/gh-compatibility.md",
+      "sha256": "095399f1ae3332b427a7050f93a75797bd1bda929e5e34427b95ebae34ae899f",
+      "size": 10193
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md",
+      "sha256": "b84e415c2f90da0465fcd00c3541c35f6f8e585ef6b309e6eaf392cd263b7bdc",
+      "size": 8417
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md",
+      "sha256": "b18dc4bfd10c19660dc2f787b2106c1ee9f9f7c87f244f592549ec6256e0efac",
+      "size": 2944
+    },
+    {
+      "path": "CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json",
+      "sha256": "c09b2579c04568fbe62d963c8a8585b4dbe0d6dbfb6d8494df5cbde4b4fdc1fa",
+      "size": 2564
     }
   ],
   "imports": [
@@ -93,7 +98,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.11-draft"
+    "version": "0.1.12-draft"
   },
   "parents": [],
   "removed_rules": [],
@@ -334,9 +339,9 @@
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
-      "statement": "Each initialized folder owns its own visible `issues/` store, numbering, stable path-independent repository identity, and repository-local workflow metadata.",
-      "title": "Keep each local Issue repository self-contained and movable",
-      "why": "Products and extensions must be addable, removable, or moved as coherent units, and future Jira/Bitbucket synchronization needs an unambiguous local group rather than labels in a global backlog."
+      "statement": "Each initialized folder owns a visible `issues/` store, its stable path-independent workflow repository ID, and local configuration. Inside Git, all nested Issue repositories share a short-number series per containing Git repository; Git-free folders allocate locally.",
+      "title": "Keep each local Issue repository an explicit, movable workflow boundary",
+      "why": "Products and extensions remain independently identifiable for future external mappings, while one Git project provides short unambiguous Issue references."
     },
     {
       "group": "Rules",
@@ -354,9 +359,39 @@
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
-      "statement": "Ordinary Git branches and linked worktrees must resolve the same canonical backlog for an initialized local Issue repository rather than silently cloning its Issue identities or number space.",
-      "title": "Keep each local Issue repository branch/worktree independent",
-      "why": "Issue state belongs to the explicit workflow boundary declared by `issue init`, not to whichever code branch or worktree happens to be active."
+      "statement": "In Git, canonical Issues, comments and durable configuration belong to the currently checked-out branch/worktree and must be commit/push/clone-able with ordinary Git; never redirect to the primary worktree or silently exclude canonical data from Git.",
+      "title": "Couple Issue state to normal Git history",
+      "why": "The meaning of an Issue evolves with the code and project's Context. A historical commit must reproduce the corresponding historical Issue state, with normal PyCharm/Git semantics."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-013",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers.",
+      "title": "Separate immutable identity from short Issue numbers",
+      "why": "People communicate using `#33`, while persistent identities survive exceptional numbering changes. Only identity, not the short display number, defines the record."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-014",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Accept normal Git merges, detect different UUIDs bearing the same number, block unsafe writes, preview which Issue retains the number, and renumber others to unused integers only after confirmation. Preserve old numbers, dates and available branch provenance in the renamed Issue, and never guess the meaning of ambiguous text/commit/external references.",
+      "title": "Repair rare post-merge number collisions explicitly",
+      "why": "Occasional coordinated offline work should remain possible without burdening routine single-owner Git use with custom merge hooks or secondary history."
+    },
+    {
+      "group": "Rules",
+      "id": "GHLR-015",
+      "modifications": [],
+      "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
+      "origin_node_name": "github.local",
+      "statement": "Use ordinary visible `.gitignore` only for locks/cursors/temporary files; never hide Issues or durable identity with `.git/info/exclude`. Provide a transparent, explicit legacy migration that preserves content and never stages/commits behind the user's back.",
+      "title": "Keep lasting state Git-trackable and migrate legacy stores safely",
+      "why": "A user who commits/pushes the project must not silently lose hundreds of valuable Issues because a support tool kept them outside Git."
     },
     {
       "group": "Rules",
@@ -414,9 +449,9 @@
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
-      "statement": "Ordinary Git branches and worktrees must not silently create divergent canonical backlogs or duplicate Issue identities or numbers.",
-      "title": "Keep Issue workflow state project-wide",
-      "why": "Issues may predate implementation branches and represent project workflow state rather than one code branch."
+      "statement": "Within a Git project, code and Issue Markdown follow ordinary branches/worktrees together. UUIDs never duplicate; short numbers are unique within each integrated checkout and exceptionally reconciled after a merge of independently numbered clones.",
+      "title": "Keep workflow state coherent with its Git project snapshot",
+      "why": "Historical code and its semantic Issue context must match. The earlier branch-independent backlog direction was explicitly superseded by owner decision in Issue #20."
     },
     {
       "group": "Onboarding placement",
@@ -444,9 +479,9 @@
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
-      "statement": "Allocate repository-local monotonically increasing Issue numbers under an OS-level exclusive lock and publish new content with a same-directory atomic replace.",
-      "title": "Serialize numbering and write Issues atomically",
-      "why": "Rapid or concurrent creation must not duplicate numbers, expose partial files, or leave stale process locks."
+      "statement": "Allocate monotonically increasing Issue numbers per containing Git repository using a shared Git-local OS lock/cursor across local branches and worktrees; Git-free Issue repositories allocate locally. Publish content with same-directory atomic replacement.",
+      "title": "Serialize shared local numbering and publish Issues atomically",
+      "why": "Rapid local creation must not duplicate numbers or expose partial files; separately cloned offline histories can be reconciled after Git integration."
     },
     {
       "group": "Onboarding placement",
@@ -484,18 +519,19 @@
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
-      "statement": "Treat the numeric prefix and stable Issue ID as identity; the conservative Windows-safe filename slug is presentation and may change with the title.",
-      "title": "Treat Issue filenames as presentation",
-      "why": "A title edit must not change Issue identity or make discovery platform-dependent."
+      "statement": "Each Issue's UUID is its sole permanent technical identity. Its short numeric filename prefix is a human communication handle, normally stable but exceptionally renumbered after a confirmed offline-merge collision; the Windows-safe slug is presentation and may change with the title.",
+      "title": "Use immutable Issue IDs and human-friendly mutable numbers",
+      "why": "Renumbering must preserve the underlying Issue and its historical discussion without changing identity."
     }
   ],
-  "schema": "contextcanon/package/v2",
+  "schema": "contextcanon/package/v4",
   "sources": [
     {
       "id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc",
       "name": "GitHub",
       "normalized_digest": "a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65",
       "package_digest": "0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd",
+      "relationship": "parent",
       "version": "0.1.5-draft",
       "why": null
     }
@@ -540,27 +576,32 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/CONTRIBUTING.md",
+          "resource_id": "RESOURCE-2E0E3666C830"
         },
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/docs/architecture.md",
+          "resource_id": "RESOURCE-6A7948522CB7"
         },
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/docs/gh-compatibility.md",
+          "resource_id": "RESOURCE-9308EC2680A8"
         },
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md",
+          "resource_id": "RESOURCE-E160697A4178"
         },
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json",
+          "resource_id": "RESOURCE-1D254EFEDCA3"
         }
       ],
       "title": "Architecture and provider choice"
@@ -574,7 +615,8 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md",
+          "resource_id": "RESOURCE-AE1A0D0EF341"
         }
       ],
       "title": "Issue storage and CLI behavior"
@@ -588,7 +630,8 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/docs/agent-validation.md",
+          "resource_id": "RESOURCE-18D65FB143AD"
         }
       ],
       "title": "Agent integration evidence"
@@ -602,24 +645,26 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/CONTRIBUTING.md",
+          "resource_id": "RESOURCE-2E0E3666C830"
         },
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md",
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/docs/gh-compatibility.md",
           "resource_id": "RESOURCE-9308EC2680A8"
         },
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md",
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md",
           "resource_id": "RESOURCE-E160697A4178"
         },
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json"
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json",
+          "resource_id": "RESOURCE-1D254EFEDCA3"
         }
       ],
       "title": "Route official gh compatibility work"
@@ -633,7 +678,7 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md",
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md",
           "resource_id": "RESOURCE-AE1A0D0EF341"
         }
       ],
@@ -648,7 +693,7 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md",
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/docs/agent-validation.md",
           "resource_id": "RESOURCE-18D65FB143AD"
         }
       ],
@@ -663,7 +708,7 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md",
+          "locator": "CONTEXT/references/n4ee5f9d0a09d92c/README.md",
           "resource_id": "RESOURCE-00215E4157B3"
         }
       ],

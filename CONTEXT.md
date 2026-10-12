@@ -8,12 +8,12 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.11-draft`
+**Context version:** `0.1.12-draft`
 
 **Resulting imported Contexts:**
 
-- **Development Workflow** — `0.3.5-draft` — via Source **GitHub** — [inspect accepted carrier](.context/sources/0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd/CONTEXT.md)
-- **GitHub** — `0.1.5-draft` — direct Source — Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted. — [inspect accepted carrier](.context/sources/0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd/CONTEXT.md)
+- **Development Workflow** — `0.3.5-draft` — via Parent Context **GitHub** — [inspect accepted carrier](.context/sources/0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd/CONTEXT.md)
+- **GitHub** — `0.1.5-draft` — direct Parent Context — Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted. — [inspect accepted carrier](.context/sources/0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd/CONTEXT.md)
 
 ## Local Overview
 
@@ -22,69 +22,69 @@
 The first executable slice is intentionally CLI-first. It stores Issues as visible Markdown under `issues/` and does not require MCP, Docker, a browser UI, a cloud service, or a background daemon.
 
 <!-- contextcanon-placement-overview:start -->
-<!-- cc:placement-overview id="ONB-573AFDCD2A2F" -->
 - github.local is a deliberately small local development-workflow provider for projects where code and development history must remain local.
+  <!-- cc:placement-overview id="ONB-573AFDCD2A2F" -->
 
-<!-- cc:placement-overview id="ONB-D4E7F2562CC6" -->
 - github.local supplies local workflow operations; it is a provider implementation, not a ContextCanon subsystem.
+  <!-- cc:placement-overview id="ONB-D4E7F2562CC6" -->
 
-<!-- cc:placement-overview id="ONB-FAE8EAE354F9" -->
 - Agents and humans use the familiar vocabulary Issue → branch → Pull Request → review → checks → merge while ordinary code work stays in the local filesystem and native Git.
+  <!-- cc:placement-overview id="ONB-FAE8EAE354F9" -->
 <!-- contextcanon-placement-overview:end -->
 
 ## Local State
 
 <!-- contextcanon-placement-state:start -->
-<!-- cc:placement-state id="ONB-0CFB25FEF085" -->
 - The MVP uses the native github-local CLI; official gh remains a measured optional future adapter.
+  <!-- cc:placement-state id="ONB-0CFB25FEF085" -->
 
-<!-- cc:placement-state id="ONB-C7397BA8C299" -->
 - The last documented check used gh 2.101.0, whose alternate-host Issue operations require GitHub Enterprise-shaped HTTPS, feature detection, and GraphQL behavior; binary execution was not available in the inspection environment.
+  <!-- cc:placement-state id="ONB-C7397BA8C299" -->
 
-<!-- cc:placement-state id="ONB-2A0D9DB9CE94" -->
 - github-local init creates repository-local configuration.
+  <!-- cc:placement-state id="ONB-2A0D9DB9CE94" -->
 
-<!-- cc:placement-state id="ONB-0FA4677C99F9" -->
 - The executable runtime currently supplies Issues; Pull Request, review, and checks operations remain future slices.
+  <!-- cc:placement-state id="ONB-0FA4677C99F9" -->
 
-<!-- cc:placement-state id="ONB-7594DA134D05" -->
 - issue create writes one canonical Markdown Issue atomically.
+  <!-- cc:placement-state id="ONB-7594DA134D05" -->
 
-<!-- cc:placement-state id="ONB-8A039C0E8489" -->
 - issue list and issue view reload canonical state from disk, including after restart.
+  <!-- cc:placement-state id="ONB-8A039C0E8489" -->
 
-<!-- cc:placement-state id="ONB-D64F234D9DFB" -->
 - The CLI provides stable selected-field --json output for agent use.
+  <!-- cc:placement-state id="ONB-D64F234D9DFB" -->
 
-<!-- cc:placement-state id="ONB-CC5013E28126" -->
 - The installable wheel has no runtime dependencies.
+  <!-- cc:placement-state id="ONB-CC5013E28126" -->
 
-<!-- cc:placement-state id="ONB-EB8702686598" -->
 - The frozen candidate passes all 12 deterministic tests.
+  <!-- cc:placement-state id="ONB-EB8702686598" -->
 
-<!-- cc:placement-state id="ONB-F8D077AA9B38" -->
 - Python compilation passes for the frozen candidate.
+  <!-- cc:placement-state id="ONB-F8D077AA9B38" -->
 
-<!-- cc:placement-state id="ONB-2388F784A444" -->
 - The wheel builds successfully for the frozen candidate.
+  <!-- cc:placement-state id="ONB-2388F784A444" -->
 
-<!-- cc:placement-state id="ONB-867FF7195FBD" -->
 - An installed-wheel smoke test completes init → create → list → view in a fresh Git repository.
+  <!-- cc:placement-state id="ONB-867FF7195FBD" -->
 
-<!-- cc:placement-state id="ONB-AC230FD47742" -->
 - Manual testing and a corporate GitHub Copilot test with Claude Sonnet 5 (Medium, 264k context) succeeded without MCP, validating the CLI as a practical agent integration surface.
+  <!-- cc:placement-state id="ONB-AC230FD47742" -->
 
-<!-- cc:placement-unresolved id="ONB-54373873C2CE" -->
 - Open question: How should the canonical project-wide Issue backlog remain consistent across ordinary Git branches and worktrees?
+  <!-- cc:placement-unresolved id="ONB-54373873C2CE" -->
 
-<!-- cc:placement-state id="ONB-A0D4599D0703" -->
 - Assignees and milestones remain out of scope while the primary workflow is single-owner.
+  <!-- cc:placement-state id="ONB-A0D4599D0703" -->
 
-<!-- cc:placement-state id="ONB-9D51655FF5B4" -->
 - The frozen snapshot contains authored root CONTEXT.src.md but no generated CONTEXT.md or accepted package state because the bootstrap environment lacked the contextcanon executable.
+  <!-- cc:placement-state id="ONB-9D51655FF5B4" -->
 
-<!-- cc:placement-state id="ONB-D72B21BFD852" -->
 - v0.1.0 does not yet support close, reopen, edit, comments, or explicit machine-readable Change ↔ Issue links.
+  <!-- cc:placement-state id="ONB-D72B21BFD852" -->
 <!-- contextcanon-placement-state:end -->
 
 ### Maintained compatibility baseline
@@ -101,20 +101,20 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
 ## Local Plan
 
 <!-- contextcanon-placement-plan:start -->
-<!-- cc:placement-plan id="ONB-23D6597B221C" -->
 - Implement #4 next: close, reopen, edit, comment, state filtering, and automatic closure for accepted or merged work carrying an explicit closing reference.
+  <!-- cc:placement-plan id="ONB-23D6597B221C" -->
 
-<!-- cc:placement-plan id="ONB-F5537BFB06ED" -->
 - Implement #5 first-class Change ↔ Issue linking around native Git without duplicating Git state.
+  <!-- cc:placement-plan id="ONB-F5537BFB06ED" -->
 
-<!-- cc:placement-plan id="ONB-CE7AE84864D9" -->
 - Implement #6 backlog filters, labels, and search after Change ↔ Issue linking.
+  <!-- cc:placement-plan id="ONB-CE7AE84864D9" -->
 
-<!-- cc:placement-plan id="ONB-233538BB01FB" -->
 - Implement #7 concise examples in CLI help.
+  <!-- cc:placement-plan id="ONB-233538BB01FB" -->
 
-<!-- cc:placement-plan id="ONB-95C18B6F9F9A" -->
 - After PR #2 is accepted and squash-merged, complete ContextCanon onboarding and compose the reusable GitHub provider and Development Workflow Source before the next product implementation block.
+  <!-- cc:placement-plan id="ONB-95C18B6F9F9A" -->
 <!-- contextcanon-placement-plan:end -->
 
 ## How to use this context
@@ -235,17 +235,29 @@ A folder owns an Issue backlog only after an explicit `github-local issue init`;
 
 Issue commands must require `-R/--repo`; `-R .` explicitly asks github.local to resolve the nearest initialized local Issue repository from that location. Never select a repository merely because of the process CWD.
 
-#### `GHLR-011` — Keep each local Issue repository self-contained and movable
+#### `GHLR-011` — Keep each local Issue repository an explicit, movable workflow boundary
 
-Each initialized folder owns its own visible `issues/` store, numbering, stable path-independent repository identity, and repository-local workflow metadata.
+Each initialized folder owns a visible `issues/` store, its stable path-independent workflow repository ID, and local configuration. Inside Git, all nested Issue repositories share a short-number series per containing Git repository; Git-free folders allocate locally.
 
 #### `GHLR-012` — Keep destructive Issue administration explicit and CLI-owned
 
 Initialization, teardown, Issue deletion, and bulk deletion must be available through github.local; destructive operations require confirmation unless the caller explicitly opts out.
 
-#### `GHLR-006` — Keep each local Issue repository branch/worktree independent
+#### `GHLR-006` — Couple Issue state to normal Git history
 
-Ordinary Git branches and linked worktrees must resolve the same canonical backlog for an initialized local Issue repository rather than silently cloning its Issue identities or number space.
+In Git, canonical Issues, comments and durable configuration belong to the currently checked-out branch/worktree and must be commit/push/clone-able with ordinary Git; never redirect to the primary worktree or silently exclude canonical data from Git.
+
+#### `GHLR-013` — Separate immutable identity from short Issue numbers
+
+Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers.
+
+#### `GHLR-014` — Repair rare post-merge number collisions explicitly
+
+Accept normal Git merges, detect different UUIDs bearing the same number, block unsafe writes, preview which Issue retains the number, and renumber others to unused integers only after confirmation. Preserve old numbers, dates and available branch provenance in the renamed Issue, and never guess the meaning of ambiguous text/commit/external references.
+
+#### `GHLR-015` — Keep lasting state Git-trackable and migrate legacy stores safely
+
+Use ordinary visible `.gitignore` only for locks/cursors/temporary files; never hide Issues or durable identity with `.git/info/exclude`. Provide a transparent, explicit legacy migration that preserves content and never stages/commits behind the user's back.
 
 #### `GHLR-007` — Let completed work leave the open backlog
 
@@ -269,9 +281,9 @@ Unsupported or unavailable operations must fail explicitly instead of creating s
 
 Keep normal workflow available through discoverable stable CLI commands, explicit error exits, and structured JSON; MCP and other adapters are optional additions, not prerequisites.
 
-#### `ONB-9FEE670D694B` — Keep Issue workflow state project-wide
+#### `ONB-9FEE670D694B` — Keep workflow state coherent with its Git project snapshot
 
-Ordinary Git branches and worktrees must not silently create divergent canonical backlogs or duplicate Issue identities or numbers.
+Within a Git project, code and Issue Markdown follow ordinary branches/worktrees together. UUIDs never duplicate; short numbers are unique within each integrated checkout and exceptionally reconciled after a merge of independently numbered clones.
 
 #### `ONB-D2571236E23F` — Let completed work leave the open backlog deliberately
 
@@ -281,9 +293,9 @@ Provide explicit close and reopen semantics, and automatically close an Issue on
 
 Store each Issue as one Markdown file with a strict, delimited, machine-owned JSON front matter block; maintain its title and body once as Markdown.
 
-#### `ONB-47F89CA128E5` — Serialize numbering and write Issues atomically
+#### `ONB-47F89CA128E5` — Serialize shared local numbering and publish Issues atomically
 
-Allocate repository-local monotonically increasing Issue numbers under an OS-level exclusive lock and publish new content with a same-directory atomic replace.
+Allocate monotonically increasing Issue numbers per containing Git repository using a shared Git-local OS lock/cursor across local branches and worktrees; Git-free Issue repositories allocate locally. Publish content with same-directory atomic replacement.
 
 #### `ONB-8174142758A8` — Treat databases as rebuildable indexes
 
@@ -297,9 +309,9 @@ Build optional gh-compatible, MCP, IDE, or UI adapters on the same application s
 
 Identify and configure the local project through repository discovery without network discovery.
 
-#### `ONB-9CD288976D1B` — Treat Issue filenames as presentation
+#### `ONB-9CD288976D1B` — Use immutable Issue IDs and human-friendly mutable numbers
 
-Treat the numeric prefix and stable Issue ID as identity; the conservative Windows-safe filename slug is presentation and may change with the title.
+Each Issue's UUID is its sole permanent technical identity. Its short numeric filename prefix is a human communication handle, normally stable but exceptionally renumbered after a confirmed offline-merge collision; the Windows-safe slug is presentation and may change with the title.
 
 ## Topics from Development Workflow
 
@@ -327,11 +339,11 @@ When deciding between official `gh` compatibility and the native `github-local` 
 
 **Required**
 
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/architecture.md)
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md)
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md)
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md)
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/docs/architecture.md`](CONTEXT/references/n4ee5f9d0a09d92c/docs/architecture.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/docs/gh-compatibility.md`](CONTEXT/references/n4ee5f9d0a09d92c/docs/gh-compatibility.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/CONTRIBUTING.md`](CONTEXT/references/n4ee5f9d0a09d92c/CONTRIBUTING.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md`](CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json`](CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json)
 
 ### Issue storage and CLI behavior
 
@@ -339,7 +351,7 @@ When changing local Issue-repository boundaries or selection, Issue persistence,
 
 **Required**
 
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md`](CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md)
 
 ### Agent integration evidence
 
@@ -347,7 +359,7 @@ When changing the agent-facing CLI contract, help/discovery behavior, or decidin
 
 **Required**
 
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/docs/agent-validation.md`](CONTEXT/references/n4ee5f9d0a09d92c/docs/agent-validation.md)
 
 ### Route official gh compatibility work
 
@@ -355,10 +367,10 @@ When evaluating official gh compatibility, changing the supported CLI surface, c
 
 **Required**
 
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/gh-compatibility.md)
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/CONTRIBUTING.md)
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/README.md)
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/spike/gh-2.101.0-source-contract.json)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/docs/gh-compatibility.md`](CONTEXT/references/n4ee5f9d0a09d92c/docs/gh-compatibility.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/CONTRIBUTING.md`](CONTEXT/references/n4ee5f9d0a09d92c/CONTRIBUTING.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md`](CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json`](CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json)
 
 ### Route Issue storage work
 
@@ -366,7 +378,7 @@ When changing Issue persistence, numbering, Markdown format, locking, atomic wri
 
 **Required**
 
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/storage.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md`](CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md)
 
 ### Route agent integration evidence
 
@@ -374,7 +386,7 @@ When changing the agent-facing CLI contract, help and discovery behavior, struct
 
 **Required**
 
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/docs/agent-validation.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/docs/agent-validation.md`](CONTEXT/references/n4ee5f9d0a09d92c/docs/agent-validation.md)
 
 ### Route installation and smoke testing
 
@@ -382,4 +394,4 @@ When installing github.local, running owner acceptance checks, or reproducing th
 
 **Required**
 
-- [`CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md`](CONTEXT/references/66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2/README.md)
+- [`CONTEXT/references/n4ee5f9d0a09d92c/README.md`](CONTEXT/references/n4ee5f9d0a09d92c/README.md)
