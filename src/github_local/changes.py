@@ -57,8 +57,10 @@ class ChangeStore:
         head = self._branch_head(target)
         explicit = self._explicit_link(target) if head is not None else None
         existing_id = self._explicit_issue_id(target) if head is not None else None
-        if explicit is not None and explicit != (self.repository.repository_id, number) and (
-            existing_id != issue.issue_id or explicit[0] != self.repository.repository_id
+        if explicit is not None and (
+            explicit[0] != self.repository.repository_id
+            or (existing_id is not None and existing_id != issue.issue_id)
+            or (existing_id is None and explicit[1] != number)
         ):
             linked_repo, linked_issue = explicit
             if linked_repo == self.repository.repository_id:
