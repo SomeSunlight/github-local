@@ -95,6 +95,27 @@ class MigratedNestedCollisionTests(unittest.TestCase):
         self.assertIn("no automatic renumbering", preview.stdout)
         self.assertEqual(initial, self.git("status", "--porcelain"))
 
+    def test_uninitialized_doc_issues_are_not_a_workflow_repository(self):
+        # Markdown can live under doc/issues without being initialized
+        # through github-local issue init. Even machine-shaped files there
+        # are not part of the project's Issue numbering.
+        self.doc.config_path.unlink()
+        stray = self.doc.issues_dir / "0099-imported-archive.md"
+        stray.write_text(
+            '---\\n{"github-local":{"schema":1,"number":99,'
+            '"id":"I_gl_00000000000000000000000000000001"}}\\n---\\n'
+            '# Imported archive\\n',
+            encoding="utf-8",
+        )
+        conflicts = IssueStore(self.root_repo)._collision_groups()
+        self.assertEqual([2], sorted(conflicts))
+        self.assertEqual(6, IssueStore(self.root_repo)._next_number())
+        response = self.cli("status", "-R", ".")
+        self.assertEqual(0, response.returncode, response.stderr)
+        self.assertIn("ACTION REQUIRED: 1 duplicate Issue numbers (#2)", response.stdout)
+        self.assertNotIn("doc/issues/0001-", response.stdout)
+        self.assertNotIn("0099-imported", response.stdout)
+
     def test_yes_alone_cannot_rename_ambiguous_migrated_issues(self):
         initial = self.git("status", "--porcelain")
         attempt = self.cli("issue", "reconcile", "-R", ".", "--yes")
