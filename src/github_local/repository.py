@@ -161,24 +161,14 @@ def _relative_if_within(path: Path, parent: Path) -> Path | None:
 
 
 def _issue_location(start: Path) -> tuple[Path, Path, tuple[Path, Path, Path] | None]:
+    """Only the selected worktree owns its workflow snapshot."""
     requested = start.resolve()
     if requested.is_file():
         requested = requested.parent
     layout = _git_layout_optional(requested)
-
     for candidate in _ancestors(requested):
-        physical_config = candidate / CONFIG_DIR / CONFIG_FILE
-        if physical_config.is_file():
+        if (candidate / CONFIG_DIR / CONFIG_FILE).is_file():
             return candidate, candidate, layout
-
-        if layout is not None:
-            git_root, primary, _common = layout
-            relative = _relative_if_within(candidate, git_root)
-            if relative is not None:
-                canonical = (primary / relative).resolve()
-                if (canonical / CONFIG_DIR / CONFIG_FILE).is_file():
-                    return candidate, canonical, layout
-
     raise RepositoryError(
         f"no local Issue repository selected at {requested}; "
         "run 'github-local issue init' in the folder that should own Issues"
@@ -187,22 +177,9 @@ def _issue_location(start: Path) -> tuple[Path, Path, tuple[Path, Path, Path] | 
 
 def _canonical_init_root(root: Path) -> tuple[Path, Path, tuple[Path, Path, Path] | None]:
     local = root.resolve()
-    if local.is_file():
-        raise RepositoryError(f"Issue repository root must be a directory: {local}")
-    if not local.exists():
-        raise RepositoryError(f"Issue repository root does not exist: {local}")
-
-    layout = _git_layout_optional(local)
-    if layout is None:
-        return local, local, None
-
-    git_root, primary, _common = layout
-    relative = _relative_if_within(local, git_root)
-    if relative is None:
-        return local, local, layout
-    canonical = (primary / relative).resolve()
-    canonical.mkdir(parents=True, exist_ok=True)
-    return local, canonical, layout
+    if local.is_file() or not local.is_dir():
+        raise RepositoryError(f"Issue repository root must be an existing directory: {local}")
+    return local, local, _git_layout_optional(local)
 
 
 def _git_exclude_patterns(primary: Path, issue_root: Path) -> tuple[str, str]:
@@ -211,47 +188,67 @@ def _git_exclude_patterns(primary: Path, issue_root: Path) -> tuple[str, str]:
     return f"/{prefix}{ISSUES_DIR}/", f"/{prefix}{CONFIG_DIR}/"
 
 
-def _ensure_excluded(common_dir: Path, primary: Path, issue_root: Path) -> None:
-    exclude = common_dir / "info" / "exclude"
-    exclude.parent.mkdir(parents=True, exist_ok=True)
-    existing = exclude.read_text(encoding="utf-8") if exclude.exists() else ""
-    lines = existing.splitlines()
-    additions = [
-        pattern
-        for pattern in _git_exclude_patterns(primary, issue_root)
-        if pattern not in lines
-    ]
-    if not additions:
+def _legacy_exclude_paths(common_dir: Path, primary: Path, issue_root: Path) -> list[str]:
+    """Report old hidden exclusions; migration removes only these exact lines."""
+    path = common_dir / "info" / "exclude"
+    if not path.is_file():
+        return []
+    existing = set(path.read_text(encoding="utf-8").splitlines())
+    return [p for p in _git_exclude_patterns(primary, issue_root) if p in existing]
+
+
+def remove_legacy_exclusions(common_dir: Path, primary: Path, issue_root: Path) -> list[str]:
+    path = common_dir / "info" / "exclude"
+    if not path.is_file():
+        return []
+    lines = path.read_text(encoding="utf-8").splitlines()
+    targets = set(_git_exclude_patterns(primary, issue_root))
+    removed = [line for line in lines if line in targets]
+    if removed:
+        path.write_text("\n".join(line for line in lines if line not in targets) + "\n",
+                        encoding="utf-8", newline="\n")
+    return removed
+
+
+def _ensure_gitignore(git_root: Path) -> None:
+    """Make runtime exclusions visible; never exclude canonical Issues/configuration."""
+    path = git_root / ".gitignore"
+    start = "# >>> github-local runtime (managed)"
+    end = "# <<< github-local runtime (managed)"
+    content = path.read_text(encoding="utf-8") if path.exists() else ""
+    if start in content:
+        if end not in content:
+            raise RepositoryError(f"unterminated github-local ignore block: {path}")
         return
-    prefix = existing
-    if prefix and not prefix.endswith("\n"):
-        prefix += "\n"
-    exclude.write_text(
-        prefix + "".join(pattern + "\n" for pattern in additions),
-        encoding="utf-8",
-        newline="\n",
+    block = (
+        f"{start}\n"
+        "**/.github-local/locks/\n"
+        "**/.github-local/tmp/\n"
+        "**/.github-local/issue-state.json\n"
+        "**/.github-local/closing-state.json\n"
+        f"{end}\n"
     )
+    path.write_text(content.rstrip("\n") + ("\n\n" if content else "") + block,
+                    encoding="utf-8", newline="\n")
 
 
-def _tracked_issue_paths(primary: Path, issue_root: Path) -> list[str]:
-    relative = issue_root.resolve().relative_to(primary.resolve())
-    target = (relative / ISSUES_DIR).as_posix()
-    output = _git(primary, "ls-files", "--", target)
-    return [line for line in output.splitlines() if line.strip()]
-
-
-def _ensure_untracked_issue_store(primary: Path, issue_root: Path) -> None:
-    tracked = _tracked_issue_paths(primary, issue_root)
-    if not tracked:
-        return
-    preview = ", ".join(tracked[:3])
-    if len(tracked) > 3:
-        preview += f", ... ({len(tracked)} files)"
-    raise RepositoryError(
-        "local Issue repositories require issues/ to stay outside ordinary Git branch tracking; "
-        f"tracked Issue path(s): {preview}. Remove them from the Git index explicitly, "
-        "then rerun github-local."
-    )
+def _git_identity(git_root: Path, *, initialize: bool) -> str | None:
+    """Versioned identity shared by ordinary Git clones of the logical project."""
+    path = git_root / ".github-local" / "git-identity.json"
+    if not path.is_file():
+        if not initialize:
+            return None
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"schema": 1, "id": f"G_gl_{uuid.uuid4().hex}"},
+                                   indent=2) + "\n", encoding="utf-8", newline="\n")
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        value = data["id"]
+        if data.get("schema") != 1 or not isinstance(value, str) or not value.startswith("G_gl_"):
+            raise ValueError("invalid Git repository identity")
+        return value
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise RepositoryError(f"invalid Git identity file: {path}") from exc
 
 
 @dataclass(frozen=True, slots=True)
@@ -265,6 +262,7 @@ class Repository:
     git_root: Path | None = None
     git_workflow_root: Path | None = None
     git_common_dir: Path | None = None
+    git_repository_id: str | None = None
 
     @property
     def issues_dir(self) -> Path:
@@ -284,7 +282,50 @@ class Repository:
 
     @property
     def issue_state_path(self) -> Path:
+        if self.git_common_dir is not None:
+            return self.git_common_dir / "github-local" / "issue-state.json"
         return self.config_dir / "issue-state.json"
+
+    @property
+    def allocation_lock_path(self) -> Path:
+        if self.git_common_dir is not None:
+            return self.git_common_dir / "github-local" / "issues.lock"
+        return self.config_dir / "locks" / "issues.lock"
+
+    def legacy_exclusions(self) -> list[str]:
+        if not self.has_git or self.git_common_dir is None:
+            return []
+        return _legacy_exclude_paths(self.git_common_dir, self.git_workflow_root,
+                                     self.workflow_root)
+
+    def active_git_worktrees(self) -> list[Path]:
+        if not self.has_git:
+            return [self.workflow_root]
+        output = _git(self.git_root, "worktree", "list", "--porcelain")
+        return [Path(line[9:]).resolve() for line in output.splitlines()
+                if line.startswith("worktree ")]
+
+    def issue_paths(self, *, all_worktrees: bool = False) -> list[Path]:
+        """Candidate Issue files, including uncommitted files, in selected Git worktrees."""
+        if not self.has_git:
+            return list(self.issues_dir.glob("*.md"))
+        roots = self.active_git_worktrees() if all_worktrees else [self.git_root]
+        paths: set[Path] = set()
+        for root in roots:
+            output = _git(root, "ls-files", "--cached", "--others",
+                          "--exclude-standard", "-z", "--", ":(glob)**/issues/*.md")
+            paths.update((root / p).resolve() for p in output.split("\x00") if p)
+            # Legacy repositories may still have hidden excludes. Include selected
+            # repository's visible Issue files even before explicit migration.
+            relative = self.workflow_root.relative_to(self.git_root)
+            paths.update((root / relative / "issues").glob("*.md"))
+        return sorted(p for p in paths if p.is_file())
+
+    def migrate_exclusions(self) -> list[str]:
+        if not self.has_git or self.git_common_dir is None:
+            return []
+        return remove_legacy_exclusions(self.git_common_dir, self.git_workflow_root,
+                                         self.workflow_root)
 
     @property
     def accepted_ref(self) -> str:
@@ -366,10 +407,11 @@ class Repository:
         config_path = workflow_root / CONFIG_DIR / CONFIG_FILE
 
         git_root = git_primary = common_dir = None
+        git_identity = None
         if layout is not None:
             git_root, git_primary, common_dir = layout
-            _ensure_untracked_issue_store(git_primary, workflow_root)
-            _ensure_excluded(common_dir, git_primary, workflow_root)
+            git_identity = _git_identity(git_root, initialize=True)
+            _ensure_gitignore(git_root)
 
         repository_name = (name or workflow_root.name).strip()
         repository_owner = owner.strip()
@@ -451,6 +493,7 @@ class Repository:
             git_root=git_root,
             git_workflow_root=git_primary,
             git_common_dir=common_dir,
+            git_repository_id=git_identity,
         )
 
     @classmethod
@@ -459,18 +502,10 @@ class Repository:
         payload = _read_config(workflow_root / CONFIG_DIR / CONFIG_FILE)
 
         git_root = git_primary = common_dir = None
+        git_identity = None
         if layout is not None:
-            candidate_root, candidate_primary, candidate_common = layout
-            canonical_relative = _relative_if_within(workflow_root, candidate_primary)
-            local_relative = _relative_if_within(local_root, candidate_root)
-            if canonical_relative is not None and local_relative is not None:
-                git_root, git_primary, common_dir = (
-                    candidate_root,
-                    candidate_primary,
-                    candidate_common,
-                )
-                _ensure_untracked_issue_store(git_primary, workflow_root)
-                _ensure_excluded(common_dir, git_primary, workflow_root)
+            git_root, git_primary, common_dir = layout
+            git_identity = _git_identity(git_root, initialize=False)
 
         (workflow_root / ISSUES_DIR).mkdir(parents=True, exist_ok=True)
         (workflow_root / CONFIG_DIR / "locks").mkdir(parents=True, exist_ok=True)
@@ -491,6 +526,7 @@ class Repository:
             git_root=git_root,
             git_workflow_root=git_primary,
             git_common_dir=common_dir,
+            git_repository_id=git_identity,
         )
 
     def deinitialize(self) -> None:
