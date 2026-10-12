@@ -295,7 +295,7 @@ class Repository:
     def legacy_exclusions(self) -> list[str]:
         if not self.has_git or self.git_common_dir is None:
             return []
-        return _legacy_exclude_paths(self.git_common_dir, self.git_workflow_root,
+        return _legacy_exclude_paths(self.git_common_dir, self.git_root,
                                      self.workflow_root)
 
     def active_git_worktrees(self) -> list[Path]:
@@ -324,7 +324,7 @@ class Repository:
     def migrate_exclusions(self) -> list[str]:
         if not self.has_git or self.git_common_dir is None:
             return []
-        return remove_legacy_exclusions(self.git_common_dir, self.git_workflow_root,
+        return remove_legacy_exclusions(self.git_common_dir, self.git_root,
                                          self.workflow_root)
 
     @property
@@ -343,7 +343,7 @@ class Repository:
     def is_git_root_repository(self) -> bool:
         return bool(
             self.has_git
-            and self.workflow_root.resolve() == self.git_workflow_root.resolve()
+            and self.workflow_root.resolve() == self.git_root.resolve()
         )
 
     def require_git(self) -> tuple[Path, Path]:
