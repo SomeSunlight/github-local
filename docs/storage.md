@@ -100,6 +100,12 @@ github-local issue reconcile -R . --dry-run
 github-local issue reconcile -R . --source-branch "Windows"
 ```
 
+When previously separate Issue repositories are migrated into a single Git repository, their formerly independent numbers may overlap. This is an expected one-time reconciliation task, not necessarily a Git merge conflict.
+
+The normal `github-local status -R .` starts with **OK** or **ACTION REQUIRED**, summarizes the conflicting numbers, and shows the candidate paths and titles in a readable form. `--json` includes `ok`, `actionRequired`, `collisionCount`, `affectedIssues`, and the candidate records. The read-only command makes no changes and returns normally; scripts should inspect `actionRequired`.
+
+For ambiguous collisions, `github-local issue reconcile -R .` asks which Issue keeps each old number and shows the resulting new numbers before confirmation. `--dry-run` is always read-only. Scripts can supply repeated `--keep-id I_gl_...` flags for multiple collisions. A bare `--yes` is not permission to pick winners without sufficient evidence. If the origin branch is not known, the Issue records the original path rather than inventing a branch name.
+
 The read-only status/report detects when **different immutable Issue IDs have the same number within a Git checkout**. Number-dependent writes and automatic closure are blocked until this is resolved. Reconciliation uses a unique *first-parent* Issue only where ordinary merge ancestry identifies it unambiguously. Otherwise it requires the owner to select a keeper interactively. It never chooses by alphabetical path or arbitrary UUID order. You may select the Issue that retains the old number with `--keep-id I_gl_...`. `--yes` confirms non-interactively.
 
 Other colliding Issues receive the next available ordinary **integer** numbers, not special suffixes. The affected Issue retains its original UUID, gains an explicit machine-readable `renames` entry, and appends a visible record such as:
