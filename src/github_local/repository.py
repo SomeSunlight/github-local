@@ -537,5 +537,13 @@ class Repository:
             )
         if self.issues_dir.exists():
             self.issues_dir.rmdir()
-        if self.config_dir.exists():
-            shutil.rmtree(self.config_dir)
+        # A Git-root .github-local/ may also contain the versioned identity
+        # shared by nested Issue repositories. Never delete that identity.
+        for name in ("config.json", "closing-state.json", "issue-state.json"):
+            (self.config_dir / name).unlink(missing_ok=True)
+        for name in ("locks", "tmp"):
+            folder = self.config_dir / name
+            if folder.is_dir():
+                shutil.rmtree(folder)
+        if self.config_dir.is_dir() and not any(self.config_dir.iterdir()):
+            self.config_dir.rmdir()
