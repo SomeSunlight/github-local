@@ -36,10 +36,14 @@ def _first_parent_ids(repo: Repository) -> set[str]:
     if not line or len(line.split()) < 3:
         return set()
     parent = line.split()[1]
+    # git ls-tree does not support :(glob) pathspecs (unlike ls-files).
     listing = _git_optional(repo.git_root, "ls-tree", "-r", "--name-only",
-                            parent, "--", ":(glob)**/issues/*.md") or ""
+                            parent) or ""
     ids = set()
     for name in listing.splitlines():
+        relative = Path(name)
+        if relative.parent.name != "issues" or relative.suffix != ".md":
+            continue
         raw = _git_optional(repo.git_root, "show", f"{parent}:{name}")
         if not raw:
             continue
