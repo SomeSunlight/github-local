@@ -11,7 +11,7 @@ from pathlib import Path
 from github_local.repository import Repository
 from github_local.storage import IssueStore, StorageError
 from github_local.reconcile import collision_report, apply_reconciliation
-from github_local.migration import migration_report, apply_migration, _frontmatter
+from github_local.migration import migration_report, apply_migration, _frontmatter, _issue_record
 
 
 class GitTrackedWorkflowTests(unittest.TestCase):
@@ -106,20 +106,68 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         self.checkpoint(a, "reconcile post-merge numbering")
         self.assertEqual("", self.git(a, "status", "--porcelain"))
 
-    def test_migration_dry_run_reports_missing_issue_front_matter_clearly(self):
-        _, root, repo = self.project()
-        path = root / "issues" / "0004-abc.md"
-        path.write_text("# abc\n\n## Why\nSomething fails.\n\n## Scope\nCheck it.\n",
-                        encoding="utf-8")
-        with self.assertRaises(StorageError) as caught:
-            migration_report(repo)
-        error = str(caught.exception)
-        self.assertIn("0004-abc.md", error)
-        self.assertIn("first line is not '---'", error)
-        self.assertIn("plain Markdown needs explicit adoption", error)
-        self.assertEqual("# abc", path.read_text(encoding="utf-8").splitlines()[0])
+    def test_nested_f2_plain_markdown_migration_preserves_issue_and_comment(self):
+        """Owner regression: nested F2 has only human-authored numbered Markdown."""
+        _, root, parent = self.project()
+        nested = root / "F2"
+        nested.mkdir()
+        repo = Repository.initialize(nested, owner="acme", name="F2")
+        (root / "F1").mkdir()
+        f1 = Repository.initialize(root / "F1", owner="acme", name="F1")
+        IssueStore(f1).create("Other team's Issue")  # Must not affect F2 metadata.
+        source = nested / "issues" / "0004-abc.md"
+        original = "# abc\n\n## Why\nA reason.\n\n## Scope\nA change.\n\n## Out of scope\nNone.\n"
+        source.write_text(original, encoding="utf-8")
+        comment_dir = nested / "issues" / "comments" / "0004"
+        comment_dir.mkdir(parents=True)
+        comment = comment_dir / "0001.md"
+        comment.write_text("Original discussion\n\nSecond paragraph.\n", encoding="utf-8")
+        unrelated = nested / "issues" / "scratch.md"
+        unrelated.write_text("# A note, not a numbered Issue\n", encoding="utf-8")
 
-    def test_migration_identifies_malformed_json_and_missing_metadata(self):
+        before = self.git(root, "status", "--porcelain")
+        preview = migration_report(repo)
+        self.assertEqual(1, preview["issues"])
+        self.assertEqual(1, preview["plainMarkdownIssues"])
+        self.assertEqual(1, preview["legacyIssueIds"])
+        self.assertEqual(1, preview["plainMarkdownComments"])
+        self.assertEqual(1, preview["legacyComments"])
+        self.assertEqual(original, source.read_text(encoding="utf-8"))
+        self.assertEqual("Original discussion\n\nSecond paragraph.\n", comment.read_text())
+        self.assertEqual(before, self.git(root, "status", "--porcelain"))
+
+        applied = apply_migration(repo)
+        self.assertTrue(applied["migrated"])
+        result = IssueStore(repo).get(4)
+        self.assertEqual(4, result.number)
+        self.assertEqual("abc", result.title)
+        self.assertEqual("## Why\nA reason.\n\n## Scope\nA change.\n\n## Out of scope\nNone.", result.body)
+        self.assertEqual("OPEN", result.state)
+        self.assertRegex(result.issue_id, r"^I_gl_[0-9a-f]{32}$")
+        meta = json.loads(source.read_text(encoding="utf-8").splitlines()[1])
+        self.assertEqual("plain-markdown", meta["github-local"]["imported_from"])
+        comments = IssueStore(repo).comments(4)
+        self.assertEqual(1, len(comments))
+        self.assertEqual("Original discussion\n\nSecond paragraph.", comments[0].body)
+        self.assertRegex(comments[0].path.name, r"^C_gl_[0-9a-f]{32}[.]md$")
+        self.assertFalse(comment.exists())
+        self.assertEqual("# A note, not a numbered Issue\n", unrelated.read_text())
+        self.assertEqual([], IssueStore(repo)._collision_groups())
+
+        # Running migration twice must not generate new IDs or touch the data.
+        after = source.read_bytes()
+        comment_after = (nested / comments[0].path).read_bytes()
+        again = migration_report(repo)
+        self.assertEqual(0, again["plainMarkdownIssues"])
+        self.assertEqual(0, again["legacyIssueIds"])
+        self.assertEqual(0, again["plainMarkdownComments"])
+        self.assertEqual(0, again["legacyComments"])
+        apply_migration(repo)
+        self.assertEqual(after, source.read_bytes())
+        self.assertEqual(comment_after, (nested / comments[0].path).read_bytes())
+        self.assertEqual(result.issue_id, IssueStore(repo).get(4).issue_id)
+
+    def test_migration_rejects_malformed_structured_metadata(self):
         with tempfile.TemporaryDirectory() as workspace:
             path = Path(workspace) / "0004-abc.md"
             path.write_text('---\n{"github-local": invalid}\n---\n# abc\n',
@@ -135,8 +183,20 @@ class GitTrackedWorkflowTests(unittest.TestCase):
             path.write_text('---\n{"github-local": {"schema": 1}}\n---\n# abc\n',
                             encoding="utf-8")
             with self.assertRaisesRegex(StorageError,
-                                        r"missing 'github-local.id' metadata"):
-                _frontmatter(path)
+                                        r"must use schema 1 and match its filename number"):
+                _issue_record(path)
+            self.assertEqual(
+                {"schema": 1}, _frontmatter(path)[0]["github-local"]
+            )
+
+    def test_plain_markdown_without_issue_heading_fails_without_touching_content(self):
+        _, root, repo = self.project()
+        path = root / "issues" / "0004-abc.md"
+        original = "## Why\nMissing top-level title.\n"
+        path.write_text(original, encoding="utf-8")
+        with self.assertRaisesRegex(StorageError, "expected a numbered Issue filename"):
+            migration_report(repo)
+        self.assertEqual(original, path.read_text(encoding="utf-8"))
 
     def test_adopt_legacy_ignored_issues_without_index_mutation(self):
         _, root, repo = self.project()
