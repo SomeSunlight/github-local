@@ -204,7 +204,7 @@ Exit: a new agent can infer the normal Issue workflow and the structured inspect
 
 ## Active Fast Track: explicit local Issue repositories — Issue #14
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED** (PR #18 squash-merged into `main` on 2026-10-01, commit `9c75223`; Issue #14 closed).
 
 Purpose: let company, product, and extension folders own independent GitHub-like Issue backlogs without requiring nested Git repositories or a global label-based backlog.
 
@@ -220,11 +220,14 @@ Purpose: let company, product, and extension folders own independent GitHub-like
 - [x] Qualify Change links with stable local repository identity so sibling `#1` Issues cannot collide.
 - [x] Keep unqualified closing references only where the local Issue repository is the Git root; use `owner/repo#N` for nested repositories.
 - [x] Update README, architecture, storage, compatibility docs, and focused regression coverage.
-- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [x] Complete owner-reviewed PR #18 and land accepted baseline. Its merge was verified in GitHub; original exact local test/build evidence belongs to the historical review.
 - [x] Open Draft PR #18 with `Fixes #14`; keep it unmerged until explicit owner approval.
 
 Exit: moving through the folder tree and running `issue init` creates deliberate independent backlogs, while every later Issue operation names its target explicitly and no nested Git repositories are required.
 
+
+
+Accepted-baseline checkpoint: PR #18 merged as `9c75223` and GitHub Issue #14 is closed. Issue #20 explicitly supersedes the *branch-independent storage and per-Issue-folder numbering* decisions, while preserving nested workflow repository boundaries.
 
 ## Active Fast Track: ordinary Git-tracked workflow state — Issue #20
 
@@ -233,13 +236,13 @@ Exit: moving through the folder tree and running `issue init` creates deliberate
 Purpose: keep code and Markdown Issues in one ordinary Git history, with one shared local Issue number allocator per containing Git repository, immutable UUID identities, and a rare explicit post-merge number-collision repair. `-R` and nested Issue repository ownership remain explicit.
 
 - [x] Record the product decision in GitHub Issue #20 and begin an isolated review branch.
-- [ ] Replace branch-independent primary-worktree Issue storage and implicit Git info/exclude writes with worktree-local canonical Markdown; preserve Git-free operation.
-- [ ] Track durable repository identity and Issue files with Git, exclude only reconstructable runtime files, and document migration from older ignored stores.
-- [ ] Implement shared per-Git number allocation across nested Issue repositories and linked worktrees, plus UUID Issue/comment identities.
-- [ ] Add safe collision diagnostics and confirmable post-merge reconciliation into next free integer number; preserve old number, timestamp, and source evidence and report ambiguous references.
-- [ ] Address change links, closing references, comments, and legacy format compatibility; add focused regression tests.
-- [ ] Update authored Context rules, README, storage, architecture, and CLI compatibility documentation.
-- [ ] Run focused/full deterministic tests, ContextCanon build/check, and record exact verification evidence.
+- [x] Replace branch-independent primary-worktree Issue storage and implicit Git info/exclude writes with worktree-local canonical Markdown; preserve Git-free operation.
+- [x] Track durable repository identity and Issue files with Git, exclude only reconstructable runtime files, and document migration from older ignored stores.
+- [x] Implement shared per-Git number allocation across nested Issue repositories and linked worktrees, plus UUID Issue/comment identities.
+- [x] Add safe collision diagnostics and confirmable post-merge reconciliation into next free integer number; preserve old number, timestamp, and source evidence and report ambiguous references.
+- [x] Address change links, closing references, comments, and legacy format compatibility; add focused regression tests.
+- [x] Update authored Context rules, README, storage, architecture, and CLI compatibility documentation.
+- [ ] Run complete deterministic tests on exact review head and ContextCanon build/check. GitHub Actions verifies Python tests; generated ContextCanon output will be regenerated and checked at the owner merge gate (not available in this GitHub-API-only editing runtime).
 - [ ] Open Draft PR for owner review; **never merge without explicit owner approval**.
 
 Exit: normal Git clone/switch/merge/push carries Issue state alongside code; exceptional collisions are diagnosed and repaired without silently changing unknown references. Full merge gate follows owner review.
