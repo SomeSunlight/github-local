@@ -332,6 +332,7 @@ def _run(args: argparse.Namespace) -> int:
             "gitIdentity": repo.git_repository_id,
             "issueStore": str(repo.issues_dir),
             "legacyExclusions": repo.legacy_exclusions(),
+            "ignoredDurablePaths": repo.ignored_durable_paths(),
             "collisions": collision_report(repo)["collisions"],
             "capabilities": {"issues": True, "changes": repo.has_git,
                              "pullRequests": False, "reviews": False},
