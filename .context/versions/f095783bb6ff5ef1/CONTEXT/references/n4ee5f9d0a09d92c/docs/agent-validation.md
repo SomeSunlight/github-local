@@ -1,0 +1,61 @@
+# Agent validation
+
+## Real target-environment test
+
+The first owner validation used corporate GitHub Copilot with Claude Sonnet 5 (Medium, 264k context). MCP is administratively unavailable in that environment; the agent had ordinary terminal/filesystem/Git capabilities.
+
+Using only the documented CLI workflow, the agent successfully:
+
+- discovered `github-local` through `--help`;
+- initialized a disposable Git repository;
+- created three local Issues;
+- listed them in human-readable and JSON form;
+- viewed Issue #1;
+- created the documented Issue-numbered branch and commit.
+
+This validates the central product hypothesis: a terminal-capable LLM can use an unfamiliar local workflow tool effectively without MCP. CLI is therefore the primary agent contract; MCP can remain an optional future adapter.
+
+## Agent debrief
+
+The agent specifically found these properties useful:
+
+- stable structured `--json` output;
+- explicit errors rather than stack traces or silent failures;
+- Markdown Issue persistence that is directly visible and Git-diff-friendly;
+- consistent nested `--help` discovery;
+- familiar GitHub-shaped command vocabulary.
+
+The agent identified the following product gaps:
+
+- missing close/reopen/edit/comment lifecycle;
+- no first-class Change ↔ Issue relation;
+- no automatic close of completed Issues;
+- limited list filtering/search and no labels;
+- no concise examples in CLI help.
+
+Issue #7 addresses the last item directly. The candidate adds compact copy/pasteable Examples sections to the top-level and Issue help plus the syntax-heavier create/list/develop commands, including structured JSON inspection. The examples are regression-tested so help cannot silently drift to unsupported syntax.
+
+It also wondered whether create supports JSON. That capability already exists (`issue create --json ...`); it simply was not exercised during the test.
+
+## Product direction from the owner test
+
+The next work is tracked in Issues #3–#7. Automatic close is an early requirement, not a distant convenience: accepted work with an explicit closing reference should remove the corresponding Issue from the open backlog. Explicit manual close/reopen must remain available.
+
+Assignees and milestones remain deliberately out of scope while the primary workflow is single-owner.
+
+The test demonstrates that future deterministic local tools can use the same general integration pattern where appropriate: a compact discoverable CLI plus structured output can be a practical agent surface even when MCP is unavailable.
+
+## Explicit repository selection follow-up
+
+Issue #14 changes one agent-facing safety property deliberately: ordinary Issue commands now require `-R/--repo`. The original Copilot test relied on one Git repository containing one backlog, so CWD happened to be sufficient. Real corporate workspace use showed that this assumption does not hold when company, product, and extension folders each need independent Issue lists.
+
+The new contract makes the destination explicit. `-R .` is the concise local form: it resolves the nearest folder that was explicitly initialized with `github-local issue init`. An omitted selector is a usage error rather than a guess.
+
+This adds a few characters to each command but removes a more expensive failure mode for terminal-capable agents: silently creating, editing, or closing the right Issue number in the wrong product backlog.
+
+
+## Issue #20 — changed storage and agent contract (2026-10-12)
+
+The original corporate Copilot test validated the CLI-first approach but did **not** test the newer Git-tracked Issue history or offline merge reconciliation. The owner later identified that the old branch-independent local-only store had unintuitively excluded valuable Issues from normal Git backup. The proposed correction preserves terminal-first `-R` selection and Markdown visibility while making `git commit`/`git push` responsible for durable Issue history.
+
+New discoverability and safety: `github-local status -R . --json` reports selected Issue root, containing Git root, canonical paths, hidden exclusions and collisions without mutating project state; `issue migrate --dry-run` previews legacy adoption; `issue reconcile --dry-run --json` previews rare conflicting Issue numbers. Agents must **not** assume that `issue create` automatically stages or commits Markdown. Actual target-environment revalidation of the new workflow remains an owner test, not a claim made by existing historical evidence.

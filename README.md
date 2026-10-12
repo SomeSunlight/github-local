@@ -26,10 +26,10 @@ The MVP is not a GitHub clone, not a browser forge, not a ContextCanon subsystem
 Copilot / LLM / human
         ├── filesystem + PowerShell + git  → code state
         └── github-local CLI               → workflow objects
-                                               └── issues/*.md
+                                               └── issues/*.md + comments
 ```
 
-Native Git owns code state; `github-local` owns local workflow objects stored as visible files. The MVP uses a native CLI, while official-`gh` compatibility remains an optional measured adapter. Durable boundaries and the current decision are maintained in [Project Context](CONTEXT.md); protocol evidence remains in `docs/gh-compatibility.md` and `spike/`.
+Native Git owns branches, commits, merges **and the history of Issue Markdown**. `github-local` owns local Issue semantics and creation/inspection, not a separate Git history. Git-tracked Issues belong to the same historical snapshot as their code. The native CLI remains primary; official-`gh` compatibility is an optional measured adapter. Durable rules are in [Project Context](CONTEXT.md); storage details in `docs/storage.md`.
 
 ## Current status
 
@@ -58,6 +58,29 @@ git pull
 
 This is the preferred owner-test workflow while the project changes frequently.
 
+Check the exact running source revision at any time:
+
+```powershell
+github-local --version
+# github-local 0.1.0 (issue-20-git-tracked-workflow-state@abc1234)
+```
+
+The **release version** (`0.1.0`) intentionally stays stable during pre-release development. The `branch@commit` suffix identifies the actual test revision; `, dirty` means local modifications are present. ContextCanon's imported Development Workflow rule `CCW-014` requires this distinction.
+
+### Git-URL owner testing without a local checkout
+
+If you prefer your existing `uv tool` workflow (including on WSL), you can install a selected test branch directly:
+
+```bash
+uv tool install --force "git+https://github.com/SomeSunlight/github-local.git@issue-20-git-tracked-workflow-state"
+github-local --version
+```
+
+The installed output should likewise include the selected branch and resolved immutable Git commit, for example `github-local 0.1.0 (issue-20-git-tracked-workflow-state@abc1234)`. This reads the installer-recorded `direct_url.json` Git origin (PEP 610), **not** the Git checkout of whatever directory your shell currently occupies. The reported commit is the authoritative test identity.
+
+When `uv tool install` is run from a pinned commit instead of a branch, the version suffix reads `detached@abc1234`. Standard wheels without Git installation metadata show just the release version. To get the latest branch version installed rather than retaining an old test installation, use `--force`.
+
+
 ### Normal installation after merge/release
 
 For a stable merged version, direct installation from GitHub remains available:
@@ -83,6 +106,66 @@ For development from a checkout without installing:
 $env:PYTHONPATH = "$PWD\src"
 python -m github_local.cli --help
 ```
+
+## Git-tracked Issues: do not lose your backlog
+
+Issue Markdown, comments, `.github-local/config.json` and the root `.github-local/git-identity.json` are ordinary **Git project files**. Commit/push them with code. An older Git commit restores its code **and** Issues. Only temporary locks and reconstructable cursors are ignored through the ordinary, visible `.gitignore` file; canonical Issues are **not** hidden in `.git/info/exclude`.
+
+After initialization and issue creation, use your normal Git/PyCharm workflow:
+
+```bash
+github-local issue init --owner acme --name product-a
+github-local issue create -R . --title "Fix parser"
+git status
+git add -A
+git commit -m "Record local Issue #1"
+git push
+```
+
+`github-local` deliberately does not stage or commit on your behalf. A second clone inherits the versioned project identity, not the local Git allocator cursor.
+
+**Migrating an older github-local checkout?** First inspect, then explicitly adopt the old excluded records:
+
+```bash
+github-local status -R .
+github-local issue migrate -R . --dry-run
+github-local issue migrate -R .
+git status
+```
+
+Commit the newly visible `issues/`, `.github-local/config.json`, root identity and `.gitignore` files. Repeat `issue migrate -R <path>` for initialized nested Issue repositories that have old exclusions. The migration removes exact old `.git/info/exclude` patterns and upgrades legacy Issue/comment IDs; it never changes the Git index itself. See [migration and storage details](docs/storage.md#git-ignore-policy-and-migration).
+
+### Status: clear OK or action required
+
+Use `github-local status -R .` at any initialized Issue repository. It scans the **initialized Issue repositories** of the containing Git project, not unrelated Markdown folders that merely happen to be named `issues`. The normal output begins with either `OK` or `ACTION REQUIRED`.
+
+For example, after migrating older projects with independent Issue number series, you might see:
+
+```text
+ACTION REQUIRED: 2 duplicate Issue numbers (#1, #2) across this Git repository
+Repository: acme/product at /projects/product
+  #1: 2 different Issues — keep requires owner decision
+    1) F2/issues/0001-samples.md — Samples
+    2) doc/issues/0001-parameters.md — Parameters
+  #2: 2 different Issues — keep requires owner decision
+    1) F2/issues/0002-contract.md — Contract
+    2) issues/0002-analysis.md — Analysis
+No files have been changed by status.
+```
+
+These are **number overlaps**, not evidence of a failed Git merge. If `doc/issues` is merely an archive without `doc/.github-local/config.json`, it is *not* an initialized Issue repository and will not appear in the new status calculation.
+
+Run `github-local issue reconcile -R . --dry-run` to preview without changing files. Then run `github-local issue reconcile -R .` to **choose which Issue retains each duplicated number**, inspect the new numbered files proposed for the others, and explicitly confirm. No winner is inferred from arbitrary filenames. `--yes` cannot bypass a required choice. For automation use repeated `--keep-id I_gl_...` flags. Git changes remain uncommitted for your review. The machine-readable `status --json` includes `actionRequired` and `collisionCount`.
+
+**Parallel branches and independent copies:** One containing local Git repository shares an integer Issue number series across nested Issue folders and linked worktrees. Independent offline clones may both create `#33`. Merge with Git normally, then inspect and repair the uncommon collision:
+
+```bash
+github-local status -R . --json
+github-local issue reconcile -R . --dry-run
+github-local issue reconcile -R . --source-branch "Windows"
+```
+
+The owner confirms which Issue is renamed to the next free **integer** number (or selects `--keep-id`). The renamed Issue records the old number/date/source in its front matter and body; associated UUID-linked comments move with it. Arbitrary `#33` references, including external documents and Git commit history, are **not** silently rewritten. Review the diagnostic references and correct ambiguous ones manually.
 
 ## Daily Issue workflow
 
@@ -117,7 +200,7 @@ github-local issue close -R . 1
 
 There is intentionally no implicit CWD fallback for ordinary Issue commands: omitting `-R/--repo` is an error. This makes the target visible to both humans and terminal-capable agents instead of silently filing an Issue in whichever directory happens to be current.
 
-Each initialized folder owns its own `issues/` directory, Issue numbering, and stable path-independent repository identity. Moving that folder therefore moves its backlog as one unit. `github-local issue deinit -R .` removes an empty local Issue repository; `--delete-issues` makes teardown destructive and requires confirmation unless `--yes` is supplied. `github-local issue delete -R . --all` provides the same confirmation-protected bulk cleanup while keeping the repository initialized.
+Each initialized folder owns its own visible `issues/` directory and stable path-independent workflow identity. Inside Git, the **containing Git repository** owns the shared Issue number series, including nested Issue folders; without Git, numbering stays local. Moving a folder retains its identity and Issues. `github-local issue deinit -R .` removes an empty local Issue repository; `--delete-issues` makes teardown destructive and requires confirmation unless `--yes` is supplied. `github-local issue delete -R . --all` provides the same confirmation-protected bulk cleanup while keeping the repository initialized.
 
 At a local Issue repository that is also the Git root, accepted Git history may use the usual unqualified closing form:
 

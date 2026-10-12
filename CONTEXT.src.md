@@ -1,24 +1,59 @@
 # github.local — Local Context Source
-<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.11-draft" -->
+<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.14-draft" -->
+
+<!-- contextcanon:format Node
+Format: Node metadata follows the # title: ctx:node id="..." name="..." version="...". Preserve existing identity.
+Details: CONTEXT-format.md
+-->
+
+<!-- contextcanon:source-help:intro:start -->
+Edit this local Context source; ContextCanon generates CONTEXT.md from it.
+Some sections use a strict syntax. The comments below show the expected format.
+New Rules, Topics and Resources receive IDs automatically during build; preserve existing IDs.
+See [the source format guide](CONTEXT-format.md) for examples and editing instructions.
+<!-- contextcanon:source-help:intro:end -->
+
+## Context Imports
+
+<!-- contextcanon:format Context Imports
+Format: - [Name](location) — `version` — `relationship=parent|reference`; optional indented Why:, then ctx:source metadata. Preserve exact pins; use source list/adopt/update for package identity.
+Details: CONTEXT-format.md
+-->
+
+<!-- contextcanon-placement-sources:start -->
+- [GitHub](contextcanon.yaml) — `0.1.5-draft` — `relationship=parent`
+  Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted.
+  <!-- ctx:source id="ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc" version="0.1.5-draft" normalized-digest="a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65" package-digest="0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd" -->
+<!-- contextcanon-placement-sources:end -->
 
 ## Local Overview
+
+<!-- contextcanon:format Local Overview
+Format: Ordinary Markdown orientation, local to this Node. Any existing placement identity follows its paragraph/item; do not change it.
+Details: CONTEXT-format.md
+-->
 
 `github.local` is a deliberately small local development-workflow provider for projects where code and development history must remain local. Agents and humans should keep using the familiar vocabulary **Issue → branch → Pull Request → review → checks → merge**, while ordinary code work stays on the local filesystem and in native Git.
 
 The first executable slice is intentionally CLI-first. It stores Issues as visible Markdown under `issues/` and does not require MCP, Docker, a browser UI, a cloud service, or a background daemon.
 
 <!-- contextcanon-placement-overview:start -->
-<!-- cc:placement-overview id="ONB-573AFDCD2A2F" -->
 - github.local is a deliberately small local development-workflow provider for projects where code and development history must remain local.
+  <!-- cc:placement-overview id="ONB-573AFDCD2A2F" -->
 
-<!-- cc:placement-overview id="ONB-D4E7F2562CC6" -->
 - github.local supplies local workflow operations; it is a provider implementation, not a ContextCanon subsystem.
+  <!-- cc:placement-overview id="ONB-D4E7F2562CC6" -->
 
-<!-- cc:placement-overview id="ONB-FAE8EAE354F9" -->
 - Agents and humans use the familiar vocabulary Issue → branch → Pull Request → review → checks → merge while ordinary code work stays in the local filesystem and native Git.
+  <!-- cc:placement-overview id="ONB-FAE8EAE354F9" -->
 <!-- contextcanon-placement-overview:end -->
 
 ## Local Rules
+
+<!-- contextcanon:format Local Rules
+Format: ### Group, then - **Title:** Statement, then indented Why: Rationale. build adds a missing ctx:rule ID after the entry; preserve existing IDs.
+Details: CONTEXT-format.md
+-->
 
 - **Keep project truth visible:** Canonical Issue content lives in ordinary Markdown below `issues/`; caches or indexes may accelerate access later but must remain reconstructable.
   Why: development reasoning is durable project knowledge, not opaque runtime state.
@@ -52,17 +87,29 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: Humans and LLM agents both lose track of directory context. Making the target part of the command turns a likely silent misfile into an explicit decision that is visible in logs and prompts.
   <!-- ctx:rule id="GHLR-010" -->
 
-- **Keep each local Issue repository self-contained and movable:** Each initialized folder owns its own visible `issues/` store, numbering, stable path-independent repository identity, and repository-local workflow metadata.
-  Why: Products and extensions must be addable, removable, or moved as coherent units, and future Jira/Bitbucket synchronization needs an unambiguous local group rather than labels in a global backlog.
+- **Keep each local Issue repository an explicit, movable workflow boundary:** Each initialized folder owns a visible `issues/` store, its stable path-independent workflow repository ID, and local configuration. Inside Git, all nested Issue repositories share a short-number series per containing Git repository; Git-free folders allocate locally.
+  Why: Products and extensions remain independently identifiable for future external mappings, while one Git project provides short unambiguous Issue references.
   <!-- ctx:rule id="GHLR-011" -->
 
 - **Keep destructive Issue administration explicit and CLI-owned:** Initialization, teardown, Issue deletion, and bulk deletion must be available through github.local; destructive operations require confirmation unless the caller explicitly opts out.
   Why: Users and agents should never need to discover and manipulate hidden implementation files, while visible Markdown Issues remain intentionally inspectable project artifacts.
   <!-- ctx:rule id="GHLR-012" -->
 
-- **Keep each local Issue repository branch/worktree independent:** Ordinary Git branches and linked worktrees must resolve the same canonical backlog for an initialized local Issue repository rather than silently cloning its Issue identities or number space.
-  Why: Issue state belongs to the explicit workflow boundary declared by `issue init`, not to whichever code branch or worktree happens to be active.
+- **Couple Issue state to normal Git history:** In Git, canonical Issues, comments and durable configuration belong to the currently checked-out branch/worktree and must be commit/push/clone-able with ordinary Git; never redirect to the primary worktree or silently exclude canonical data from Git.
+  Why: The meaning of an Issue evolves with the code and project's Context. A historical commit must reproduce the corresponding historical Issue state, with normal PyCharm/Git semantics.
   <!-- ctx:rule id="GHLR-006" -->
+
+- **Separate immutable identity from short, human-readable identifiers:** Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers. Comment Markdown filenames must start with a sortable per-Issue sequence and readable summary; a short UUID suffix prevents parallel Git branches from overwriting each other's comments.
+  Why: People communicate using `#33` and browse discussions using `0001`, `0002`, `0003`; opaque UUID-only filenames and randomly ordered comments destroy that human workflow. The internal UUID, not the short display number, remains the technical identity.
+  <!-- ctx:rule id="GHLR-013" -->
+
+- **Diagnose and explicitly reconcile duplicate Issue numbers without guessing:** Duplicates may arise from independently numbered legacy subprojects being migrated into one Git repository or from ordinary Git merges of offline clones. Present a prominent actionable status and a human-readable list of the competing Issues. Block ambiguous writes and never select a keeper from arbitrary filename/path sorting; infer one only from unambiguous Git ancestry or explicit owner choice. Support owner-reviewed selection for multiple collisions, renumber losers to free integers only after confirmation, and preserve old numbers, dates, original paths and verified branch provenance in the affected Issues. Do not rewrite ambiguous text/commit/external references by guesswork.
+  Why: A migration of legitimate older backlogs is not itself a Git conflict, and human-readable diagnostics plus deliberate keeper selection prevent silently changing the wrong Issue's identity or history.
+  <!-- ctx:rule id="GHLR-014" -->
+
+- **Keep lasting state Git-trackable and migrate legacy stores safely:** Use ordinary visible `.gitignore` only for locks/cursors/temporary files; never hide Issues or durable identity with `.git/info/exclude`. Provide a transparent, explicit legacy migration that preserves content and never stages/commits behind the user's back.
+  Why: A user who commits/pushes the project must not silently lose hundreds of valuable Issues because a support tool kept them outside Git.
+  <!-- ctx:rule id="GHLR-015" -->
 
 - **Let completed work leave the open backlog:** Provide explicit close/reopen semantics and automatically close an Issue when accepted/merged work carries an explicit closing reference; do not treat an arbitrary Issue mention as a closing instruction.
   Why: the open backlog should naturally shrink as accepted work completes while closure remains deliberate and inspectable.
@@ -87,8 +134,8 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: Terminal-capable agents need a predictable low-overhead contract, and the target-environment owner test succeeded without MCP.
   <!-- ctx:rule id="ONB-F40586D91A16" -->
 
-- **Keep Issue workflow state project-wide:** Ordinary Git branches and worktrees must not silently create divergent canonical backlogs or duplicate Issue identities or numbers.
-  Why: Issues may predate implementation branches and represent project workflow state rather than one code branch.
+- **Keep workflow state coherent with its Git project snapshot:** Within a Git project, code and Issue Markdown follow ordinary branches/worktrees together. UUIDs never duplicate; short numbers are unique within each integrated checkout and exceptionally reconciled after a merge of independently numbered clones.
+  Why: Historical code and its semantic Issue context must match. The earlier branch-independent backlog direction was explicitly superseded by owner decision in Issue #20.
   <!-- ctx:rule id="ONB-9FEE670D694B" -->
 
 - **Let completed work leave the open backlog deliberately:** Provide explicit close and reopen semantics, and automatically close an Issue only when accepted or merged work carries an explicit closing reference.
@@ -99,8 +146,8 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: Explicit metadata supports standard tooling without hiding parser semantics or duplicating human content.
   <!-- ctx:rule id="ONB-192F43493BCC" -->
 
-- **Serialize numbering and write Issues atomically:** Allocate repository-local monotonically increasing Issue numbers under an OS-level exclusive lock and publish new content with a same-directory atomic replace.
-  Why: Rapid or concurrent creation must not duplicate numbers, expose partial files, or leave stale process locks.
+- **Serialize shared local numbering and publish Issues atomically:** Allocate monotonically increasing Issue numbers per containing Git repository using a shared Git-local OS lock/cursor across local branches and worktrees; Git-free Issue repositories allocate locally. Publish content with same-directory atomic replacement.
+  Why: Rapid local creation must not duplicate numbers or expose partial files; separately cloned offline histories can be reconciled after Git integration.
   <!-- ctx:rule id="ONB-47F89CA128E5" -->
 
 - **Treat databases as rebuildable indexes:** If a database is added, use it only as an index or cache rebuildable from issues/ and Git state.
@@ -115,12 +162,17 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: The provider must remain usable as a local workflow surface without depending on a service or external host.
   <!-- ctx:rule id="ONB-62CF63BD255B" -->
 
-- **Treat Issue filenames as presentation:** Treat the numeric prefix and stable Issue ID as identity; the conservative Windows-safe filename slug is presentation and may change with the title.
-  Why: A title edit must not change Issue identity or make discovery platform-dependent.
+- **Use immutable Issue IDs and human-friendly mutable numbers:** Each Issue's UUID is its sole permanent technical identity. Its short numeric filename prefix is a human communication handle, normally stable but exceptionally renumbered after a confirmed offline-merge collision; the Windows-safe slug is presentation and may change with the title.
+  Why: Renumbering must preserve the underlying Issue and its historical discussion without changing identity.
   <!-- ctx:rule id="ONB-9CD288976D1B" -->
 <!-- contextcanon-placement-rules:end -->
 
 ## Local Topics
+
+<!-- contextcanon:format Local Topics
+Format: ### Title, condition text, Required: and/or Optional:, then - Resource: `path` or - Context Node: `node-path`. Resource may have indented Why:. build adds missing Topic/Resource IDs after their entries; preserve existing IDs.
+Details: CONTEXT-format.md
+-->
 
 ### Architecture and provider choice
 
@@ -128,10 +180,15 @@ When deciding between official `gh` compatibility and the native `github-local` 
 
 Required:
 - Resource: `docs/architecture.md`
+  <!-- ctx:resource id="RESOURCE-6A7948522CB7" -->
 - Resource: `docs/gh-compatibility.md`
+  <!-- ctx:resource id="RESOURCE-9308EC2680A8" -->
 - Resource: `CONTRIBUTING.md`
+  <!-- ctx:resource id="RESOURCE-2E0E3666C830" -->
 - Resource: `spike/README.md`
+  <!-- ctx:resource id="RESOURCE-E160697A4178" -->
 - Resource: `spike/gh-2.101.0-source-contract.json`
+  <!-- ctx:resource id="RESOURCE-1D254EFEDCA3" -->
 <!-- ctx:topic id="GHLR-TOPIC-ARCH" -->
 
 ### Issue storage and CLI behavior
@@ -140,6 +197,7 @@ When changing local Issue-repository boundaries or selection, Issue persistence,
 
 Required:
 - Resource: `docs/storage.md`
+  <!-- ctx:resource id="RESOURCE-AE1A0D0EF341" -->
 <!-- ctx:topic id="GHLR-TOPIC-ISSUES" -->
 
 ### Agent integration evidence
@@ -148,6 +206,7 @@ When changing the agent-facing CLI contract, help/discovery behavior, or decidin
 
 Required:
 - Resource: `docs/agent-validation.md`
+  <!-- ctx:resource id="RESOURCE-18D65FB143AD" -->
 <!-- ctx:topic id="GHLR-TOPIC-AGENT" -->
 
 <!-- contextcanon-placement-topics:start -->
@@ -159,9 +218,11 @@ Required:
 - Resource: `docs/gh-compatibility.md`
   <!-- ctx:resource id="RESOURCE-9308EC2680A8" -->
 - Resource: `CONTRIBUTING.md`
+  <!-- ctx:resource id="RESOURCE-2E0E3666C830" -->
 - Resource: `spike/README.md`
   <!-- ctx:resource id="RESOURCE-E160697A4178" -->
 - Resource: `spike/gh-2.101.0-source-contract.json`
+  <!-- ctx:resource id="RESOURCE-1D254EFEDCA3" -->
 
 <!-- ctx:topic id="ONB-1DE6FDEDE8CF" -->
 
@@ -198,57 +259,62 @@ Required:
 
 ## Local State
 
+<!-- contextcanon:format Local State
+Format: Ordinary Markdown describing the current local situation. Any existing placement identity follows its paragraph/item; preserve it.
+Details: CONTEXT-format.md
+-->
+
 <!-- contextcanon-placement-state:start -->
-<!-- cc:placement-state id="ONB-0CFB25FEF085" -->
 - The MVP uses the native github-local CLI; official gh remains a measured optional future adapter.
+  <!-- cc:placement-state id="ONB-0CFB25FEF085" -->
 
-<!-- cc:placement-state id="ONB-C7397BA8C299" -->
 - The last documented check used gh 2.101.0, whose alternate-host Issue operations require GitHub Enterprise-shaped HTTPS, feature detection, and GraphQL behavior; binary execution was not available in the inspection environment.
+  <!-- cc:placement-state id="ONB-C7397BA8C299" -->
 
-<!-- cc:placement-state id="ONB-2A0D9DB9CE94" -->
 - github-local init creates repository-local configuration.
+  <!-- cc:placement-state id="ONB-2A0D9DB9CE94" -->
 
-<!-- cc:placement-state id="ONB-0FA4677C99F9" -->
 - The executable runtime currently supplies Issues; Pull Request, review, and checks operations remain future slices.
+  <!-- cc:placement-state id="ONB-0FA4677C99F9" -->
 
-<!-- cc:placement-state id="ONB-7594DA134D05" -->
 - issue create writes one canonical Markdown Issue atomically.
+  <!-- cc:placement-state id="ONB-7594DA134D05" -->
 
-<!-- cc:placement-state id="ONB-8A039C0E8489" -->
 - issue list and issue view reload canonical state from disk, including after restart.
+  <!-- cc:placement-state id="ONB-8A039C0E8489" -->
 
-<!-- cc:placement-state id="ONB-D64F234D9DFB" -->
 - The CLI provides stable selected-field --json output for agent use.
+  <!-- cc:placement-state id="ONB-D64F234D9DFB" -->
 
-<!-- cc:placement-state id="ONB-CC5013E28126" -->
 - The installable wheel has no runtime dependencies.
+  <!-- cc:placement-state id="ONB-CC5013E28126" -->
 
-<!-- cc:placement-state id="ONB-EB8702686598" -->
 - The frozen candidate passes all 12 deterministic tests.
+  <!-- cc:placement-state id="ONB-EB8702686598" -->
 
-<!-- cc:placement-state id="ONB-F8D077AA9B38" -->
 - Python compilation passes for the frozen candidate.
+  <!-- cc:placement-state id="ONB-F8D077AA9B38" -->
 
-<!-- cc:placement-state id="ONB-2388F784A444" -->
 - The wheel builds successfully for the frozen candidate.
+  <!-- cc:placement-state id="ONB-2388F784A444" -->
 
-<!-- cc:placement-state id="ONB-867FF7195FBD" -->
 - An installed-wheel smoke test completes init → create → list → view in a fresh Git repository.
+  <!-- cc:placement-state id="ONB-867FF7195FBD" -->
 
-<!-- cc:placement-state id="ONB-AC230FD47742" -->
 - Manual testing and a corporate GitHub Copilot test with Claude Sonnet 5 (Medium, 264k context) succeeded without MCP, validating the CLI as a practical agent integration surface.
+  <!-- cc:placement-state id="ONB-AC230FD47742" -->
 
-<!-- cc:placement-unresolved id="ONB-54373873C2CE" -->
 - Open question: How should the canonical project-wide Issue backlog remain consistent across ordinary Git branches and worktrees?
+  <!-- cc:placement-unresolved id="ONB-54373873C2CE" -->
 
-<!-- cc:placement-state id="ONB-A0D4599D0703" -->
 - Assignees and milestones remain out of scope while the primary workflow is single-owner.
+  <!-- cc:placement-state id="ONB-A0D4599D0703" -->
 
-<!-- cc:placement-state id="ONB-9D51655FF5B4" -->
 - The frozen snapshot contains authored root CONTEXT.src.md but no generated CONTEXT.md or accepted package state because the bootstrap environment lacked the contextcanon executable.
+  <!-- cc:placement-state id="ONB-9D51655FF5B4" -->
 
-<!-- cc:placement-state id="ONB-D72B21BFD852" -->
 - v0.1.0 does not yet support close, reopen, edit, comments, or explicit machine-readable Change ↔ Issue links.
+  <!-- cc:placement-state id="ONB-D72B21BFD852" -->
 <!-- contextcanon-placement-state:end -->
 
 ### Maintained compatibility baseline
@@ -264,27 +330,24 @@ Required:
 
 ## Local Plan
 
+<!-- contextcanon:format Local Plan
+Format: Ordinary Markdown describing intended local work. Any existing placement identity follows its paragraph/item; preserve it.
+Details: CONTEXT-format.md
+-->
+
 <!-- contextcanon-placement-plan:start -->
-<!-- cc:placement-plan id="ONB-23D6597B221C" -->
 - Implement #4 next: close, reopen, edit, comment, state filtering, and automatic closure for accepted or merged work carrying an explicit closing reference.
+  <!-- cc:placement-plan id="ONB-23D6597B221C" -->
 
-<!-- cc:placement-plan id="ONB-F5537BFB06ED" -->
 - Implement #5 first-class Change ↔ Issue linking around native Git without duplicating Git state.
+  <!-- cc:placement-plan id="ONB-F5537BFB06ED" -->
 
-<!-- cc:placement-plan id="ONB-CE7AE84864D9" -->
 - Implement #6 backlog filters, labels, and search after Change ↔ Issue linking.
+  <!-- cc:placement-plan id="ONB-CE7AE84864D9" -->
 
-<!-- cc:placement-plan id="ONB-233538BB01FB" -->
 - Implement #7 concise examples in CLI help.
+  <!-- cc:placement-plan id="ONB-233538BB01FB" -->
 
-<!-- cc:placement-plan id="ONB-95C18B6F9F9A" -->
 - After PR #2 is accepted and squash-merged, complete ContextCanon onboarding and compose the reusable GitHub provider and Development Workflow Source before the next product implementation block.
+  <!-- cc:placement-plan id="ONB-95C18B6F9F9A" -->
 <!-- contextcanon-placement-plan:end -->
-
-## Sources
-
-<!-- contextcanon-placement-sources:start -->
-- [GitHub](contextcanon.yaml) — `0.1.5-draft`
-  Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted.
-  <!-- ctx:source id="ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc" version="0.1.5-draft" normalized-digest="a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65" package-digest="0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd" -->
-<!-- contextcanon-placement-sources:end -->

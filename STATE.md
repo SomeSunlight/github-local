@@ -125,3 +125,24 @@ The candidate moves local repository identity out of Git common metadata and int
 If Git is present, the selected local Issue repository maps to the corresponding path in the primary worktree so linked worktrees still share one canonical backlog. Path-specific `issues/` and `.github-local/` entries are excluded through shared Git metadata. If Git is absent, normal Issue storage and administration continue to work.
 
 The CLI now requires `-R/--repo` for normal Issue operations and adds `issue init`, `issue deinit`, GitHub-compatible `issue delete N --yes`, and confirmation-protected local bulk deletion. Change branch metadata stores both local repository ID and Issue number. Nested Issue repositories require qualified `owner/repo#N` closing references; unqualified `#N` closing references remain valid only for the Issue repository at the Git root. Draft PR #18 contains the candidate and remains unmerged pending the owner deterministic suite plus ContextCanon build/check.
+
+
+## Issue #20 — normal Git-tracked Issue history (active review candidate)
+
+Owner direction accepted 2026-10-12: Issue and comment Markdown must travel with the same Git commit/branch as code, rather than being silently excluded and branch-independent. The previous Issue #14 local workflow boundaries remain, but their old per-folder numbering and primary-worktree canonical-store semantics have been explicitly superseded.
+
+Work is isolated on `issue-20-git-tracked-workflow-state`. GitHub Issue #20 records the acceptance criteria. Implemented review candidate: per-worktree canonical Issue Markdown, versioned root `.github-local/git-identity.json`, globally shared local allocator across Git branches/worktrees and nested Issue folders, UUID Issue/comment IDs, read-only status diagnostics (also top-level `github-local status`), explicit migration of legacy ignored files and identifiers, and owner-confirmed post-Git-merge collision repair to next unused integer while retaining dated old-number/branch provenance. Ambiguous free-text/historic/external `#N` references are reported, not guessed or silently rewritten.
+
+The new Python GitHub Actions workflow runs deterministic tests on the candidate branch. It has passed the full suite on recent review commits; exact-head verification should be checked on the final review head. ContextCanon authored rules were updated in `CONTEXT.src.md` (GHLR-006, GHLR-011, GHLR-013/014/015 and relevant inherited ONB placements). The generated `CONTEXT.md` and package output **have not yet been regenerated**. The owner merge gate must perform `contextcanon build --all .`, then `contextcanon check --all .`, and run the deterministic suite on the exact intended merge head. No approval/merge has occurred for Issue #20.
+
+For historical context, Issue #14's PR #18 was squash-merged into `main` on 2026-10-01 as `9c752232`, and GitHub Issue #14 is closed; the older 'active Draft PR #18' notes above are historical checkpoints, not current status.
+
+## Issue #20 — executable version identity from installed Git URL (2026-10-12)
+
+The imported Development Workflow rules CCW-013/014 and `docs/version-provenance-python.md` already require stable release version plus branch/ref, immutable Git commit and optional dirty state for executable source checkouts. Prior `github-local --version` implemented this only for an editable checkout; the owner installs test revisions via `uv tool install git+https://github.com/SomeSunlight/github-local.git@issue-20-git-tracked-workflow-state`. Such installed artifacts lack a Git checkout and therefore previously all reported `0.1.0`.
+
+`src/github_local/version.py` now reads standard `direct_url.json` PEP 610 VCS provenance in that installed-distribution case and displays `0.1.0 (issue-20-git-tracked-workflow-state@<commit>)`, preserving source-checkout and plain-wheel behavior. No network or build dependency, no artificial release version bump. Deterministic tests plus real GitHub Actions push run #38306446929 on head `a6a34a7` verified both installed branch and pinned commit using `uv tool install`; 71 Python tests passed. Draft PR #21 remains unmerged pending owner review.
+
+## Issue #20 — owner collision report correction
+
+After migration of P1-LF and nested projects, status exposed ambiguous #1 and #2 plus an uninitialized doc/issues folder. The scan now considers only folders with their own .github-local/config.json (including in Git history). New status output explicitly reports OK or ACTION REQUIRED and lists human-readable Issue candidates. For ambiguous duplicates, reconcile requires a keeper choice per number and refuses blind --yes; original paths are retained when branch ancestry is unknown. Tested in GitHub Actions with 76 passing Python tests on commit 30f4ef9. The change remains on Draft PR #21 without owner merge approval. Rebuild authored ContextCanon changes before merge.

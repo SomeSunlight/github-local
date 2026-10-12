@@ -204,7 +204,7 @@ Exit: a new agent can infer the normal Issue workflow and the structured inspect
 
 ## Active Fast Track: explicit local Issue repositories — Issue #14
 
-**Fast Track status — ACTIVE**
+**Fast Track status — CLOSED** (PR #18 squash-merged into `main` on 2026-10-01, commit `9c75223`; Issue #14 closed).
 
 Purpose: let company, product, and extension folders own independent GitHub-like Issue backlogs without requiring nested Git repositories or a global label-based backlog.
 
@@ -220,7 +220,81 @@ Purpose: let company, product, and extension folders own independent GitHub-like
 - [x] Qualify Change links with stable local repository identity so sibling `#1` Issues cannot collide.
 - [x] Keep unqualified closing references only where the local Issue repository is the Git root; use `owner/repo#N` for nested repositories.
 - [x] Update README, architecture, storage, compatibility docs, and focused regression coverage.
-- [ ] Run the complete deterministic suite and ContextCanon build/check.
+- [x] Complete owner-reviewed PR #18 and land accepted baseline. Its merge was verified in GitHub; original exact local test/build evidence belongs to the historical review.
 - [x] Open Draft PR #18 with `Fixes #14`; keep it unmerged until explicit owner approval.
 
 Exit: moving through the folder tree and running `issue init` creates deliberate independent backlogs, while every later Issue operation names its target explicitly and no nested Git repositories are required.
+
+
+
+Accepted-baseline checkpoint: PR #18 merged as `9c75223` and GitHub Issue #14 is closed. Issue #20 explicitly supersedes the *branch-independent storage and per-Issue-folder numbering* decisions, while preserving nested workflow repository boundaries.
+
+## Active Fast Track: ordinary Git-tracked workflow state — Issue #20
+
+**Fast Track status — ACTIVE** (owner approved coherent implementation direction 2026-10-12).
+
+Purpose: keep code and Markdown Issues in one ordinary Git history, with one shared local Issue number allocator per containing Git repository, immutable UUID identities, and a rare explicit post-merge number-collision repair. `-R` and nested Issue repository ownership remain explicit.
+
+- [x] Record the product decision in GitHub Issue #20 and begin an isolated review branch.
+- [x] Replace branch-independent primary-worktree Issue storage and implicit Git info/exclude writes with worktree-local canonical Markdown; preserve Git-free operation.
+- [x] Track durable repository identity and Issue files with Git, exclude only reconstructable runtime files, and document migration from older ignored stores.
+- [x] Implement shared per-Git number allocation across nested Issue repositories and linked worktrees, plus UUID Issue/comment identities.
+- [x] Add safe collision diagnostics and confirmable post-merge reconciliation into next free integer number; preserve old number, timestamp, and source evidence and report ambiguous references.
+- [x] Address change links, closing references, comments, and legacy format compatibility; add focused regression tests.
+- [x] Update authored Context rules, README, storage, architecture, and CLI compatibility documentation.
+- [ ] Run complete deterministic tests on exact review head and ContextCanon build/check. GitHub Actions verifies Python tests; generated ContextCanon output will be regenerated and checked at the owner merge gate (not available in this GitHub-API-only editing runtime).
+- [x] Open Draft PR #21 for owner review; **never merge without explicit owner approval**.
+
+Exit: normal Git clone/switch/merge/push carries Issue state alongside code; exceptional collisions are diagnosed and repaired without silently changing unknown references. Full merge gate follows owner review.
+
+Issue #20 review checkpoint: Draft PR #21 is open (unmerged) against `main`; initial head `68960bd2` passed 61 deterministic Python tests in GitHub Actions run #38289023752. The post-PR plan checkpoint changes only this document; verify the final exact head before merge. ContextCanon generated outputs are intentionally pending owner merge-gate regeneration/check. Review branch must remain open until explicit owner approval.
+
+### Owner migration finding: bare Markdown without front matter (2026-10-12)
+
+During real P1/F2 migration, `issue migrate --dry-run` rejected `issues/0004-abc.md` because it was human-authored Markdown without machine front matter. The owner's requirement is to *add* missing metadata during migration (not demand that it pre-exist). Issue #20 already authorizes this migration scope; keep the same review PR and Fast Track.
+
+- [x] Accept legacy plain Markdown with a valid Issue filename and `# Title`; supply UUID, schema, short filename number, default OPEN state and marked import timestamp while retaining all authored Markdown.
+- [x] Make `--dry-run` count this conversion without writing, but continue to reject malformed or ambiguous existing structured front matter.
+- [x] Include plain legacy numbered comments with UUID and parent ID, and preserve older correctly structured records.
+- [x] Add end-to-end migration tests for a nested Issue repository, idempotence, unrelated files and no data loss; update storage migration docs.
+- [x] Verify 64 deterministic Python tests on review candidate and invite owner to retry F2. Preserve the owner-controlled exact-head ContextCanon merge gate.
+
+F2 owner-regression checkpoint: the formerly fatal plain `0004-abc.md` is now recognized and previewed without writes; confirmed migration adds explicit front matter, retains issue number/title/body, imports numbered plain comments with UUID linkage, and remains idempotent. Strict failures remain for malformed structured metadata. 64 deterministic Python tests passed on commit `a2c9cb5e` (GitHub Actions run #38300411845). Generated ContextCanon was already built/checked and pushed by the owner prior to this Python/docs-only correction; its final merge-gate check remains required if needed. No merge requested or performed.
+
+### Owner comment readability/ordering regression — Issue #20 (2026-10-12)
+
+Owner confirmed F2 migration works, but UUID-only filenames `C_gl_<hex>.md` are unreadable and alphabetically random. Owner can reset migrated files and rerun; no automatic migration-of-migration required for already converted UUID-only files. Maintain the existing Draft PR #21 (unmerged).
+
+- [x] Name newly created and newly migrated comments `0001-short-human-summary-<short-uuid>.md` (numeric order + Markdown-derived topic; short UUID suffix prevents collisions across independent branches; full immutable UUID remains in metadata).
+- [x] Fix comment allocation after migrating old numeric comments, and sort comment API results by numeric sequence first with deterministic tie-breaking when independent clones assign equal sequence numbers.
+- [x] Keep reading legacy `0001.md` and UUID-only `C_gl_*.md` files; verify merge/reconcile behavior, linked worktrees and Windows-safe names.
+- [x] Add tests for human-readable names, order across migration, new writes, branches and repeat migration.
+- [x] Update docs and authored GHLR-013, run exact-head GitHub CI, leave Draft PR unmerged pending owner approval.
+
+Comment-file owner checkpoint: new and migrated comments now use `0001-short-comment-title-a1b2c3d4.md`. The full UUID remains in front matter; numeric order drives display. Unique short suffixes protect parallel same-sequence/same-title Git merges. Existing numeric and UUID-only comment filenames remain readable, and running migration can also normalize legacy UUID-only files. Shared linked worktrees coordinate comment sequence. Tests cover F2 plain Markdown imports, reverse file timestamps, new comment after migration, legacy UUID-only file adoption, parallel Git merges with identical comment headlines, and linked worktrees. Context rule GHLR-013 was amended and must be regenerated by ContextCanon at the final gate. Python CI passed for implementation head `23d5f7de` (run #38302379175), with final plan-only checkpoint exact-head CI still to be recorded. No owner merge approval requested.
+
+## Owner test identity gap: Git-URL installed versions — Issue #20
+
+**Active Fast Track continuation** (2026-10-12). Existing ContextCanon Development Workflow rules CCW-013/014 and required `version-provenance-python.md` already prescribe checkout provenance while keeping the canonical `pyproject.toml` release version stable. `src/github_local/version.py` implements checkout display but `uv tool install git+...@branch` installs an artifact without a checkout, so the owner sees `0.1.0` for every independently tested commit.
+
+- [x] Inspect imported CCW-013/014 and Python version-provenance reference; distinguish stable release version from unique Git revision.
+- [x] Extend `github-local --version` to read the standard installed `direct_url.json` VCS provenance (requested Git ref + immutable commit) when no source checkout is available.
+- [x] Preserve editable-checkout, detached/dirty, local/wheel distribution and malformed/missing metadata behavior; avoid network calls and runtime dependencies.
+- [x] Test end-to-end installed Git URL with `uv` if CI supports it, and add deterministic unit/CLI regression tests.
+- [x] Document exact `uv tool install --force git+...@branch` and how to verify installed Git revision, without micro-bumping the release version contrary to CCW-014.
+- [x] Verify latest full suite and keep existing Draft PR #21 unmerged for owner acceptance.
+
+Version-provenance review checkpoint: 71 deterministic Python tests passed and GitHub Actions run #38306446929 installed this exact public Git commit via `uv tool install` **and** installed the current development branch via `uv tool install`. Observed outputs on head `a6a34a7`: `github-local 0.1.0 (detached@a6a34a7)` and `github-local 0.1.0 (issue-20-git-tracked-workflow-state@a6a34a7)`. `src/github_local/version.py` now reads the standardized PEP 610 direct URL provenance of actual installed Git artifacts while leaving the canonical release version in `pyproject.toml` unchanged, as required by inherited CCW-014. ContextCanon already provided the rule and reference implementation; no change to authored Context is needed for this integration fix. Do not merge Draft PR #21 without owner approval; exact-head CI remains the final gate.
+
+## Owner review: post-migration collision diagnostics and safe arbitration — Issue #20
+
+**Active Fast Track continuation** (2026-10-12). Real P1-LF workspace has previously independent Issue stores `F2/issues`, `doc/issues`, and root `issues` migrated into one Git-wide number series. `github-local status -R .` currently dumps verbose raw Python dictionaries, silently proposes keeper by lexicographic pathname (not owner choice), and shows `source_branch: unknown` despite no evidence of a merge. Owner specifically asks for a human-oriented OK/WARNING summary and an explanation of what has to be done. This is a usability/safety deficiency in the owner-approved issue #20 collision workflow.
+
+- [x] Inspect current status and collision-selection implementation and actual owner example (#1 and #2).
+- [x] Show prominent plain-language OK / ACTION REQUIRED diagnosis first; show concise collision table with short paths/titles rather than raw Python structures; preserve structured --json with clear summary and action fields.
+- [x] Distinguish legacy independent-store number overlap from normal Git merge; do not pretend the source branch is known. Do not automatically choose a keeper on insufficient evidence.
+- [x] Support explicit, human-reviewable keeper selections for **multiple** collisions (repeated `--keep-id`), with safe preview and no silent batch renames.
+- [x] Add regression tests for 3 nested stores after migration with two overlapping numbers, JSON/status diagnostics and fail-safe reconcile, plus ordinary merged-clone case.
+- [x] Update README, status help and storage docs; verify exact-head CI and keep Draft PR #21 unmerged.
+
+Additional root-cause and implementation checkpoint: original number scan matched every `**/issues/*.md` within Git, including `doc/issues/` with **no** `doc/.github-local/config.json`. This violated existing GHLR-009 and could create false collisions and inappropriate number reservations. `Repository.issue_paths` now filters to explicitly initialized local Issue repositories, and history-based number recovery similarly requires an initialized store (including historical config files). Regression test commits a noninitialized `doc/issues/0099-...` archive and clones the project; it remains outside Issue numbering. A truly initialized `doc` folder still participates in collision resolution. Status presents `OK` or `ACTION REQUIRED` first, with compact candidate paths/titles; JSON has `actionRequired`, `collisionCount` and details. With no single authoritative first-parent keeper, `reconcile` requires owner choice for **every** collided number and blocks blind `--yes`. Renamed Issues with no proven source branch record the original path instead of claiming a fabricated branch. Draft PR #21 remains unmerged. 76 deterministic tests and real uv Git-URL install tests passed on implementation commit `30f4ef9` (run #38313098690); final latest-head checks remain required after the docs/plan updates. ContextCanon GHLR-014 was updated in the authored source, and the owner should regenerate/check official output before merge.

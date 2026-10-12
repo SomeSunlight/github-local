@@ -8,16 +8,21 @@ import shutil
 import tempfile
 import time
 import unicodedata
+import uuid
+from contextlib import ExitStack
 from contextlib import AbstractContextManager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable
 
 from .models import Issue, IssueComment
-from .repository import Repository
+from .repository import Repository, _git, _git_optional
 
 
 ISSUE_RE = re.compile(r"^(?P<number>[0-9]{4,})-(?P<slug>.+)\.md$")
+COMMENT_RE = re.compile(
+    r"^(?P<number>[0-9]{4,})-(?P<slug>[a-z0-9][a-z0-9-]*)-(?P<shortid>[0-9a-f]{8})[.]md$"
+)
 CLOSING_RE = re.compile(
     r"\b(?:fix(?:e[sd])?|close[sd]?|resolve[sd]?)\s+#(?P<number>[0-9]+)\b",
     re.IGNORECASE,
@@ -70,6 +75,16 @@ def slugify(title: str) -> str:
     if slug.upper() in WINDOWS_RESERVED:
         slug = f"issue-{slug}"
     return slug
+
+
+def comment_filename(number: int, body: str, comment_id: str) -> str:
+    """Readable sequence and summary, plus a small Git-merge-safe UUID suffix."""
+    if not re.fullmatch(r"C_gl_[0-9a-f]{32}", comment_id):
+        raise StorageError("invalid immutable comment ID")
+    first_line = next((line.strip() for line in body.splitlines() if line.strip()), "comment")
+    # Avoid 80-character prose in paths while retaining enough context to scan.
+    summary = slugify(first_line)[:48].rstrip("-") or "comment"
+    return f"{number:04d}-{summary}-{comment_id[5:13]}.md"
 
 
 def stable_issue_id(repository_id: str, number: int) -> str:
@@ -133,6 +148,44 @@ class IssueStore:
     def _lock_path(self) -> Path:
         return self.repository.config_dir / "locks" / "issues.lock"
 
+    def _collision_groups(self) -> dict[int, list[tuple[Path, str]]]:
+        """An Issue number may occur only once across one Git checkout."""
+        grouped: dict[int, list[tuple[Path, str]]] = {}
+        seen_ids: dict[str, Path] = {}
+        for path in self.repository.issue_paths():
+            match = ISSUE_RE.match(path.name)
+            if match is None:
+                continue
+            try:
+                lines = path.read_text(encoding="utf-8").splitlines()
+                if not lines or lines[0] != "---":
+                    continue
+                end = lines.index("---", 1)
+                meta = json.loads("\n".join(lines[1:end]))["github-local"]
+                number, issue_id = int(meta["number"]), str(meta["id"])
+            except (OSError, ValueError, KeyError, TypeError, UnicodeDecodeError) as exc:
+                raise StorageError(f"invalid Issue metadata in {path}") from exc
+            if int(match.group("number")) != number:
+                raise StorageError(f"Issue number does not match filename: {path}")
+            if issue_id in seen_ids and seen_ids[issue_id] != path:
+                raise StorageError(
+                    f"duplicate immutable Issue ID {issue_id} at {seen_ids[issue_id]} and {path}"
+                )
+            seen_ids[issue_id] = path
+            grouped.setdefault(number, []).append((path, issue_id))
+        return {number: items for number, items in grouped.items() if len(items) > 1}
+
+    def ensure_no_collisions(self) -> None:
+        self.repository.ensure_trackable()
+        conflicts = self._collision_groups()
+        if conflicts:
+            numbers = ", ".join(f"#{n}" for n in sorted(conflicts))
+            raise StorageError(
+                f"duplicate Issue numbers {numbers} across this Git checkout; "
+                "run 'github-local issue reconcile -R .' to inspect and repair; "
+                "number-dependent writes are disabled until resolution"
+            )
+
     def create(
         self,
         title: str,
@@ -143,10 +196,14 @@ class IssueStore:
         title = title.strip()
         if not title:
             raise StorageError("Issue title must not be empty")
-        with FileLock(self._lock_path):
+        with ExitStack() as locks:
+            locks.enter_context(FileLock(self.repository.allocation_lock_path))
+            if self.repository.allocation_lock_path != self._lock_path:
+                locks.enter_context(FileLock(self._lock_path))
+            self.ensure_no_collisions()
             number = self._next_number()
             now = self.clock()
-            issue_id = stable_issue_id(self.repository.repository_id, number)
+            issue_id = f"I_gl_{uuid.uuid4().hex}"
             filename = f"{number:04d}-{slugify(title)}.md"
             target = self.repository.issues_dir / filename
             metadata = {
@@ -200,6 +257,7 @@ class IssueStore:
 
     def delete(self, number: int) -> None:
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             path = self._issue_path(number)
             path.unlink()
             comments = self.repository.issues_dir / "comments" / f"{number:04d}"
@@ -211,6 +269,7 @@ class IssueStore:
 
     def delete_all(self) -> int:
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             count = sum(
                 1
                 for path in self.repository.issues_dir.glob("*.md")
@@ -223,6 +282,7 @@ class IssueStore:
 
     def close(self, number: int) -> Issue:
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             path = self._issue_path(number)
             metadata, title, body = self._read_issue(path)
             self._set_state(metadata, "CLOSED", closed_by="manual")
@@ -231,6 +291,7 @@ class IssueStore:
 
     def reopen(self, number: int) -> Issue:
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             path = self._issue_path(number)
             metadata, title, body = self._read_issue(path)
             self._set_state(metadata, "OPEN")
@@ -251,6 +312,7 @@ class IssueStore:
                 "issue edit requires --title, --body, --body-file, --add-label, or --remove-label"
             )
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             path = self._issue_path(number)
             metadata, old_title, old_body = self._read_issue(path)
             new_title = old_title if title is None else title.strip()
@@ -281,20 +343,47 @@ class IssueStore:
         clean = body.rstrip()
         if not clean:
             raise StorageError("Issue comment must not be empty")
-        with FileLock(self._lock_path):
+        with ExitStack() as locks:
+            locks.enter_context(FileLock(self.repository.allocation_lock_path))
+            if self.repository.allocation_lock_path != self._lock_path:
+                locks.enter_context(FileLock(self._lock_path))
+            self.ensure_no_collisions()
             self._issue_path(number)
+            issue_id = self.get(number).issue_id
             directory = self.repository.issues_dir / "comments" / f"{number:04d}"
-            existing = sorted(directory.glob("*.md")) if directory.exists() else []
+            # Share sequence allocation across local linked worktrees as well.
+            # Branches on independent clones may still allocate equal numbers;
+            # their distinct short UUID suffixes keep Git filenames distinct.
+            directories = [directory]
+            if self.repository.has_git:
+                relative = self.repository.workflow_root.relative_to(self.repository.git_root)
+                directories = [
+                    root / relative / "issues" / "comments" / f"{number:04d}"
+                    for root in self.repository.active_git_worktrees()
+                ]
             next_number = 1
-            if existing:
-                numbers = [int(path.stem) for path in existing if path.stem.isdigit()]
-                if numbers:
-                    next_number = max(numbers) + 1
+            for candidate_dir in directories:
+                for path in candidate_dir.glob("*.md"):
+                    try:
+                        lines = path.read_text(encoding="utf-8").splitlines()
+                        if not lines or lines[0] != "---":
+                            raise ValueError("missing front matter")
+                        end = lines.index("---", 1)
+                        meta = json.loads("\n".join(lines[1:end]))["github-local-comment"]
+                        if (meta.get("issue_id") not in (None, issue_id)
+                                or int(meta["issue"]) != number):
+                            continue
+                        next_number = max(next_number, int(meta["number"]) + 1)
+                    except (OSError, UnicodeError, ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
+                        raise StorageError(f"invalid Issue comment while allocating sequence: {path}") from exc
             created_at = self.clock()
-            target = directory / f"{next_number:04d}.md"
+            comment_id = f"C_gl_{uuid.uuid4().hex}"
+            target = directory / comment_filename(next_number, clean, comment_id)
             metadata = {
                 "github-local-comment": {
                     "schema": 1,
+                    "id": comment_id,
+                    "issue_id": issue_id,
                     "issue": number,
                     "number": next_number,
                     "created_at": created_at,
@@ -319,10 +408,25 @@ class IssueStore:
             self._parse_comment(path, expected_issue=number)
             for path in sorted(directory.glob("*.md"))
         ]
-        return sorted(comments, key=lambda item: item.number)
+        # The sequence defines the intended discussion order, not UUID/file name.
+        # Equal numbers from offline clones are ordered deterministically.
+        return sorted(comments, key=lambda item: (item.number, item.created_at, item.path.name))
 
     def reconcile_closing_references(self) -> list[int]:
+        # Read-only commands remain available before explicit legacy migration.
+        if self.repository.has_git and (
+            self.repository.git_repository_id is None
+            or self.repository.ignored_durable_paths()
+        ):
+            return []
+        # Accepted history must not mutate a different checked-out feature branch.
+        if self.repository.has_git:
+            current = _git_optional(self.repository.git_root,
+                                    "symbolic-ref", "--quiet", "--short", "HEAD")
+            if current != self.repository.accepted_branch:
+                return []
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             head = self.repository.accepted_head()
             if head is None:
                 return []
@@ -395,17 +499,52 @@ class IssueStore:
             issue_meta.pop("closed_by", None)
 
     def _next_number(self) -> int:
+        """One local allocator per containing Git repository, across worktrees."""
         maximum = 0
-        for path in self.repository.issues_dir.glob("*.md"):
+        candidates = self.repository.issue_paths(all_worktrees=self.repository.has_git)
+        for path in candidates:
             match = ISSUE_RE.match(path.name)
             if match:
                 maximum = max(maximum, int(match.group("number")))
 
-        next_number = maximum + 1
+        # After a fresh clone the local cursor has gone; deleted Issues still
+        # count because their numbers remain recoverable from Git history.
         path = self.repository.issue_state_path
-        if path.exists():
+        if (self.repository.has_git and not path.exists()
+                and _git_optional(self.repository.git_root, "rev-parse", "--verify", "HEAD")):
+            # Only historically *initialized* Issue repositories reserve
+            # numbers. An unrelated doc/issues/*.md archive must not make the
+            # allocator leap forward or manufacture Issue collisions.
+            config_history = _git_optional(
+                self.repository.git_root, "log", "--all", "--name-only",
+                "--format=", "--", ":(glob)**/.github-local/config.json"
+            ) or ""
+            owners = {
+                Path(line).parent.parent
+                for line in config_history.splitlines()
+                if Path(line).name == "config.json"
+                and Path(line).parent.name == ".github-local"
+            }
+            for item in candidates:
+                owners.add(item.parent.parent.relative_to(self.repository.git_root))
+            history = _git_optional(
+                self.repository.git_root, "log", "--all", "--name-only",
+                "--format=", "--", ":(glob)**/issues/*.md"
+            ) or ""
+            for line in history.splitlines():
+                candidate = Path(line)
+                if candidate.parent.parent not in owners:
+                    continue
+                match = ISSUE_RE.match(candidate.name)
+                if match:
+                    maximum = max(maximum, int(match.group("number")))
+
+        next_number = maximum + 1
+        for cursor in (path, self.repository.config_dir / "issue-state.json"):
+            if not cursor.exists():
+                continue
             try:
-                payload = json.loads(path.read_text(encoding="utf-8"))
+                payload = json.loads(cursor.read_text(encoding="utf-8"))
                 if payload.get("schema") != 1:
                     raise ValueError("unsupported Issue state schema")
                 persisted = int(payload["next_number"])
@@ -413,7 +552,7 @@ class IssueStore:
                     raise ValueError("invalid next Issue number")
                 next_number = max(next_number, persisted)
             except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
-                raise StorageError(f"invalid Issue repository state: {path}") from exc
+                raise StorageError(f"invalid Issue repository state: {cursor}") from exc
         return next_number
 
     def _write_issue_state(self, next_number: int) -> None:
@@ -561,12 +700,25 @@ class IssueStore:
             if metadata["schema"] != 1 or int(metadata["issue"]) != expected_issue:
                 raise ValueError("comment metadata mismatch")
             number = int(metadata["number"])
+            comment_id = metadata.get("id")
+            if comment_id is not None and (
+                not isinstance(comment_id, str) or not comment_id.startswith("C_gl_")
+            ):
+                raise ValueError("invalid comment ID")
             created_at = str(metadata["created_at"])
             body = "\n".join(lines[end + 1 :]).rstrip()
         except (OSError, UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
             raise StorageError(f"invalid Issue comment: {path}") from exc
-        if path.stem != f"{number:04d}":
-            raise StorageError(f"Issue comment number does not match filename: {path}")
+        legacy_numeric = path.stem == f"{number:04d}" and comment_id is None
+        legacy_uuid = path.stem == comment_id and comment_id is not None
+        human = COMMENT_RE.fullmatch(path.name)
+        named = bool(
+            comment_id is not None and human is not None
+            and int(human.group("number")) == number
+            and human.group("shortid") == comment_id[5:13]
+        )
+        if not (legacy_numeric or legacy_uuid or named):
+            raise StorageError(f"Issue comment identity/number does not match filename: {path}")
         return IssueComment(
             number=number,
             created_at=created_at,

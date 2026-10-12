@@ -31,12 +31,19 @@ class ChangeTests(unittest.TestCase):
         self.git(root, "commit", "-qm", "base")
         repo = Repository.initialize(root, owner="acme", name="demo")
         issues = IssueStore(repo)
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", "initialize workflow")
         return temp, root, repo, issues, ChangeStore(repo, issues)
+
+    def commit_issues(self, root: Path) -> None:
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", "update Issues")
 
     def test_develop_creates_conventional_branch_and_explicit_link(self):
         temp, root, repo, issues, changes = self.make_repo()
         self.addCleanup(temp.cleanup)
         issue = issues.create("First change")
+        self.commit_issues(root)
         main_head = self.git(root, "rev-parse", "main").stdout.strip()
 
         change = changes.develop(issue.number)
@@ -68,6 +75,7 @@ class ChangeTests(unittest.TestCase):
         temp, root, repo, issues, changes = self.make_repo()
         self.addCleanup(temp.cleanup)
         issue = issues.create("Base branch")
+        self.commit_issues(root)
         self.git(root, "branch", "release", "main")
         release_head = self.git(root, "rev-parse", "release").stdout.strip()
 
@@ -86,6 +94,7 @@ class ChangeTests(unittest.TestCase):
         temp, root, repo, issues, changes = self.make_repo()
         self.addCleanup(temp.cleanup)
         issue = issues.create("Rename me")
+        self.commit_issues(root)
         changes.develop(issue.number, checkout=True)
         self.git(root, "branch", "-m", "renamed/change")
 
@@ -100,6 +109,7 @@ class ChangeTests(unittest.TestCase):
         temp, root, repo, issues, changes = self.make_repo()
         self.addCleanup(temp.cleanup)
         issue = issues.create("Legacy")
+        self.commit_issues(root)
         self.git(root, "branch", "issue-1-legacy", "main")
 
         linked = changes.list(issue.number)
@@ -129,6 +139,7 @@ class ChangeTests(unittest.TestCase):
         temp, root, repo, issues, changes = self.make_repo()
         self.addCleanup(temp.cleanup)
         issue = issues.create("Shared relation")
+        self.commit_issues(root)
         changes.develop(issue.number)
 
         linked = root.parent / f"{root.name}-linked"
@@ -167,10 +178,10 @@ class ChangeTests(unittest.TestCase):
         extension_issues.create("Same number")
 
         product_change = ChangeStore(product_repo, product_issues).develop(1)
-        extension_change = ChangeStore(extension_repo, extension_issues).develop(1)
+        extension_change = ChangeStore(extension_repo, extension_issues).develop(2)
 
         self.assertEqual("issue-product-a-1-same-number", product_change.branch)
-        self.assertEqual("issue-extension-x-1-same-number", extension_change.branch)
+        self.assertEqual("issue-extension-x-2-same-number", extension_change.branch)
         self.assertNotEqual(product_change.branch, extension_change.branch)
 
 

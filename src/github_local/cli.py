@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from .changes import ChangeError, ChangeStore
+from .reconcile import apply_reconciliation, collision_report
 from .repository import Repository, RepositoryError
 from .storage import IssueNotFound, IssueStore, StorageError
 from .version import display_version
@@ -102,6 +103,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action=_RuntimeVersionAction, nargs=0)
     sub = parser.add_subparsers(dest="command", required=True)
+
+    top_status = sub.add_parser(
+        "status", help="inspect local Git and Issue repository diagnostics"
+    )
+    _add_repo_selector(top_status)
+    top_status.add_argument("--json", action="store_true")
 
     init = sub.add_parser(
         "init",
@@ -222,6 +229,30 @@ def build_parser() -> argparse.ArgumentParser:
     delete.add_argument("--all", action="store_true", help="delete all Issues (github.local extension)")
     delete.add_argument("--yes", action="store_true", help="confirm deletion without prompting")
 
+    status = issue_sub.add_parser("status", help="inspect selected repository and Git Issue collisions")
+    _add_repo_selector(status)
+    status.add_argument("--json", action="store_true", help="print structured diagnostics")
+
+    reconcile = issue_sub.add_parser(
+        "reconcile", help="review and repair post-merge duplicate Issue numbers"
+    )
+    _add_repo_selector(reconcile)
+    reconcile.add_argument(
+        "--keep-id", action="append",
+        help="immutable ID to retain a duplicated number (repeat for multiple collisions)",
+    )
+    reconcile.add_argument("--source-branch", help="provenance label for renamed Issues")
+    reconcile.add_argument("--dry-run", action="store_true", help="preview without writing")
+    reconcile.add_argument("--yes", action="store_true", help="confirm the proposed renumbering")
+    reconcile.add_argument("--json", action="store_true", help="print machine-readable plan")
+
+    migrate = issue_sub.add_parser(
+        "migrate", help="adopt legacy ignored Issue files for normal Git tracking"
+    )
+    _add_repo_selector(migrate)
+    migrate.add_argument("--yes", action="store_true", help="confirm migration")
+    migrate.add_argument("--dry-run", action="store_true", help="show migration impact")
+
     develop = issue_sub.add_parser(
         "develop",
         help="manage linked Git branches for an Issue",
@@ -280,6 +311,31 @@ def _confirm(message: str) -> bool:
     return answer in {"y", "yes"}
 
 
+def _show_collisions(collisions: list[dict], *, interactive: bool = False) -> None:
+    """Compact, copy/paste-friendly view instead of dumping Python dicts."""
+    for item in collisions:
+        number = item["number"]
+        keeper = item["keep"]
+        state = (
+            "keep requires owner decision" if keeper is None
+            else f"keep selected ({item['selection']})"
+        )
+        print(f"  #{number}: {len(item['candidates'])} different Issues — {state}")
+        for index, candidate in enumerate(item["candidates"], 1):
+            title = candidate["title"]
+            if len(title) > 65:
+                title = title[:62] + "..."
+            suffix = f" [ID {candidate['id']}]" if interactive else ""
+            marker = " (keep)" if keeper and candidate["id"] == keeper["id"] else ""
+            print(
+                f"    {index}) {candidate['relativePath']} — {title}{marker}{suffix}"
+            )
+        for change in item["rename"]:
+            print(f"       -> #{change['to']}: {change['relativePath']}")
+        if keeper is None:
+            print("       -> no automatic renumbering without choosing a keeper")
+
+
 def _run(args: argparse.Namespace) -> int:
     if args.command == "init":
         repo = _initialize_here(args.owner, args.repo, args.accepted_branch)
@@ -301,6 +357,167 @@ def _run(args: argparse.Namespace) -> int:
 
     repo = _selected_repository(args)
     store = IssueStore(repo)
+
+    if args.command == "status" or (
+        args.command == "issue" and args.issue_command == "status"
+    ):
+        collisions = collision_report(repo)["collisions"]
+        exclusions = repo.legacy_exclusions()
+        ignored = repo.ignored_durable_paths()
+        identity_missing = repo.has_git and not repo.git_repository_id
+        blockers = bool(collisions or ignored or exclusions or identity_missing)
+        numbers = ", ".join(f"#{entry['number']}" for entry in collisions)
+        if collisions:
+            summary = (
+                f"ACTION REQUIRED: {len(collisions)} duplicate Issue numbers "
+                f"({numbers}) across this Git repository; number-dependent "
+                "Issue writes are blocked"
+            )
+        elif blockers:
+            summary = "ACTION REQUIRED: permanent Issue state is not safely tracked by Git"
+        else:
+            summary = "OK: no Issue number collisions or unsafe Git exclusions detected"
+        diag = {
+            "ok": not blockers,
+            "actionRequired": blockers,
+            "summary": summary,
+            "collisionCount": len(collisions),
+            "affectedIssues": sum(len(group["candidates"]) for group in collisions),
+            "repository": f"{repo.owner}/{repo.name}",
+            "root": str(repo.workflow_root),
+            "gitRoot": str(repo.git_root) if repo.has_git else None,
+            "gitIdentity": repo.git_repository_id,
+            "issueStore": str(repo.issues_dir),
+            "legacyExclusions": exclusions,
+            "ignoredDurablePaths": ignored,
+            "collisions": collisions,
+            "capabilities": {"issues": True, "changes": repo.has_git,
+                             "pullRequests": False, "reviews": False},
+            "nextStep": (
+                "github-local issue reconcile -R . --dry-run"
+                if collisions else
+                "github-local issue migrate -R . --dry-run"
+                if blockers else None
+            ),
+        }
+        if args.json:
+            print(json.dumps(diag, ensure_ascii=False, indent=2))
+        else:
+            print(summary)
+            print(f"Repository: {repo.owner}/{repo.name} at {repo.workflow_root}")
+            if collisions:
+                print(
+                    "These overlaps can originate from previously independent "
+                    "Issue folders or offline Git clones; a Git merge is not "
+                    "necessarily involved."
+                )
+                print(f"Conflicting Issues: {diag['affectedIssues']}")
+                _show_collisions(collisions)
+                print("No files have been changed by status.")
+                print("Next: github-local issue reconcile -R . --dry-run")
+                print("Then: github-local issue reconcile -R .  (choose each keeper interactively)")
+            if ignored:
+                print("Git ignores permanent Issue files:")
+                for path in ignored:
+                    print(f"  - {path}")
+            if exclusions:
+                print("Legacy hidden Git exclusions must be migrated:")
+                for pattern in exclusions:
+                    print(f"  - {pattern}")
+            if identity_missing:
+                print("Versioned Git repository identity is missing.")
+            if blockers and not collisions:
+                print("Next: github-local issue migrate -R . --dry-run")
+            if not blockers:
+                print("Normal Issue work can continue.")
+            print("For complete machine-readable diagnostics: github-local status -R . --json")
+        return 0
+
+    if args.command == "issue" and args.issue_command == "reconcile":
+        choices = list(args.keep_id or [])
+        report = collision_report(repo, keep_id=choices,
+                                  source_branch=args.source_branch)
+        if not args.json:
+            if report["collisions"]:
+                print(
+                    f"Reconciliation preview: {len(report['collisions'])} "
+                    "duplicate Issue numbers"
+                )
+                _show_collisions(report["collisions"], interactive=True)
+                print(report["note"])
+                for number, hits in report["references"].items():
+                    if hits:
+                        print(
+                            f"  #{number}: {len(hits)} possible Markdown text "
+                            "references to review manually"
+                        )
+            else:
+                print("OK: no Issue number collisions.")
+        if not args.dry_run and report["collisions"]:
+            if report["manualChoiceRequired"]:
+                if args.yes or args.json:
+                    raise StorageError(
+                        "ambiguous Issue numbers: --yes/--json cannot choose "
+                        "a keeper. Pass --keep-id ID once per unresolved "
+                        "collision, or rerun interactively without --yes/--json."
+                    )
+                for item in report["collisions"]:
+                    if not item["manualChoiceRequired"]:
+                        continue
+                    number = item["number"]
+                    print(f"Choose which Issue retains #{number}:")
+                    for idx, candidate in enumerate(item["candidates"], 1):
+                        print(
+                            f"  {idx}) {candidate['relativePath']} — "
+                            f"{candidate['title']} [ID {candidate['id']}]"
+                        )
+                    try:
+                        answer = input(
+                            f"Keep #{number} as Issue [1-{len(item['candidates'])}, "
+                            "Enter to abort]? "
+                        ).strip()
+                    except EOFError:
+                        answer = ""
+                    if not answer.isdigit() or not (
+                        1 <= int(answer) <= len(item["candidates"])
+                    ):
+                        print("Aborted; no Issue files were changed.")
+                        return 1
+                    choices.append(item["candidates"][int(answer) - 1]["id"])
+                report = collision_report(repo, keep_id=choices,
+                                          source_branch=args.source_branch)
+                print("Proposed renumbering after your selection:")
+                _show_collisions(report["collisions"])
+            if report["manualChoiceRequired"]:
+                raise StorageError("not all duplicate numbers have a chosen keeper")
+            if not args.yes and not _confirm(
+                "Apply these Issue renumberings and move their UUID-matched "
+                "comments? Text references will NOT change."
+            ):
+                print("Aborted; no Issue files were changed.")
+                return 1
+            report = apply_reconciliation(repo, keep_id=choices,
+                                          source_branch=args.source_branch)
+            if not args.json:
+                print("Reconciled Issue numbers. Review git diff and git status.")
+        if args.json:
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0
+
+    if args.command == "issue" and args.issue_command == "migrate":
+        from .migration import migration_report, apply_migration
+        report = migration_report(repo)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        if args.dry_run:
+            return 0
+        if not args.yes and not _confirm(
+            "Remove legacy hidden Git excludes and adopt canonical Issue files? "
+            "Git commit/push remains your responsibility."
+        ):
+            print("Aborted.")
+            return 1
+        print(json.dumps(apply_migration(repo), ensure_ascii=False, indent=2))
+        return 0
 
     if args.command == "issue" and args.issue_command == "deinit":
         count = store.count()
