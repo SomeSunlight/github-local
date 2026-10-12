@@ -1,5 +1,5 @@
 # github.local — Local Context Source
-<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.11-draft" -->
+<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.12-draft" -->
 
 ## Local Overview
 
@@ -52,17 +52,29 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: Humans and LLM agents both lose track of directory context. Making the target part of the command turns a likely silent misfile into an explicit decision that is visible in logs and prompts.
   <!-- ctx:rule id="GHLR-010" -->
 
-- **Keep each local Issue repository self-contained and movable:** Each initialized folder owns its own visible `issues/` store, numbering, stable path-independent repository identity, and repository-local workflow metadata.
-  Why: Products and extensions must be addable, removable, or moved as coherent units, and future Jira/Bitbucket synchronization needs an unambiguous local group rather than labels in a global backlog.
+- **Keep each local Issue repository an explicit, movable workflow boundary:** Each initialized folder owns a visible `issues/` store, its stable path-independent workflow repository ID, and local configuration. Inside Git, all nested Issue repositories share a short-number series per containing Git repository; Git-free folders allocate locally.
+  Why: Products and extensions remain independently identifiable for future external mappings, while one Git project provides short unambiguous Issue references.
   <!-- ctx:rule id="GHLR-011" -->
 
 - **Keep destructive Issue administration explicit and CLI-owned:** Initialization, teardown, Issue deletion, and bulk deletion must be available through github.local; destructive operations require confirmation unless the caller explicitly opts out.
   Why: Users and agents should never need to discover and manipulate hidden implementation files, while visible Markdown Issues remain intentionally inspectable project artifacts.
   <!-- ctx:rule id="GHLR-012" -->
 
-- **Keep each local Issue repository branch/worktree independent:** Ordinary Git branches and linked worktrees must resolve the same canonical backlog for an initialized local Issue repository rather than silently cloning its Issue identities or number space.
-  Why: Issue state belongs to the explicit workflow boundary declared by `issue init`, not to whichever code branch or worktree happens to be active.
+- **Couple Issue state to normal Git history:** In Git, canonical Issues, comments and durable configuration belong to the currently checked-out branch/worktree and must be commit/push/clone-able with ordinary Git; never redirect to the primary worktree or silently exclude canonical data from Git.
+  Why: The meaning of an Issue evolves with the code and project's Context. A historical commit must reproduce the corresponding historical Issue state, with normal PyCharm/Git semantics.
   <!-- ctx:rule id="GHLR-006" -->
+
+- **Separate immutable identity from short Issue numbers:** Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers.
+  Why: People communicate using `#33`, while persistent identities survive exceptional numbering changes. Only identity, not the short display number, defines the record.
+  <!-- ctx:rule id="GHLR-013" -->
+
+- **Repair rare post-merge number collisions explicitly:** Accept normal Git merges, detect different UUIDs bearing the same number, block unsafe writes, preview which Issue retains the number, and renumber others to unused integers only after confirmation. Preserve old numbers, dates and available branch provenance in the renamed Issue, and never guess the meaning of ambiguous text/commit/external references.
+  Why: Occasional coordinated offline work should remain possible without burdening routine single-owner Git use with custom merge hooks or secondary history.
+  <!-- ctx:rule id="GHLR-014" -->
+
+- **Keep lasting state Git-trackable and migrate legacy stores safely:** Use ordinary visible `.gitignore` only for locks/cursors/temporary files; never hide Issues or durable identity with `.git/info/exclude`. Provide a transparent, explicit legacy migration that preserves content and never stages/commits behind the user's back.
+  Why: A user who commits/pushes the project must not silently lose hundreds of valuable Issues because a support tool kept them outside Git.
+  <!-- ctx:rule id="GHLR-015" -->
 
 - **Let completed work leave the open backlog:** Provide explicit close/reopen semantics and automatically close an Issue when accepted/merged work carries an explicit closing reference; do not treat an arbitrary Issue mention as a closing instruction.
   Why: the open backlog should naturally shrink as accepted work completes while closure remains deliberate and inspectable.
@@ -87,8 +99,8 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: Terminal-capable agents need a predictable low-overhead contract, and the target-environment owner test succeeded without MCP.
   <!-- ctx:rule id="ONB-F40586D91A16" -->
 
-- **Keep Issue workflow state project-wide:** Ordinary Git branches and worktrees must not silently create divergent canonical backlogs or duplicate Issue identities or numbers.
-  Why: Issues may predate implementation branches and represent project workflow state rather than one code branch.
+- **Keep workflow state coherent with its Git project snapshot:** Within a Git project, code and Issue Markdown follow ordinary branches/worktrees together. UUIDs never duplicate; short numbers are unique within each integrated checkout and exceptionally reconciled after a merge of independently numbered clones.
+  Why: Historical code and its semantic Issue context must match. The earlier branch-independent backlog direction was explicitly superseded by owner decision in Issue #20.
   <!-- ctx:rule id="ONB-9FEE670D694B" -->
 
 - **Let completed work leave the open backlog deliberately:** Provide explicit close and reopen semantics, and automatically close an Issue only when accepted or merged work carries an explicit closing reference.
@@ -99,8 +111,8 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: Explicit metadata supports standard tooling without hiding parser semantics or duplicating human content.
   <!-- ctx:rule id="ONB-192F43493BCC" -->
 
-- **Serialize numbering and write Issues atomically:** Allocate repository-local monotonically increasing Issue numbers under an OS-level exclusive lock and publish new content with a same-directory atomic replace.
-  Why: Rapid or concurrent creation must not duplicate numbers, expose partial files, or leave stale process locks.
+- **Serialize shared local numbering and publish Issues atomically:** Allocate monotonically increasing Issue numbers per containing Git repository using a shared Git-local OS lock/cursor across local branches and worktrees; Git-free Issue repositories allocate locally. Publish content with same-directory atomic replacement.
+  Why: Rapid local creation must not duplicate numbers or expose partial files; separately cloned offline histories can be reconciled after Git integration.
   <!-- ctx:rule id="ONB-47F89CA128E5" -->
 
 - **Treat databases as rebuildable indexes:** If a database is added, use it only as an index or cache rebuildable from issues/ and Git state.
