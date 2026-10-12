@@ -8,13 +8,15 @@ import shutil
 import tempfile
 import time
 import unicodedata
+import uuid
+from contextlib import ExitStack
 from contextlib import AbstractContextManager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable
 
 from .models import Issue, IssueComment
-from .repository import Repository
+from .repository import Repository, _git, _git_optional
 
 
 ISSUE_RE = re.compile(r"^(?P<number>[0-9]{4,})-(?P<slug>.+)\.md$")
@@ -133,6 +135,43 @@ class IssueStore:
     def _lock_path(self) -> Path:
         return self.repository.config_dir / "locks" / "issues.lock"
 
+    def _collision_groups(self) -> dict[int, list[tuple[Path, str]]]:
+        """An Issue number may occur only once across one Git checkout."""
+        grouped: dict[int, list[tuple[Path, str]]] = {}
+        seen_ids: dict[str, Path] = {}
+        for path in self.repository.issue_paths():
+            match = ISSUE_RE.match(path.name)
+            if match is None:
+                continue
+            try:
+                lines = path.read_text(encoding="utf-8").splitlines()
+                if not lines or lines[0] != "---":
+                    continue
+                end = lines.index("---", 1)
+                meta = json.loads("\n".join(lines[1:end]))["github-local"]
+                number, issue_id = int(meta["number"]), str(meta["id"])
+            except (OSError, ValueError, KeyError, TypeError, UnicodeDecodeError) as exc:
+                raise StorageError(f"invalid Issue metadata in {path}") from exc
+            if int(match.group("number")) != number:
+                raise StorageError(f"Issue number does not match filename: {path}")
+            if issue_id in seen_ids and seen_ids[issue_id] != path:
+                raise StorageError(
+                    f"duplicate immutable Issue ID {issue_id} at {seen_ids[issue_id]} and {path}"
+                )
+            seen_ids[issue_id] = path
+            grouped.setdefault(number, []).append((path, issue_id))
+        return {number: items for number, items in grouped.items() if len(items) > 1}
+
+    def ensure_no_collisions(self) -> None:
+        conflicts = self._collision_groups()
+        if conflicts:
+            numbers = ", ".join(f"#{n}" for n in sorted(conflicts))
+            raise StorageError(
+                f"duplicate Issue numbers {numbers} across this Git checkout; "
+                "run 'github-local issue reconcile -R .' to inspect and repair; "
+                "number-dependent writes are disabled until resolution"
+            )
+
     def create(
         self,
         title: str,
@@ -143,10 +182,14 @@ class IssueStore:
         title = title.strip()
         if not title:
             raise StorageError("Issue title must not be empty")
-        with FileLock(self._lock_path):
+        with ExitStack() as locks:
+            locks.enter_context(FileLock(self.repository.allocation_lock_path))
+            if self.repository.allocation_lock_path != self._lock_path:
+                locks.enter_context(FileLock(self._lock_path))
+            self.ensure_no_collisions()
             number = self._next_number()
             now = self.clock()
-            issue_id = stable_issue_id(self.repository.repository_id, number)
+            issue_id = f"I_gl_{uuid.uuid4().hex}"
             filename = f"{number:04d}-{slugify(title)}.md"
             target = self.repository.issues_dir / filename
             metadata = {
@@ -200,6 +243,7 @@ class IssueStore:
 
     def delete(self, number: int) -> None:
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             path = self._issue_path(number)
             path.unlink()
             comments = self.repository.issues_dir / "comments" / f"{number:04d}"
@@ -211,6 +255,7 @@ class IssueStore:
 
     def delete_all(self) -> int:
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             count = sum(
                 1
                 for path in self.repository.issues_dir.glob("*.md")
@@ -223,6 +268,7 @@ class IssueStore:
 
     def close(self, number: int) -> Issue:
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             path = self._issue_path(number)
             metadata, title, body = self._read_issue(path)
             self._set_state(metadata, "CLOSED", closed_by="manual")
@@ -231,6 +277,7 @@ class IssueStore:
 
     def reopen(self, number: int) -> Issue:
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             path = self._issue_path(number)
             metadata, title, body = self._read_issue(path)
             self._set_state(metadata, "OPEN")
@@ -251,6 +298,7 @@ class IssueStore:
                 "issue edit requires --title, --body, --body-file, --add-label, or --remove-label"
             )
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             path = self._issue_path(number)
             metadata, old_title, old_body = self._read_issue(path)
             new_title = old_title if title is None else title.strip()
@@ -282,6 +330,7 @@ class IssueStore:
         if not clean:
             raise StorageError("Issue comment must not be empty")
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             self._issue_path(number)
             directory = self.repository.issues_dir / "comments" / f"{number:04d}"
             existing = sorted(directory.glob("*.md")) if directory.exists() else []
@@ -291,10 +340,13 @@ class IssueStore:
                 if numbers:
                     next_number = max(numbers) + 1
             created_at = self.clock()
-            target = directory / f"{next_number:04d}.md"
+            comment_id = f"C_gl_{uuid.uuid4().hex}"
+            target = directory / f"{comment_id}.md"
             metadata = {
                 "github-local-comment": {
                     "schema": 1,
+                    "id": comment_id,
+                    "issue_id": self.get(number).issue_id,
                     "issue": number,
                     "number": next_number,
                     "created_at": created_at,
@@ -319,10 +371,17 @@ class IssueStore:
             self._parse_comment(path, expected_issue=number)
             for path in sorted(directory.glob("*.md"))
         ]
-        return sorted(comments, key=lambda item: item.number)
+        return sorted(comments, key=lambda item: (item.created_at, item.path.name))
 
     def reconcile_closing_references(self) -> list[int]:
+        # Accepted history must not mutate a different checked-out feature branch.
+        if self.repository.has_git:
+            current = _git_optional(self.repository.git_root,
+                                    "symbolic-ref", "--quiet", "--short", "HEAD")
+            if current != self.repository.accepted_branch:
+                return []
         with FileLock(self._lock_path):
+            self.ensure_no_collisions()
             head = self.repository.accepted_head()
             if head is None:
                 return []
@@ -395,17 +454,31 @@ class IssueStore:
             issue_meta.pop("closed_by", None)
 
     def _next_number(self) -> int:
+        """One local allocator per containing Git repository, across worktrees."""
         maximum = 0
-        for path in self.repository.issues_dir.glob("*.md"):
+        candidates = self.repository.issue_paths(all_worktrees=self.repository.has_git)
+        for path in candidates:
             match = ISSUE_RE.match(path.name)
             if match:
                 maximum = max(maximum, int(match.group("number")))
 
-        next_number = maximum + 1
+        # After a fresh clone the local cursor has gone; deleted Issues still
+        # count because their numbers remain recoverable from Git history.
         path = self.repository.issue_state_path
-        if path.exists():
+        if self.repository.has_git and not path.exists():
+            history = _git(self.repository.git_root, "log", "--all", "--name-only",
+                           "--format=", "--", ":(glob)**/issues/*.md")
+            for line in history.splitlines():
+                match = ISSUE_RE.match(Path(line).name)
+                if match:
+                    maximum = max(maximum, int(match.group("number")))
+
+        next_number = maximum + 1
+        for cursor in (path, self.repository.config_dir / "issue-state.json"):
+            if not cursor.exists():
+                continue
             try:
-                payload = json.loads(path.read_text(encoding="utf-8"))
+                payload = json.loads(cursor.read_text(encoding="utf-8"))
                 if payload.get("schema") != 1:
                     raise ValueError("unsupported Issue state schema")
                 persisted = int(payload["next_number"])
@@ -413,7 +486,7 @@ class IssueStore:
                     raise ValueError("invalid next Issue number")
                 next_number = max(next_number, persisted)
             except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
-                raise StorageError(f"invalid Issue repository state: {path}") from exc
+                raise StorageError(f"invalid Issue repository state: {cursor}") from exc
         return next_number
 
     def _write_issue_state(self, next_number: int) -> None:
@@ -561,12 +634,17 @@ class IssueStore:
             if metadata["schema"] != 1 or int(metadata["issue"]) != expected_issue:
                 raise ValueError("comment metadata mismatch")
             number = int(metadata["number"])
+            comment_id = metadata.get("id")
+            if comment_id is not None and (
+                not isinstance(comment_id, str) or not comment_id.startswith("C_gl_")
+            ):
+                raise ValueError("invalid comment ID")
             created_at = str(metadata["created_at"])
             body = "\n".join(lines[end + 1 :]).rstrip()
         except (OSError, UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
             raise StorageError(f"invalid Issue comment: {path}") from exc
-        if path.stem != f"{number:04d}":
-            raise StorageError(f"Issue comment number does not match filename: {path}")
+        if path.stem != (comment_id or f"{number:04d}"):
+            raise StorageError(f"Issue comment identity does not match filename: {path}")
         return IssueComment(
             number=number,
             created_at=created_at,
