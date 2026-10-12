@@ -7,8 +7,12 @@ build/
 *.egg-info/
 .coverage
 htmlcov/
-.github-local/locks/
-.github-local/tmp/
+# >>> github-local runtime (managed)
+**/.github-local/locks/
+**/.github-local/tmp/
+**/.github-local/issue-state.json
+**/.github-local/closing-state.json
+# <<< github-local runtime (managed)
 
 # >>> ContextCanon onboarding (managed)
 /contextcanon-onboarding/
