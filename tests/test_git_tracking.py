@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -81,6 +82,7 @@ class GitTrackedWorkflowTests(unittest.TestCase):
             [sys.executable, "-m", "github_local.cli", "issue", "reconcile",
              "-R", ".", "--dry-run", "--json", "--source-branch", "Windows"],
             cwd=a, text=True, capture_output=True, check=True,
+            env={**os.environ, "PYTHONPATH": str(Path(__file__).resolve().parents[1] / "src")},
         )
         self.assertEqual(2, json.loads(preview.stdout)["collisions"][0]["rename"][0]["to"])
         self.assertEqual(1, len(collision_report(repo)["collisions"]))
@@ -88,6 +90,7 @@ class GitTrackedWorkflowTests(unittest.TestCase):
             [sys.executable, "-m", "github_local.cli", "issue", "reconcile",
              "-R", ".", "--yes", "--json", "--source-branch", "Windows"],
             cwd=a, text=True, capture_output=True, check=True,
+            env={**os.environ, "PYTHONPATH": str(Path(__file__).resolve().parents[1] / "src")},
         )
         applied = json.loads(command.stdout)
         self.assertTrue(applied["applied"])
