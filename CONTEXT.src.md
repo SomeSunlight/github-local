@@ -127,8 +127,8 @@ The first executable slice is intentionally CLI-first. It stores Issues as visib
   Why: The provider must remain usable as a local workflow surface without depending on a service or external host.
   <!-- ctx:rule id="ONB-62CF63BD255B" -->
 
-- **Treat Issue filenames as presentation:** Treat the numeric prefix and stable Issue ID as identity; the conservative Windows-safe filename slug is presentation and may change with the title.
-  Why: A title edit must not change Issue identity or make discovery platform-dependent.
+- **Use immutable Issue IDs and human-friendly mutable numbers:** Each Issue's UUID is its sole permanent technical identity. Its short numeric filename prefix is a human communication handle, normally stable but exceptionally renumbered after a confirmed offline-merge collision; the Windows-safe slug is presentation and may change with the title.
+  Why: Renumbering must preserve the underlying Issue and its historical discussion without changing identity.
   <!-- ctx:rule id="ONB-9CD288976D1B" -->
 <!-- contextcanon-placement-rules:end -->
 
