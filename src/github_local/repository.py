@@ -327,6 +327,41 @@ class Repository:
         return remove_legacy_exclusions(self.git_common_dir, self.git_root,
                                          self.workflow_root)
 
+    def ignored_durable_paths(self) -> list[str]:
+        """Check .gitignore *and* .git/info/exclude, including already tracked files."""
+        if not self.has_git:
+            return []
+        candidates = (
+            self.issues_dir / "__github_local_tracking_check__.md",
+            self.config_path,
+            self.git_root / CONFIG_DIR / "git-identity.json",
+        )
+        ignored = []
+        for path in candidates:
+            relative = path.relative_to(self.git_root).as_posix()
+            check = _run_git(self.git_root, "check-ignore", "--no-index",
+                             "--quiet", "--", relative)
+            if check.returncode == 0:
+                ignored.append(relative)
+        return ignored
+
+    def ensure_trackable(self) -> None:
+        if not self.has_git:
+            return
+        ignored = self.ignored_durable_paths()
+        if ignored:
+            raise RepositoryError(
+                f"canonical workflow files are ignored by Git: {', '.join(ignored)}. "
+                "Run 'github-local issue migrate -R .' for legacy exclusions; "
+                "review .gitignore for any remaining ignore patterns before changing Issues."
+            )
+        if self.git_repository_id is None:
+            raise RepositoryError(
+                "missing versioned Git repository identity; run 'github-local issue migrate -R .' "
+                "or 'github-local issue init' before changing Issues"
+            )
+
+
     @property
     def accepted_ref(self) -> str:
         if not self.accepted_branch:
