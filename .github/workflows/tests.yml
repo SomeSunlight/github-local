@@ -33,3 +33,11 @@ jobs:
             echo "Expected installed Git provenance: $expected" >&2
             exit 1
           fi
+          # The owner's real command installs a moving branch, not a pinned SHA.
+          uv tool install --force --python "$(command -v python)" "git+https://github.com/SomeSunlight/github-local.git@issue-20-git-tracked-workflow-state"
+          branch_version="$("${UV_TOOL_BIN_DIR}/github-local" --version)"
+          echo "$branch_version"
+          if ! [[ "$branch_version" =~ ^github-local\ 0[.]1[.]0\ \(issue-20-git-tracked-workflow-state@[0-9a-f]{7}\)$ ]]; then
+            echo "Git branch installation did not preserve requested ref and commit" >&2
+            exit 1
+          fi
