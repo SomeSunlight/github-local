@@ -75,13 +75,18 @@ If a desired file is already Git-tracked, it is welcome. A tracked `issues/` dir
 
 ## Comments and lifecycle
 
-New comments use UUID filenames so independent Git branches can add comments without choosing the same name:
+Comments are files designed for **human reading and chronological discussion**. Their filenames start with a per-Issue sequence number and a short summary extracted from the first nonempty line of the comment, followed by an eight-character UUID suffix:
 
 ```text
-issues/comments/0033/C_gl_<UUID-hex>.md
+issues/comments/0033/
+  0001-fehler-reproduziert-2e7943a4.md
+  0002-ursache-identifiziert-417bb82e.md
+  0003-korrektur-getestet-990d7c8f.md
 ```
 
-Each comment front matter includes its own immutable `id`, its parent's immutable `issue_id`, the displayed Issue number, and its creation date. Comments keep a small local display sequence; their UUID is the durable identity. Legacy numeric comment filenames remain readable until explicit migration.
+The sequence is the primary sort order for both file browsers and `issue view --comments`. The complete immutable `C_gl_...` ID and parent `issue_id` are stored inside JSON front matter; the short suffix protects against same-name collisions across independent Git branches. Within one Git repository, linked worktrees coordinate comment allocation under a shared lock. Offline clones may independently assign an equal sequence number; in that rare case the two unique filenames survive Git merge and API display resolves ties by creation timestamp and filename. Such ties are **not** automatically renumbered.
+
+Migration preserves old comment numbers and discussion bodies. It converts `0001.md` (and optional earlier `C_gl_<UUID>.md`) to the new human-friendly convention. Normal reads continue accepting the older numeric and UUID-only filenames; migration never has to rewrite old discussions just to read them.
 
 Issue creation, edits, labels, comments, and state transitions are atomic Markdown writes under repository-local locks. The Git index is not manipulated by the application. `issue delete` and `issue deinit` remain confirmation-protected; deinit preserves the shared root Git identity when nested repositories use it.
 
