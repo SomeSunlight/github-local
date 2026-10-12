@@ -285,3 +285,14 @@ Comment-file owner checkpoint: new and migrated comments now use `0001-short-com
 - [x] Verify latest full suite and keep existing Draft PR #21 unmerged for owner acceptance.
 
 Version-provenance review checkpoint: 71 deterministic Python tests passed and GitHub Actions run #38306446929 installed this exact public Git commit via `uv tool install` **and** installed the current development branch via `uv tool install`. Observed outputs on head `a6a34a7`: `github-local 0.1.0 (detached@a6a34a7)` and `github-local 0.1.0 (issue-20-git-tracked-workflow-state@a6a34a7)`. `src/github_local/version.py` now reads the standardized PEP 610 direct URL provenance of actual installed Git artifacts while leaving the canonical release version in `pyproject.toml` unchanged, as required by inherited CCW-014. ContextCanon already provided the rule and reference implementation; no change to authored Context is needed for this integration fix. Do not merge Draft PR #21 without owner approval; exact-head CI remains the final gate.
+
+## Owner review: post-migration collision diagnostics and safe arbitration — Issue #20
+
+**Active Fast Track continuation** (2026-10-12). Real P1-LF workspace has previously independent Issue stores `F2/issues`, `doc/issues`, and root `issues` migrated into one Git-wide number series. `github-local status -R .` currently dumps verbose raw Python dictionaries, silently proposes keeper by lexicographic pathname (not owner choice), and shows `source_branch: unknown` despite no evidence of a merge. Owner specifically asks for a human-oriented OK/WARNING summary and an explanation of what has to be done. This is a usability/safety deficiency in the owner-approved issue #20 collision workflow.
+
+- [x] Inspect current status and collision-selection implementation and actual owner example (#1 and #2).
+- [ ] Show prominent plain-language OK / ACTION REQUIRED diagnosis first; show concise collision table with short paths/titles rather than raw Python structures; preserve structured --json with clear summary and action fields.
+- [ ] Distinguish legacy independent-store number overlap from normal Git merge; do not pretend the source branch is known. Do not automatically choose a keeper on insufficient evidence.
+- [ ] Support explicit, human-reviewable keeper selections for **multiple** collisions (repeated `--keep-id`), with safe preview and no silent batch renames.
+- [ ] Add regression tests for 3 nested stores after migration with two overlapping numbers, JSON/status diagnostics and fail-safe reconcile, plus ordinary merged-clone case.
+- [ ] Update README, status help and storage docs; verify exact-head CI and keep Draft PR #21 unmerged.
