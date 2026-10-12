@@ -253,8 +253,10 @@ Issue #20 review checkpoint: Draft PR #21 is open (unmerged) against `main`; ini
 
 During real P1/F2 migration, `issue migrate --dry-run` rejected `issues/0004-abc.md` because it was human-authored Markdown without machine front matter. The owner's requirement is to *add* missing metadata during migration (not demand that it pre-exist). Issue #20 already authorizes this migration scope; keep the same review PR and Fast Track.
 
-- [ ] Accept legacy plain Markdown with a valid Issue filename and `# Title`; supply UUID, schema, short filename number, default OPEN state and marked import timestamp while retaining all authored Markdown.
-- [ ] Make `--dry-run` count this conversion without writing, but continue to reject malformed or ambiguous existing structured front matter.
-- [ ] Include plain legacy numbered comments with UUID and parent ID, and preserve older correctly structured records.
-- [ ] Add end-to-end migration tests for a nested Issue repository, idempotence, unrelated files and no data loss; update storage migration docs.
-- [ ] Verify GitHub Actions on final review head, then invite owner to retry F2. The ContextCanon generated baseline is still the owner-controlled merge gate.
+- [x] Accept legacy plain Markdown with a valid Issue filename and `# Title`; supply UUID, schema, short filename number, default OPEN state and marked import timestamp while retaining all authored Markdown.
+- [x] Make `--dry-run` count this conversion without writing, but continue to reject malformed or ambiguous existing structured front matter.
+- [x] Include plain legacy numbered comments with UUID and parent ID, and preserve older correctly structured records.
+- [x] Add end-to-end migration tests for a nested Issue repository, idempotence, unrelated files and no data loss; update storage migration docs.
+- [x] Verify 64 deterministic Python tests on review candidate and invite owner to retry F2. Preserve the owner-controlled exact-head ContextCanon merge gate.
+
+F2 owner-regression checkpoint: the formerly fatal plain `0004-abc.md` is now recognized and previewed without writes; confirmed migration adds explicit front matter, retains issue number/title/body, imports numbered plain comments with UUID linkage, and remains idempotent. Strict failures remain for malformed structured metadata. 64 deterministic Python tests passed on commit `a2c9cb5e` (GitHub Actions run #38300411845). Generated ContextCanon was already built/checked and pushed by the owner prior to this Python/docs-only correction; its final merge-gate check remains required if needed. No merge requested or performed.
