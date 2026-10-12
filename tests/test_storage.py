@@ -89,48 +89,50 @@ class StorageTests(unittest.TestCase):
         self.assertEqual(12, len(list((root / "issues").glob("*.md"))))
         self.assertEqual([], list((root / "issues").glob(".issue-*.tmp")))
 
-    def test_branch_switch_keeps_one_untracked_issue_backlog(self):
+    def test_branch_switch_restores_historical_issue_snapshot(self):
         temp, root, repo, store = self.make_repo()
         self.addCleanup(temp.cleanup)
         self.commit_base(root)
         store.create("Before branch switch")
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", "add first Issue")
         self.git(root, "switch", "-q", "-c", "feature")
-        discovered = Repository.discover(root)
-        self.assertEqual(root.resolve(), discovered.workflow_root)
-        self.assertEqual([1], [item.number for item in IssueStore(discovered).list()])
-        self.assertEqual(2, IssueStore(discovered).create("On feature").number)
+        self.assertEqual(2, IssueStore(Repository.discover(root)).create("On feature").number)
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", "add second Issue")
         self.git(root, "switch", "-q", "main")
+        self.assertEqual([1], [item.number for item in IssueStore(Repository.discover(root)).list()])
+        self.assertEqual("", self.git(root, "status", "--porcelain").stdout.strip())
+        self.git(root, "switch", "-q", "feature")
         self.assertEqual([1, 2], [item.number for item in IssueStore(Repository.discover(root)).list()])
-        status = self.git(root, "status", "--short").stdout
-        self.assertNotIn("issues/", status)
 
-    def test_linked_worktree_uses_primary_issue_store_and_shared_allocator(self):
+    def test_linked_worktree_has_own_issues_but_shared_allocator(self):
         temp, root, repo, store = self.make_repo()
         self.addCleanup(temp.cleanup)
         self.commit_base(root)
         self.assertEqual(1, store.create("Primary").number)
-
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", "add workflow state")
         linked = root.parent / "linked"
         self.git(root, "worktree", "add", "-q", "-b", "feature", str(linked))
         linked_repo = Repository.discover(linked)
-        self.assertEqual(linked.resolve(), linked_repo.root)
-        self.assertEqual(root.resolve(), linked_repo.workflow_root)
-        self.assertEqual(repo.config_dir, linked_repo.config_dir)
-        self.assertEqual(root / "issues", linked_repo.issues_dir)
-
+        self.assertEqual(linked.resolve(), linked_repo.workflow_root)
+        self.assertEqual(linked / "issues", linked_repo.issues_dir)
+        self.assertEqual(repo.git_repository_id, linked_repo.git_repository_id)
         created = IssueStore(linked_repo).create("Linked")
         self.assertEqual(2, created.number)
-        self.assertEqual("issues/0002-linked.md", created.path.as_posix())
-        self.assertEqual([1, 2], [item.number for item in IssueStore(repo).list()])
+        self.assertEqual([1], [item.number for item in IssueStore(repo).list()])
+        self.assertEqual([1, 2], [item.number for item in IssueStore(linked_repo).list()])
 
     def test_concurrent_creation_across_worktrees_has_unique_numbers(self):
         temp, root, repo, store = self.make_repo()
         self.addCleanup(temp.cleanup)
         self.commit_base(root)
+        self.git(root, "add", "-A")
+        self.git(root, "commit", "-qm", "add workflow configuration")
         linked = root.parent / "linked"
         self.git(root, "worktree", "add", "-q", "-b", "feature", str(linked))
         linked_repo = Repository.discover(linked)
-
         results = []
         errors = []
         barrier = threading.Barrier(12)
@@ -139,8 +141,7 @@ class StorageTests(unittest.TestCase):
             try:
                 barrier.wait()
                 target_repo = repo if index % 2 == 0 else linked_repo
-                issue = IssueStore(target_repo).create(f"Cross worktree {index}")
-                results.append(issue.number)
+                results.append(IssueStore(target_repo).create(f"Concurrent {index}").number)
             except BaseException as exc:
                 errors.append(exc)
 
@@ -149,10 +150,10 @@ class StorageTests(unittest.TestCase):
             thread.start()
         for thread in threads:
             thread.join()
-
         self.assertEqual([], errors)
         self.assertEqual(list(range(1, 13)), sorted(results))
-        self.assertEqual(12, len(list((root / "issues").glob("*.md"))))
+        self.assertEqual(6, len(list((root / "issues").glob("*.md"))))
+        self.assertEqual(6, len(list((linked / "issues").glob("*.md"))))
 
     def test_legacy_visible_config_remains_readable_without_migration(self):
         temp = tempfile.TemporaryDirectory()
@@ -190,7 +191,7 @@ class StorageTests(unittest.TestCase):
         self.assertEqual(repo.repository_id, discovered.repository_id)
         self.assertEqual([1], [item.number for item in IssueStore(discovered).list()])
 
-    def test_tracked_issues_are_rejected_explicitly(self):
+    def test_tracked_issue_files_do_not_block_initialization(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         root = Path(temp.name)
@@ -199,9 +200,9 @@ class StorageTests(unittest.TestCase):
         issues.mkdir()
         (issues / "0001-tracked.md").write_text("# tracked\n", encoding="utf-8")
         self.git(root, "add", "issues/0001-tracked.md")
-
-        with self.assertRaisesRegex(RepositoryError, "outside ordinary Git branch tracking"):
-            Repository.initialize(root, owner="acme", name="demo")
+        repo = Repository.initialize(root, owner="acme", name="demo")
+        self.assertEqual(root.resolve(), repo.workflow_root)
+        self.assertEqual([], repo.legacy_exclusions())
 
     def test_close_reopen_and_state_filter(self):
         temp, root, repo, store = self.make_repo()
@@ -236,8 +237,9 @@ class StorageTests(unittest.TestCase):
         issue = store.create("Discuss")
         first = store.comment(issue.number, "First comment")
         second = store.comment(issue.number, "Second\n\nMarkdown comment")
-        self.assertEqual("issues/comments/0001/0001.md", first.path.as_posix())
-        self.assertEqual("issues/comments/0001/0002.md", second.path.as_posix())
+        self.assertRegex(first.path.as_posix(), r"^issues/comments/0001/C_gl_[0-9a-f]{32}\\.md$")
+        self.assertRegex(second.path.as_posix(), r"^issues/comments/0001/C_gl_[0-9a-f]{32}\\.md$")
+        self.assertNotEqual(first.path, second.path)
         restarted = IssueStore(repo)
         self.assertEqual(
             ["First comment", "Second\n\nMarkdown comment"],
