@@ -52,3 +52,10 @@ Issue #14 changes one agent-facing safety property deliberately: ordinary Issue 
 The new contract makes the destination explicit. `-R .` is the concise local form: it resolves the nearest folder that was explicitly initialized with `github-local issue init`. An omitted selector is a usage error rather than a guess.
 
 This adds a few characters to each command but removes a more expensive failure mode for terminal-capable agents: silently creating, editing, or closing the right Issue number in the wrong product backlog.
+
+
+## Issue #20 — changed storage and agent contract (2026-10-12)
+
+The original corporate Copilot test validated the CLI-first approach but did **not** test the newer Git-tracked Issue history or offline merge reconciliation. The owner later identified that the old branch-independent local-only store had unintuitively excluded valuable Issues from normal Git backup. The proposed correction preserves terminal-first `-R` selection and Markdown visibility while making `git commit`/`git push` responsible for durable Issue history.
+
+New discoverability and safety: `github-local status -R . --json` reports selected Issue root, containing Git root, canonical paths, hidden exclusions and collisions without mutating project state; `issue migrate --dry-run` previews legacy adoption; `issue reconcile --dry-run --json` previews rare conflicting Issue numbers. Agents must **not** assume that `issue create` automatically stages or commits Markdown. Actual target-environment revalidation of the new workflow remains an owner test, not a claim made by existing historical evidence.
