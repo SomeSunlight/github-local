@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .repository import Repository, _ensure_gitignore, _git_identity
-from .storage import FileLock, IssueStore, ISSUE_RE, StorageError, _utc_now
+from .storage import FileLock, IssueStore, ISSUE_RE, StorageError, _utc_now, comment_filename
 
 
 ISSUE_UUID = re.compile(r"^I_gl_[0-9a-f]{32}$")
@@ -224,7 +224,13 @@ def apply_migration(repo: Repository) -> dict:
                         cid = f"C_gl_{uuid.uuid4().hex}"
                         cm["id"] = cid
                     cm["issue_id"] = meta["id"]
-                    target = comment.with_name(f"{cid}.md")
+                    # Prefix keeps the original discussion sequence visible;
+                    # the summary aids humans and the short ID prevents Git
+                    # filename conflicts from independent branches.
+                    target = comment.with_name(
+                        comment_filename(int(cm["number"]),
+                                         "\n".join(comment_content), cid)
+                    )
                     if target != comment and target.exists():
                         raise StorageError(f"comment destination already exists: {target}")
                     if (plain_comment or target != comment
