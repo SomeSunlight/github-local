@@ -278,8 +278,10 @@ Comment-file owner checkpoint: new and migrated comments now use `0001-short-com
 **Active Fast Track continuation** (2026-10-12). Existing ContextCanon Development Workflow rules CCW-013/014 and required `version-provenance-python.md` already prescribe checkout provenance while keeping the canonical `pyproject.toml` release version stable. `src/github_local/version.py` implements checkout display but `uv tool install git+...@branch` installs an artifact without a checkout, so the owner sees `0.1.0` for every independently tested commit.
 
 - [x] Inspect imported CCW-013/014 and Python version-provenance reference; distinguish stable release version from unique Git revision.
-- [ ] Extend `github-local --version` to read the standard installed `direct_url.json` VCS provenance (requested Git ref + immutable commit) when no source checkout is available.
-- [ ] Preserve editable-checkout, detached/dirty, local/wheel distribution and malformed/missing metadata behavior; avoid network calls and runtime dependencies.
-- [ ] Test end-to-end installed Git URL with `uv` if CI supports it, and add deterministic unit/CLI regression tests.
-- [ ] Document exact `uv tool install --force git+...@branch` and how to verify installed Git revision, without micro-bumping the release version contrary to CCW-014.
-- [ ] Verify latest full suite and keep existing Draft PR #21 unmerged for owner acceptance.
+- [x] Extend `github-local --version` to read the standard installed `direct_url.json` VCS provenance (requested Git ref + immutable commit) when no source checkout is available.
+- [x] Preserve editable-checkout, detached/dirty, local/wheel distribution and malformed/missing metadata behavior; avoid network calls and runtime dependencies.
+- [x] Test end-to-end installed Git URL with `uv` if CI supports it, and add deterministic unit/CLI regression tests.
+- [x] Document exact `uv tool install --force git+...@branch` and how to verify installed Git revision, without micro-bumping the release version contrary to CCW-014.
+- [x] Verify latest full suite and keep existing Draft PR #21 unmerged for owner acceptance.
+
+Version-provenance review checkpoint: 71 deterministic Python tests passed and GitHub Actions run #38306446929 installed this exact public Git commit via `uv tool install` **and** installed the current development branch via `uv tool install`. Observed outputs on head `a6a34a7`: `github-local 0.1.0 (detached@a6a34a7)` and `github-local 0.1.0 (issue-20-git-tracked-workflow-state@a6a34a7)`. `src/github_local/version.py` now reads the standardized PEP 610 direct URL provenance of actual installed Git artifacts while leaving the canonical release version in `pyproject.toml` unchanged, as required by inherited CCW-014. ContextCanon already provided the rule and reference implementation; no change to authored Context is needed for this integration fix. Do not merge Draft PR #21 without owner approval; exact-head CI remains the final gate.
