@@ -2,8 +2,8 @@
   "changes": [],
   "compiler_version": "0.8.0",
   "digests": {
-    "normalized": "faf23f7ffb5772265a9d6919c31e6a5fa2abb99cfd4db645d9ecfb500480d7c6",
-    "package": "e259b89184247430bf66727e7f7f9dce3edcbe057a2d5eb7ab3b0f5b478af430"
+    "normalized": "84ba26292adb540ccfe2e2c63c94bde244feaba933c922e96af7dc744d339297",
+    "package": "f1cd412cb4af5db644c41a572b2cbd8126ed86a40da70a44a99577fef174c37c"
   },
   "files": [
     {
@@ -13,8 +13,8 @@
     },
     {
       "path": "CONTEXT.md",
-      "sha256": "2aad5a66e2abfbd3ef975bb36ecf7860ed8627093e25e286a67092ae6ceb3824",
-      "size": 24092
+      "sha256": "6d2d88d43894720212aab56a570c4736882f1899a1341aac6d2ab8dee9e80c00",
+      "size": 24451
     },
     {
       "path": "CONTEXT/README.md",
@@ -43,8 +43,8 @@
     },
     {
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/README.md",
-      "sha256": "75392fc1f3d7f2940ffe6c34eef6a8cd76d7bd347e1f30f7d1d6972d65fdf455",
-      "size": 12600
+      "sha256": "fe6201e4a08dc026e8df00f5e40fd87019c1cffee6dc43934f8773a6d95cc679",
+      "size": 15763
     },
     {
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/docs/agent-validation.md",
@@ -63,8 +63,8 @@
     },
     {
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md",
-      "sha256": "f710941916de7a41ca7462206de339f2d1127ee0c4deb065d166d3f1bd6ff8d3",
-      "size": 10298
+      "sha256": "172313dee16cc77db30937994eca877ff42107984328270f0bc11f11cee6e16b",
+      "size": 11458
     },
     {
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md",
@@ -98,7 +98,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.13-draft"
+    "version": "0.1.14-draft"
   },
   "parents": [],
   "removed_rules": [],
@@ -379,9 +379,9 @@
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
-      "statement": "Accept normal Git merges, detect different UUIDs bearing the same number, block unsafe writes, preview which Issue retains the number, and renumber others to unused integers only after confirmation. Preserve old numbers, dates and available branch provenance in the renamed Issue, and never guess the meaning of ambiguous text/commit/external references.",
-      "title": "Repair rare post-merge number collisions explicitly",
-      "why": "Occasional coordinated offline work should remain possible without burdening routine single-owner Git use with custom merge hooks or secondary history."
+      "statement": "Duplicates may arise from independently numbered legacy subprojects being migrated into one Git repository or from ordinary Git merges of offline clones. Present a prominent actionable status and a human-readable list of the competing Issues. Block ambiguous writes and never select a keeper from arbitrary filename/path sorting; infer one only from unambiguous Git ancestry or explicit owner choice. Support owner-reviewed selection for multiple collisions, renumber losers to free integers only after confirmation, and preserve old numbers, dates, original paths and verified branch provenance in the affected Issues. Do not rewrite ambiguous text/commit/external references by guesswork.",
+      "title": "Diagnose and explicitly reconcile duplicate Issue numbers without guessing",
+      "why": "A migration of legitimate older backlogs is not itself a Git conflict, and human-readable diagnostics plus deliberate keeper selection prevent silently changing the wrong Issue's identity or history."
     },
     {
       "group": "Rules",

@@ -8,7 +8,7 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.13-draft`
+**Context version:** `0.1.14-draft`
 
 **Resulting imported Contexts:**
 
@@ -251,9 +251,9 @@ In Git, canonical Issues, comments and durable configuration belong to the curre
 
 Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers. Comment Markdown filenames must start with a sortable per-Issue sequence and readable summary; a short UUID suffix prevents parallel Git branches from overwriting each other's comments.
 
-#### `GHLR-014` — Repair rare post-merge number collisions explicitly
+#### `GHLR-014` — Diagnose and explicitly reconcile duplicate Issue numbers without guessing
 
-Accept normal Git merges, detect different UUIDs bearing the same number, block unsafe writes, preview which Issue retains the number, and renumber others to unused integers only after confirmation. Preserve old numbers, dates and available branch provenance in the renamed Issue, and never guess the meaning of ambiguous text/commit/external references.
+Duplicates may arise from independently numbered legacy subprojects being migrated into one Git repository or from ordinary Git merges of offline clones. Present a prominent actionable status and a human-readable list of the competing Issues. Block ambiguous writes and never select a keeper from arbitrary filename/path sorting; infer one only from unambiguous Git ancestry or explicit owner choice. Support owner-reviewed selection for multiple collisions, renumber losers to free integers only after confirmation, and preserve old numbers, dates, original paths and verified branch provenance in the affected Issues. Do not rewrite ambiguous text/commit/external references by guesswork.
 
 #### `GHLR-015` — Keep lasting state Git-trackable and migrate legacy stores safely
 
