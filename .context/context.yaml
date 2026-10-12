@@ -9,7 +9,7 @@ compiler_version: "0.8.0"
 node:
   id: "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2"
   name: "github.local"
-  version: "0.1.12-draft"
+  version: "0.1.13-draft"
 
 # Accepted semantic Parent packages. Locators are discovery metadata; build uses only exact pins.
 parents: []
@@ -58,7 +58,7 @@ local:
     - {"id": "GHLR-011", "title": "Keep each local Issue repository an explicit, movable workflow boundary", "group": "Rules"}
     - {"id": "GHLR-012", "title": "Keep destructive Issue administration explicit and CLI-owned", "group": "Rules"}
     - {"id": "GHLR-006", "title": "Couple Issue state to normal Git history", "group": "Rules"}
-    - {"id": "GHLR-013", "title": "Separate immutable identity from short Issue numbers", "group": "Rules"}
+    - {"id": "GHLR-013", "title": "Separate immutable identity from short, human-readable identifiers", "group": "Rules"}
     - {"id": "GHLR-014", "title": "Repair rare post-merge number collisions explicitly", "group": "Rules"}
     - {"id": "GHLR-015", "title": "Keep lasting state Git-trackable and migrate legacy stores safely", "group": "Rules"}
     - {"id": "GHLR-007", "title": "Let completed work leave the open backlog", "group": "Rules"}
@@ -113,7 +113,7 @@ official:
     - {"id": "GHLR-011", "title": "Keep each local Issue repository an explicit, movable workflow boundary", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-012", "title": "Keep destructive Issue administration explicit and CLI-owned", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-006", "title": "Couple Issue state to normal Git history", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
-    - {"id": "GHLR-013", "title": "Separate immutable identity from short Issue numbers", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
+    - {"id": "GHLR-013", "title": "Separate immutable identity from short, human-readable identifiers", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-014", "title": "Repair rare post-merge number collisions explicitly", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-015", "title": "Keep lasting state Git-trackable and migrate legacy stores safely", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "GHLR-007", "title": "Let completed work leave the open backlog", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
@@ -248,5 +248,5 @@ resources:
 
 # Exact deterministic identities. package_digest covers CONTEXT.md plus CONTEXT/ resources.
 package:
-  normalized_digest: "2c816016be6bd92f846b6157be66fd3ab1c9d195f2bc76329ddad2d382fc4a7d"
-  package_digest: "cdb06d34337a48c1fa620e69f58bdf1dc5123853b6aca4c787bf1d53775e5d5c"
+  normalized_digest: "faf23f7ffb5772265a9d6919c31e6a5fa2abb99cfd4db645d9ecfb500480d7c6"
+  package_digest: "e259b89184247430bf66727e7f7f9dce3edcbe057a2d5eb7ab3b0f5b478af430"

@@ -8,7 +8,7 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.12-draft`
+**Context version:** `0.1.13-draft`
 
 **Resulting imported Contexts:**
 
@@ -247,9 +247,9 @@ Initialization, teardown, Issue deletion, and bulk deletion must be available th
 
 In Git, canonical Issues, comments and durable configuration belong to the currently checked-out branch/worktree and must be commit/push/clone-able with ordinary Git; never redirect to the primary worktree or silently exclude canonical data from Git.
 
-#### `GHLR-013` — Separate immutable identity from short Issue numbers
+#### `GHLR-013` — Separate immutable identity from short, human-readable identifiers
 
-Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers.
+Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers. Comment Markdown filenames must start with a sortable per-Issue sequence and readable summary; a short UUID suffix prevents parallel Git branches from overwriting each other's comments.
 
 #### `GHLR-014` — Repair rare post-merge number collisions explicitly
 

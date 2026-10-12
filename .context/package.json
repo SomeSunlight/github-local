@@ -2,8 +2,8 @@
   "changes": [],
   "compiler_version": "0.8.0",
   "digests": {
-    "normalized": "2c816016be6bd92f846b6157be66fd3ab1c9d195f2bc76329ddad2d382fc4a7d",
-    "package": "cdb06d34337a48c1fa620e69f58bdf1dc5123853b6aca4c787bf1d53775e5d5c"
+    "normalized": "faf23f7ffb5772265a9d6919c31e6a5fa2abb99cfd4db645d9ecfb500480d7c6",
+    "package": "e259b89184247430bf66727e7f7f9dce3edcbe057a2d5eb7ab3b0f5b478af430"
   },
   "files": [
     {
@@ -13,8 +13,8 @@
     },
     {
       "path": "CONTEXT.md",
-      "sha256": "9af2531a0c47773e770b0b757bba986cfbdaeeeb74d28d77b295c4b4eddd72c8",
-      "size": 23892
+      "sha256": "2aad5a66e2abfbd3ef975bb36ecf7860ed8627093e25e286a67092ae6ceb3824",
+      "size": 24092
     },
     {
       "path": "CONTEXT/README.md",
@@ -63,8 +63,8 @@
     },
     {
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md",
-      "sha256": "b84e415c2f90da0465fcd00c3541c35f6f8e585ef6b309e6eaf392cd263b7bdc",
-      "size": 8417
+      "sha256": "f710941916de7a41ca7462206de339f2d1127ee0c4deb065d166d3f1bd6ff8d3",
+      "size": 10298
     },
     {
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md",
@@ -98,7 +98,7 @@
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.12-draft"
+    "version": "0.1.13-draft"
   },
   "parents": [],
   "removed_rules": [],
@@ -369,9 +369,9 @@
       "modifications": [],
       "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "origin_node_name": "github.local",
-      "statement": "Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers.",
-      "title": "Separate immutable identity from short Issue numbers",
-      "why": "People communicate using `#33`, while persistent identities survive exceptional numbering changes. Only identity, not the short display number, defines the record."
+      "statement": "Every new Issue and comment has a separately generated immutable UUID in marked front matter. Within one Git repository allocate monotonically increasing short Issue numbers using a shared local lock/cursor; independent offline clones may temporarily allocate equal numbers. Comment Markdown filenames must start with a sortable per-Issue sequence and readable summary; a short UUID suffix prevents parallel Git branches from overwriting each other's comments.",
+      "title": "Separate immutable identity from short, human-readable identifiers",
+      "why": "People communicate using `#33` and browse discussions using `0001`, `0002`, `0003`; opaque UUID-only filenames and randomly ordered comments destroy that human workflow. The internal UUID, not the short display number, remains the technical identity."
     },
     {
       "group": "Rules",

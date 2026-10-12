@@ -65,7 +65,9 @@ git add .gitignore .github-local/ issues/
 git commit -m "Version local Issues with project"
 ```
 
-Run migration separately for every initialized nested Issue repository that still has old hidden exclusions. It removes only matching legacy exclude entries and upgrades legacy Issue/comment IDs, while retaining Issue numbers, titles, comments, and their discussion. It does **not** invoke `git add`, modify the Git index, or push to any remote. Review your own `.gitignore` for additional rules that might exclude Issues. The status command reports ignored canonical paths.
+Run migration separately for every initialized nested Issue repository that still has old hidden exclusions. The migration also **adopts existing plain Markdown Issues** whose filenames have the form `0004-abc.md` and whose content begins with `# Title`. It adds machine-owned JSON front matter with a fresh immutable UUID, the **existing filename number**, an initial `OPEN` state, and an import record. The first timestamps use the file's last modification time as a best-effort estimate, not a verified original creation date. Numbered plain Markdown comments can likewise acquire UUIDs and an immutable parent Issue ID. In the `--dry-run` report, `plainMarkdownIssues` and `plainMarkdownComments` count records that need this conversion; the dry run creates no metadata or UUIDs. Files that already contain invalid structured front matter, or numbered files without an Issue title, still fail explicitly instead of being silently overwritten.
+
+It removes only matching legacy exclude entries and upgrades legacy Issue/comment IDs, while retaining Issue numbers, titles, comments, and their discussion. It does **not** invoke `git add`, modify the Git index, or push to any remote. Review your own `.gitignore` for additional rules that might exclude Issues. The status command reports ignored canonical paths.
 
 A previously branch-independent backlog is associated with the worktree where it currently resides at migration time; commit it before switching branches. For existing linked worktrees, make sure your intended canonical branch has the records before checkout.
 
@@ -73,13 +75,18 @@ If a desired file is already Git-tracked, it is welcome. A tracked `issues/` dir
 
 ## Comments and lifecycle
 
-New comments use UUID filenames so independent Git branches can add comments without choosing the same name:
+Comments are files designed for **human reading and chronological discussion**. Their filenames start with a per-Issue sequence number and a short summary extracted from the first nonempty line of the comment, followed by an eight-character UUID suffix:
 
 ```text
-issues/comments/0033/C_gl_<UUID-hex>.md
+issues/comments/0033/
+  0001-fehler-reproduziert-2e7943a4.md
+  0002-ursache-identifiziert-417bb82e.md
+  0003-korrektur-getestet-990d7c8f.md
 ```
 
-Each comment front matter includes its own immutable `id`, its parent's immutable `issue_id`, the displayed Issue number, and its creation date. Comments keep a small local display sequence; their UUID is the durable identity. Legacy numeric comment filenames remain readable until explicit migration.
+The sequence is the primary sort order for both file browsers and `issue view --comments`. The complete immutable `C_gl_...` ID and parent `issue_id` are stored inside JSON front matter; the short suffix protects against same-name collisions across independent Git branches. Within one Git repository, linked worktrees coordinate comment allocation under a shared lock. Offline clones may independently assign an equal sequence number; in that rare case the two unique filenames survive Git merge and API display resolves ties by creation timestamp and filename. Such ties are **not** automatically renumbered.
+
+Migration preserves old comment numbers and discussion bodies. It converts `0001.md` (and optional earlier `C_gl_<UUID>.md`) to the new human-friendly convention. **The read-only dry run reports `commentFileRenames`**, including UUID-only names that already have valid metadata; `legacyComments` counts missing or obsolete IDs separately. Normal reads continue accepting the older numeric and UUID-only filenames. Running migration a second time is safe and retains existing full UUIDs.
 
 Issue creation, edits, labels, comments, and state transitions are atomic Markdown writes under repository-local locks. The Git index is not manipulated by the application. `issue delete` and `issue deinit` remain confirmation-protected; deinit preserves the shared root Git identity when nested repositories use it.
 
