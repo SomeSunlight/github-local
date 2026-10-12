@@ -243,6 +243,8 @@ Purpose: keep code and Markdown Issues in one ordinary Git history, with one sha
 - [x] Address change links, closing references, comments, and legacy format compatibility; add focused regression tests.
 - [x] Update authored Context rules, README, storage, architecture, and CLI compatibility documentation.
 - [ ] Run complete deterministic tests on exact review head and ContextCanon build/check. GitHub Actions verifies Python tests; generated ContextCanon output will be regenerated and checked at the owner merge gate (not available in this GitHub-API-only editing runtime).
-- [ ] Open Draft PR for owner review; **never merge without explicit owner approval**.
+- [x] Open Draft PR #21 for owner review; **never merge without explicit owner approval**.
 
 Exit: normal Git clone/switch/merge/push carries Issue state alongside code; exceptional collisions are diagnosed and repaired without silently changing unknown references. Full merge gate follows owner review.
+
+Issue #20 review checkpoint: Draft PR #21 is open (unmerged) against `main`; initial head `68960bd2` passed 61 deterministic Python tests in GitHub Actions run #38289023752. The post-PR plan checkpoint changes only this document; verify the final exact head before merge. ContextCanon generated outputs are intentionally pending owner merge-gate regeneration/check. Review branch must remain open until explicit owner approval.
