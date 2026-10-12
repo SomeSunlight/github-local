@@ -9,6 +9,7 @@ from .storage import IssueStore, slugify
 
 CONVENTIONAL_BRANCH_RE = re.compile(r"^issue-(?P<number>[0-9]+)(?:-|$)")
 BRANCH_ISSUE_KEY = "github-local-issue"
+BRANCH_ISSUE_ID_KEY = "github-local-issue-id"
 BRANCH_REPOSITORY_KEY = "github-local-repository"
 
 
@@ -55,7 +56,10 @@ class ChangeStore:
         current = self._current_branch()
         head = self._branch_head(target)
         explicit = self._explicit_link(target) if head is not None else None
-        if explicit is not None and explicit != (self.repository.repository_id, number):
+        existing_id = self._explicit_issue_id(target) if head is not None else None
+        if explicit is not None and explicit != (self.repository.repository_id, number) and (
+            existing_id != issue.issue_id or explicit[0] != self.repository.repository_id
+        ):
             linked_repo, linked_issue = explicit
             if linked_repo == self.repository.repository_id:
                 target_description = f"Issue #{linked_issue}"
@@ -90,9 +94,10 @@ class ChangeStore:
                 self._raise_git_error(completed)
 
         explicit = self._explicit_link(target)
-        if explicit is None:
+        if explicit is None or existing_id is None or explicit[1] != number:
             for key, value in (
                 (BRANCH_ISSUE_KEY, str(number)),
+                (BRANCH_ISSUE_ID_KEY, issue.issue_id),
                 (BRANCH_REPOSITORY_KEY, self.repository.repository_id),
             ):
                 completed = _run_git(
@@ -109,7 +114,7 @@ class ChangeStore:
 
     def list(self, number: int) -> list[IssueChange]:
         self.repository.require_git()
-        self.issues.get(number)
+        issue = self.issues.get(number)
         current = self._current_branch()
         changes: list[IssueChange] = []
 
@@ -126,9 +131,10 @@ class ChangeStore:
             explicit = self._explicit_link(branch)
             if explicit is not None:
                 linked_repo, linked_issue = explicit
+                immutable_id = self._explicit_issue_id(branch)
                 if (
                     linked_repo == self.repository.repository_id
-                    and linked_issue == number
+                    and (immutable_id == issue.issue_id if immutable_id else linked_issue == number)
                 ):
                     changes.append(
                         IssueChange(
@@ -162,7 +168,10 @@ class ChangeStore:
         if head is None:
             raise ChangeError(f"development branch disappeared: {branch}")
         explicit = self._explicit_link(branch)
-        if explicit != (self.repository.repository_id, expected_issue):
+        immutable_id = self._explicit_issue_id(branch)
+        expected_id = self.issues.get(expected_issue).issue_id
+        if (explicit is None or explicit[0] != self.repository.repository_id
+                or (immutable_id != expected_id if immutable_id else explicit[1] != expected_issue)):
             raise ChangeError(
                 f"branch {branch!r} is not linked to "
                 f"{self.repository.owner}/{self.repository.name} Issue #{expected_issue}"
@@ -173,6 +182,13 @@ class ChangeStore:
             head=head,
             current=branch == self._current_branch(),
             relation="explicit",
+        )
+
+    def _explicit_issue_id(self, branch: str) -> str | None:
+        git_root, _git_primary = self.repository.require_git()
+        return _git_optional(
+            git_root, "config", "--local", "--get",
+            _branch_config_key(branch, BRANCH_ISSUE_ID_KEY),
         )
 
     def _explicit_link(self, branch: str) -> tuple[str | None, int] | None:
