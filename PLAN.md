@@ -248,3 +248,13 @@ Purpose: keep code and Markdown Issues in one ordinary Git history, with one sha
 Exit: normal Git clone/switch/merge/push carries Issue state alongside code; exceptional collisions are diagnosed and repaired without silently changing unknown references. Full merge gate follows owner review.
 
 Issue #20 review checkpoint: Draft PR #21 is open (unmerged) against `main`; initial head `68960bd2` passed 61 deterministic Python tests in GitHub Actions run #38289023752. The post-PR plan checkpoint changes only this document; verify the final exact head before merge. ContextCanon generated outputs are intentionally pending owner merge-gate regeneration/check. Review branch must remain open until explicit owner approval.
+
+### Owner migration finding: bare Markdown without front matter (2026-10-12)
+
+During real P1/F2 migration, `issue migrate --dry-run` rejected `issues/0004-abc.md` because it was human-authored Markdown without machine front matter. The owner's requirement is to *add* missing metadata during migration (not demand that it pre-exist). Issue #20 already authorizes this migration scope; keep the same review PR and Fast Track.
+
+- [ ] Accept legacy plain Markdown with a valid Issue filename and `# Title`; supply UUID, schema, short filename number, default OPEN state and marked import timestamp while retaining all authored Markdown.
+- [ ] Make `--dry-run` count this conversion without writing, but continue to reject malformed or ambiguous existing structured front matter.
+- [ ] Include plain legacy numbered comments with UUID and parent ID, and preserve older correctly structured records.
+- [ ] Add end-to-end migration tests for a nested Issue repository, idempotence, unrelated files and no data loss; update storage migration docs.
+- [ ] Verify GitHub Actions on final review head, then invite owner to retry F2. The ContextCanon generated baseline is still the owner-controlled merge gate.
