@@ -135,6 +135,28 @@ git status
 
 Commit the newly visible `issues/`, `.github-local/config.json`, root identity and `.gitignore` files. Repeat `issue migrate -R <path>` for initialized nested Issue repositories that have old exclusions. The migration removes exact old `.git/info/exclude` patterns and upgrades legacy Issue/comment IDs; it never changes the Git index itself. See [migration and storage details](docs/storage.md#git-ignore-policy-and-migration).
 
+### Status: clear OK or action required
+
+Use `github-local status -R .` at any initialized Issue repository. It scans the **initialized Issue repositories** of the containing Git project, not unrelated Markdown folders that merely happen to be named `issues`. The normal output begins with either `OK` or `ACTION REQUIRED`.
+
+For example, after migrating older projects with independent Issue number series, you might see:
+
+```text
+ACTION REQUIRED: 2 duplicate Issue numbers (#1, #2) across this Git repository
+Repository: acme/product at /projects/product
+  #1: 2 different Issues — keep requires owner decision
+    1) F2/issues/0001-samples.md — Samples
+    2) doc/issues/0001-parameters.md — Parameters
+  #2: 2 different Issues — keep requires owner decision
+    1) F2/issues/0002-contract.md — Contract
+    2) issues/0002-analysis.md — Analysis
+No files have been changed by status.
+```
+
+These are **number overlaps**, not evidence of a failed Git merge. If `doc/issues` is merely an archive without `doc/.github-local/config.json`, it is *not* an initialized Issue repository and will not appear in the new status calculation.
+
+Run `github-local issue reconcile -R . --dry-run` to preview without changing files. Then run `github-local issue reconcile -R .` to **choose which Issue retains each duplicated number**, inspect the new numbered files proposed for the others, and explicitly confirm. No winner is inferred from arbitrary filenames. `--yes` cannot bypass a required choice. For automation use repeated `--keep-id I_gl_...` flags. Git changes remain uncommitted for your review. The machine-readable `status --json` includes `actionRequired` and `collisionCount`.
+
 **Parallel branches and independent copies:** One containing local Git repository shares an integer Issue number series across nested Issue folders and linked worktrees. Independent offline clones may both create `#33`. Merge with Git normally, then inspect and repair the uncommon collision:
 
 ```bash
