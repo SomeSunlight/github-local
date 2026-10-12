@@ -195,10 +195,13 @@ class GitTrackedWorkflowTests(unittest.TestCase):
             ["First answer", "Second answer", "Third answer"],
             [comment.body for comment in first]
         )
-        self.assertEqual(
-            ["0001-first-answer-", "0002-second-answer-", "0003-third-answer-"],
-            [comment.path.name[:18] for comment in first]
-        )
+        for comment, summary in zip(
+            first, ("first-answer", "second-answer", "third-answer")
+        ):
+            self.assertRegex(
+                comment.path.name,
+                rf"^{comment.number:04d}-{summary}-[0-9a-f]{{8}}[.]md$",
+            )
         next_comment = IssueStore(repo).comment(4, "Fourth answer")
         self.assertEqual(4, next_comment.number)
         self.assertRegex(next_comment.path.name,
