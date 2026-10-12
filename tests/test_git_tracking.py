@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -76,7 +77,19 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         self.assertEqual(2, report["collisions"][0]["rename"][0]["to"])
         with self.assertRaisesRegex(StorageError, "duplicate Issue numbers"):
             IssueStore(repo).create("Should wait for repair")
-        applied = apply_reconciliation(repo, source_branch="Windows")
+        preview = subprocess.run(
+            [sys.executable, "-m", "github_local.cli", "issue", "reconcile",
+             "-R", ".", "--dry-run", "--json", "--source-branch", "Windows"],
+            cwd=a, text=True, capture_output=True, check=True,
+        )
+        self.assertEqual(2, json.loads(preview.stdout)["collisions"][0]["rename"][0]["to"])
+        self.assertEqual(1, len(collision_report(repo)["collisions"]))
+        command = subprocess.run(
+            [sys.executable, "-m", "github_local.cli", "issue", "reconcile",
+             "-R", ".", "--yes", "--json", "--source-branch", "Windows"],
+            cwd=a, text=True, capture_output=True, check=True,
+        )
+        applied = json.loads(command.stdout)
         self.assertTrue(applied["applied"])
         self.assertEqual(one.issue_id, store_a.get(1).issue_id)
         self.assertEqual(two.issue_id, store_a.get(2).issue_id)
