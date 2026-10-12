@@ -328,17 +328,27 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         issue = IssueStore(repo).create("Shared")
         self.checkpoint(root, "one shared Issue")
         self.git(root, "branch", "feature")
-        first = IssueStore(repo).comment(issue.number, "main comment")
+        first = IssueStore(repo).comment(issue.number, "Same topic\n\nmain comment")
         self.checkpoint(root, "main discussion")
         self.git(root, "switch", "-q", "feature")
         branch_repo = Repository.discover(root)
-        second = IssueStore(branch_repo).comment(issue.number, "feature comment")
+        second = IssueStore(branch_repo).comment(issue.number, "Same topic\n\nfeature comment")
         self.checkpoint(root, "feature discussion")
         self.assertNotEqual(first.path, second.path)
+        self.assertRegex(first.path.name, r"^0001-same-topic-[0-9a-f]{8}[.]md$")
+        self.assertRegex(second.path.name, r"^0001-same-topic-[0-9a-f]{8}[.]md$")
+        self.assertEqual((1, 1), (first.number, second.number))
         self.git(root, "switch", "-q", "main")
         self.git(root, "merge", "-q", "--no-ff", "-m", "merge comments", "feature")
-        bodies = {entry.body for entry in IssueStore(repo).comments(issue.number)}
-        self.assertEqual({"main comment", "feature comment"}, bodies)
+        merged = IssueStore(repo).comments(issue.number)
+        bodies = {entry.body for entry in merged}
+        self.assertEqual({"Same topic\n\nmain comment",
+                          "Same topic\n\nfeature comment"}, bodies)
+        self.assertEqual([1, 1], [entry.number for entry in merged])
+        self.assertEqual(
+            [entry.path.name for entry in merged],
+            [entry.path.name for entry in IssueStore(repo).comments(issue.number)]
+        )
 
     def test_status_has_no_side_effects(self):
         _, root, repo = self.project()
