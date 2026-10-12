@@ -129,6 +129,7 @@ def _associated_comments(issue_path: Path, issue_id: str, old: int,
 
 def apply_reconciliation(repo: Repository, *, keep_id: str | None = None,
                          source_branch: str | None = None) -> dict:
+    repo.ensure_trackable()
     if repo.has_git and _git_optional(repo.git_root, "ls-files", "-u"):
         raise StorageError("resolve ordinary Git merge conflicts before reconciling Issues")
 
