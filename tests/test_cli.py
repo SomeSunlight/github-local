@@ -74,7 +74,7 @@ class CliTests(unittest.TestCase):
 
         comment = self.run_cli("issue", "comment", "1", "--body", "Visible note")
         self.assertEqual(0, comment.returncode, comment.stderr)
-        self.assertRegex(comment.stdout.strip(), r"^issues/comments/0001/C_gl_[0-9a-f]{32}[.]md$")
+        self.assertRegex(comment.stdout.strip(), r"^issues/comments/0001/0001-visible-note-[0-9a-f]{8}[.]md$")
 
         edited = self.run_cli(
             "issue", "edit", "1", "--title", "New title", "--body", "New body",
