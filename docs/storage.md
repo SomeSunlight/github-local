@@ -86,7 +86,7 @@ issues/comments/0033/
 
 The sequence is the primary sort order for both file browsers and `issue view --comments`. The complete immutable `C_gl_...` ID and parent `issue_id` are stored inside JSON front matter; the short suffix protects against same-name collisions across independent Git branches. Within one Git repository, linked worktrees coordinate comment allocation under a shared lock. Offline clones may independently assign an equal sequence number; in that rare case the two unique filenames survive Git merge and API display resolves ties by creation timestamp and filename. Such ties are **not** automatically renumbered.
 
-Migration preserves old comment numbers and discussion bodies. It converts `0001.md` (and optional earlier `C_gl_<UUID>.md`) to the new human-friendly convention. Normal reads continue accepting the older numeric and UUID-only filenames; migration never has to rewrite old discussions just to read them.
+Migration preserves old comment numbers and discussion bodies. It converts `0001.md` (and optional earlier `C_gl_<UUID>.md`) to the new human-friendly convention. **The read-only dry run reports `commentFileRenames`**, including UUID-only names that already have valid metadata; `legacyComments` counts missing or obsolete IDs separately. Normal reads continue accepting the older numeric and UUID-only filenames. Running migration a second time is safe and retains existing full UUIDs.
 
 Issue creation, edits, labels, comments, and state transitions are atomic Markdown writes under repository-local locks. The Git index is not manipulated by the application. `issue delete` and `issue deinit` remain confirmation-protected; deinit preserves the shared root Git identity when nested repositories use it.
 
