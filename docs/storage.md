@@ -65,7 +65,9 @@ git add .gitignore .github-local/ issues/
 git commit -m "Version local Issues with project"
 ```
 
-Run migration separately for every initialized nested Issue repository that still has old hidden exclusions. It removes only matching legacy exclude entries and upgrades legacy Issue/comment IDs, while retaining Issue numbers, titles, comments, and their discussion. It does **not** invoke `git add`, modify the Git index, or push to any remote. Review your own `.gitignore` for additional rules that might exclude Issues. The status command reports ignored canonical paths.
+Run migration separately for every initialized nested Issue repository that still has old hidden exclusions. The migration also **adopts existing plain Markdown Issues** whose filenames have the form `0004-abc.md` and whose content begins with `# Title`. It adds machine-owned JSON front matter with a fresh immutable UUID, the **existing filename number**, an initial `OPEN` state, and an import record. The first timestamps use the file's last modification time as a best-effort estimate, not a verified original creation date. Numbered plain Markdown comments can likewise acquire UUIDs and an immutable parent Issue ID. In the `--dry-run` report, `plainMarkdownIssues` and `plainMarkdownComments` count records that need this conversion; the dry run creates no metadata or UUIDs. Files that already contain invalid structured front matter, or numbered files without an Issue title, still fail explicitly instead of being silently overwritten.
+
+It removes only matching legacy exclude entries and upgrades legacy Issue/comment IDs, while retaining Issue numbers, titles, comments, and their discussion. It does **not** invoke `git add`, modify the Git index, or push to any remote. Review your own `.gitignore` for additional rules that might exclude Issues. The status command reports ignored canonical paths.
 
 A previously branch-independent backlog is associated with the worktree where it currently resides at migration time; commit it before switching branches. For existing linked worktrees, make sure your intended canonical branch has the records before checkout.
 
