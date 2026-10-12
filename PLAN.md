@@ -260,3 +260,13 @@ During real P1/F2 migration, `issue migrate --dry-run` rejected `issues/0004-abc
 - [x] Verify 64 deterministic Python tests on review candidate and invite owner to retry F2. Preserve the owner-controlled exact-head ContextCanon merge gate.
 
 F2 owner-regression checkpoint: the formerly fatal plain `0004-abc.md` is now recognized and previewed without writes; confirmed migration adds explicit front matter, retains issue number/title/body, imports numbered plain comments with UUID linkage, and remains idempotent. Strict failures remain for malformed structured metadata. 64 deterministic Python tests passed on commit `a2c9cb5e` (GitHub Actions run #38300411845). Generated ContextCanon was already built/checked and pushed by the owner prior to this Python/docs-only correction; its final merge-gate check remains required if needed. No merge requested or performed.
+
+### Owner comment readability/ordering regression — Issue #20 (2026-10-12)
+
+Owner confirmed F2 migration works, but UUID-only filenames `C_gl_<hex>.md` are unreadable and alphabetically random. Owner can reset migrated files and rerun; no automatic migration-of-migration required for already converted UUID-only files. Maintain the existing Draft PR #21 (unmerged).
+
+- [ ] Name newly created and newly migrated comments `0001-short-human-summary-<short-uuid>.md` (numeric order + Markdown-derived topic; short UUID suffix prevents collisions across independent branches; full immutable UUID remains in metadata).
+- [ ] Fix comment allocation after migrating old numeric comments, and sort comment API results by numeric sequence first with deterministic tie-breaking when independent clones assign equal sequence numbers.
+- [ ] Keep reading legacy `0001.md` and UUID-only `C_gl_*.md` files; verify merge/reconcile behavior, linked worktrees and Windows-safe names.
+- [ ] Add tests for human-readable names, order across migration, new writes, branches and repeat migration.
+- [ ] Update docs, run exact-head GitHub CI, leave Draft PR unmerged pending owner approval.
