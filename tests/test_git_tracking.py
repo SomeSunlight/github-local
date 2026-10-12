@@ -152,5 +152,45 @@ class GitTrackedWorkflowTests(unittest.TestCase):
         self.assertEqual("", self.git(root, "status", "--porcelain"))
 
 
+    def test_hidden_git_exclude_refuses_write_until_migrated(self):
+        _, root, repo = self.project()
+        excluded = root / ".git" / "info" / "exclude"
+        excluded.write_text("/issues/\n/.github-local/\n", encoding="utf-8")
+        with self.assertRaisesRegex(Exception, "ignored by Git"):
+            IssueStore(repo).create("Invisible")
+        self.assertEqual(0, len(list((root / "issues").glob("*.md"))))
+        self.assertTrue(repo.ignored_durable_paths())
+        self.assertEqual(2, len(repo.legacy_exclusions()))
+        apply_migration(repo)
+        self.assertEqual([], repo.ignored_durable_paths())
+        self.assertEqual(1, IssueStore(repo).create("Visible").number)
+
+    def test_custom_gitignore_must_not_hide_issue_storage(self):
+        _, root, repo = self.project()
+        ignore = root / ".gitignore"
+        ignore.write_text(ignore.read_text(encoding="utf-8") + "\n/issues/\n",
+                          encoding="utf-8")
+        with self.assertRaisesRegex(Exception, "ignored by Git"):
+            IssueStore(repo).create("Should fail")
+        self.assertTrue(repo.ignored_durable_paths())
+        self.assertTrue(repo.git_repository_id)
+
+    def test_two_nested_issue_repositories_share_numbers_and_identity(self):
+        _, root, _ = self.project()
+        one = root / "a"
+        two = root / "b"
+        one.mkdir()
+        two.mkdir()
+        ra = Repository.initialize(one, owner="acme", name="a")
+        rb = Repository.initialize(two, owner="acme", name="b")
+        a = IssueStore(ra).create("A")
+        b = IssueStore(rb).create("B")
+        self.assertEqual((1, 2), (a.number, b.number))
+        self.assertNotEqual(a.issue_id, b.issue_id)
+        self.assertEqual(ra.git_repository_id, rb.git_repository_id)
+        self.assertEqual([1], [i.number for i in IssueStore(ra).list()])
+        self.assertEqual([2], [i.number for i in IssueStore(rb).list()])
+
+
 if __name__ == "__main__":
     unittest.main()
