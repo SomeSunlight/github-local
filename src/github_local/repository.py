@@ -542,9 +542,8 @@ class Repository:
             git_root, git_primary, common_dir = layout
             git_identity = _git_identity(git_root, initialize=False)
 
-        (workflow_root / ISSUES_DIR).mkdir(parents=True, exist_ok=True)
-        (workflow_root / CONFIG_DIR / "locks").mkdir(parents=True, exist_ok=True)
-
+        # Discovery is read-only. Mutation paths create their own lock/Issue
+        # directories when needed; status must not change the filesystem.
         branch = (
             str(payload["accepted_branch"])
             if payload.get("accepted_branch") is not None
