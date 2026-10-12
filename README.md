@@ -58,6 +58,29 @@ git pull
 
 This is the preferred owner-test workflow while the project changes frequently.
 
+Check the exact running source revision at any time:
+
+```powershell
+github-local --version
+# github-local 0.1.0 (issue-20-git-tracked-workflow-state@abc1234)
+```
+
+The **release version** (`0.1.0`) intentionally stays stable during pre-release development. The `branch@commit` suffix identifies the actual test revision; `, dirty` means local modifications are present. ContextCanon's imported Development Workflow rule `CCW-014` requires this distinction.
+
+### Git-URL owner testing without a local checkout
+
+If you prefer your existing `uv tool` workflow (including on WSL), you can install a selected test branch directly:
+
+```bash
+uv tool install --force "git+https://github.com/SomeSunlight/github-local.git@issue-20-git-tracked-workflow-state"
+github-local --version
+```
+
+The installed output should likewise include the selected branch and resolved immutable Git commit, for example `github-local 0.1.0 (issue-20-git-tracked-workflow-state@abc1234)`. This reads the installer-recorded `direct_url.json` Git origin (PEP 610), **not** the Git checkout of whatever directory your shell currently occupies. The reported commit is the authoritative test identity.
+
+When `uv tool install` is run from a pinned commit instead of a branch, the version suffix reads `detached@abc1234`. Standard wheels without Git installation metadata show just the release version. To get the latest branch version installed rather than retaining an old test installation, use `--force`.
+
+
 ### Normal installation after merge/release
 
 For a stable merged version, direct installation from GitHub remains available:
