@@ -103,7 +103,7 @@ Any future syntax deviation should be recorded here with its reason.
 
 The new implementation continues to use familiar `gh issue` command names for create/list/view/edit/close/comment/develop. The following **local-only** subcommands are intentional additions because the official GitHub CLI delegates storage and issue numbering to GitHub's hosted service:
 
-- `github-local issue status -R PATH [--json]`: read-only diagnostics about the selected Issue repository, containing Git repository, versioned identity, potentially ignored canonical files, and post-merge number collisions.
+- `github-local status -R PATH [--json]` (also `github-local issue status`): read-only diagnostics about the selected Issue repository, containing Git repository, versioned identity, potentially ignored canonical files, and post-merge number collisions.
 - `github-local issue migrate -R PATH [--dry-run] [--yes]`: explicit adoption of prior local-only ignored markdown and legacy Issue/comment identities; no automatic Git add/commit.
 - `github-local issue reconcile -R PATH [--dry-run] [--keep-id ID] [--source-branch LABEL] [--yes] [--json]`: preview and explicitly repair duplicate short Issue numbers introduced by a normal Git merge of independently numbered clones. Colliding numbers are changed to free ordinary integers; immutable IDs remain unchanged.
 
