@@ -237,8 +237,8 @@ class StorageTests(unittest.TestCase):
         issue = store.create("Discuss")
         first = store.comment(issue.number, "First comment")
         second = store.comment(issue.number, "Second\n\nMarkdown comment")
-        self.assertRegex(first.path.as_posix(), r"^issues/comments/0001/C_gl_[0-9a-f]{32}[.]md$")
-        self.assertRegex(second.path.as_posix(), r"^issues/comments/0001/C_gl_[0-9a-f]{32}[.]md$")
+        self.assertRegex(first.path.as_posix(), r"^issues/comments/0001/0001-first-comment-[0-9a-f]{8}[.]md$")
+        self.assertRegex(second.path.as_posix(), r"^issues/comments/0001/0002-second-[0-9a-f]{8}[.]md$")
         self.assertNotEqual(first.path, second.path)
         restarted = IssueStore(repo)
         self.assertEqual(
