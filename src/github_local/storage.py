@@ -20,6 +20,9 @@ from .repository import Repository, _git, _git_optional
 
 
 ISSUE_RE = re.compile(r"^(?P<number>[0-9]{4,})-(?P<slug>.+)\.md$")
+COMMENT_RE = re.compile(
+    r"^(?P<number>[0-9]{4,})-(?P<slug>[a-z0-9][a-z0-9-]*)-(?P<shortid>[0-9a-f]{8})[.]md$"
+)
 CLOSING_RE = re.compile(
     r"\b(?:fix(?:e[sd])?|close[sd]?|resolve[sd]?)\s+#(?P<number>[0-9]+)\b",
     re.IGNORECASE,
@@ -72,6 +75,16 @@ def slugify(title: str) -> str:
     if slug.upper() in WINDOWS_RESERVED:
         slug = f"issue-{slug}"
     return slug
+
+
+def comment_filename(number: int, body: str, comment_id: str) -> str:
+    """Readable sequence and summary, plus a small Git-merge-safe UUID suffix."""
+    if not re.fullmatch(r"C_gl_[0-9a-f]{32}", comment_id):
+        raise StorageError("invalid immutable comment ID")
+    first_line = next((line.strip() for line in body.splitlines() if line.strip()), "comment")
+    # Avoid 80-character prose in paths while retaining enough context to scan.
+    summary = slugify(first_line)[:48].rstrip("-") or "comment"
+    return f"{number:04d}-{summary}-{comment_id[5:13]}.md"
 
 
 def stable_issue_id(repository_id: str, number: int) -> str:
@@ -330,24 +343,47 @@ class IssueStore:
         clean = body.rstrip()
         if not clean:
             raise StorageError("Issue comment must not be empty")
-        with FileLock(self._lock_path):
+        with ExitStack() as locks:
+            locks.enter_context(FileLock(self.repository.allocation_lock_path))
+            if self.repository.allocation_lock_path != self._lock_path:
+                locks.enter_context(FileLock(self._lock_path))
             self.ensure_no_collisions()
             self._issue_path(number)
+            issue_id = self.get(number).issue_id
             directory = self.repository.issues_dir / "comments" / f"{number:04d}"
-            existing = sorted(directory.glob("*.md")) if directory.exists() else []
+            # Share sequence allocation across local linked worktrees as well.
+            # Branches on independent clones may still allocate equal numbers;
+            # their distinct short UUID suffixes keep Git filenames distinct.
+            directories = [directory]
+            if self.repository.has_git:
+                relative = self.repository.workflow_root.relative_to(self.repository.git_root)
+                directories = [
+                    root / relative / "issues" / "comments" / f"{number:04d}"
+                    for root in self.repository.active_git_worktrees()
+                ]
             next_number = 1
-            if existing:
-                numbers = [int(path.stem) for path in existing if path.stem.isdigit()]
-                if numbers:
-                    next_number = max(numbers) + 1
+            for candidate_dir in directories:
+                for path in candidate_dir.glob("*.md"):
+                    try:
+                        lines = path.read_text(encoding="utf-8").splitlines()
+                        if not lines or lines[0] != "---":
+                            raise ValueError("missing front matter")
+                        end = lines.index("---", 1)
+                        meta = json.loads("\n".join(lines[1:end]))["github-local-comment"]
+                        if (meta.get("issue_id") not in (None, issue_id)
+                                or int(meta["issue"]) != number):
+                            continue
+                        next_number = max(next_number, int(meta["number"]) + 1)
+                    except (OSError, UnicodeError, ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
+                        raise StorageError(f"invalid Issue comment while allocating sequence: {path}") from exc
             created_at = self.clock()
             comment_id = f"C_gl_{uuid.uuid4().hex}"
-            target = directory / f"{comment_id}.md"
+            target = directory / comment_filename(next_number, clean, comment_id)
             metadata = {
                 "github-local-comment": {
                     "schema": 1,
                     "id": comment_id,
-                    "issue_id": self.get(number).issue_id,
+                    "issue_id": issue_id,
                     "issue": number,
                     "number": next_number,
                     "created_at": created_at,
@@ -372,7 +408,9 @@ class IssueStore:
             self._parse_comment(path, expected_issue=number)
             for path in sorted(directory.glob("*.md"))
         ]
-        return sorted(comments, key=lambda item: (item.created_at, item.path.name))
+        # The sequence defines the intended discussion order, not UUID/file name.
+        # Equal numbers from offline clones are ordered deterministically.
+        return sorted(comments, key=lambda item: (item.number, item.created_at, item.path.name))
 
     def reconcile_closing_references(self) -> list[int]:
         # Read-only commands remain available before explicit legacy migration.
@@ -653,8 +691,16 @@ class IssueStore:
             body = "\n".join(lines[end + 1 :]).rstrip()
         except (OSError, UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
             raise StorageError(f"invalid Issue comment: {path}") from exc
-        if path.stem != (comment_id or f"{number:04d}"):
-            raise StorageError(f"Issue comment identity does not match filename: {path}")
+        legacy_numeric = path.stem == f"{number:04d}" and comment_id is None
+        legacy_uuid = path.stem == comment_id and comment_id is not None
+        human = COMMENT_RE.fullmatch(path.name)
+        named = bool(
+            comment_id is not None and human is not None
+            and int(human.group("number")) == number
+            and human.group("shortid") == comment_id[5:13]
+        )
+        if not (legacy_numeric or legacy_uuid or named):
+            raise StorageError(f"Issue comment identity/number does not match filename: {path}")
         return IssueComment(
             number=number,
             created_at=created_at,
