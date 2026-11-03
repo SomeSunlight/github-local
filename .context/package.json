@@ -2,34 +2,24 @@
   "changes": [],
   "compiler_version": "0.8.0",
   "digests": {
-    "normalized": "84ba26292adb540ccfe2e2c63c94bde244feaba933c922e96af7dc744d339297",
-    "package": "f1cd412cb4af5db644c41a572b2cbd8126ed86a40da70a44a99577fef174c37c"
+    "normalized": "d04739a38fa940cb4933582c493ef7c7ce36b99e649a5e14a3fac7f7612cd14c",
+    "package": "2ca2abe81cedd95722fb5273df4a4d4fcf7a18222149eeb452e94981306cf723"
   },
   "files": [
     {
       "path": ".context/resource-origins.json",
-      "sha256": "190223384c65b963cda9eb92fec24f8bf6408fe2be31d880d924066d62583735",
-      "size": 2308
+      "sha256": "efa6a36bf45497ca15243cf6528b36d87fa67cd4d06d2bd8d044f81eb51b370d",
+      "size": 2431
     },
     {
       "path": "CONTEXT.md",
-      "sha256": "6d2d88d43894720212aab56a570c4736882f1899a1341aac6d2ab8dee9e80c00",
-      "size": 24451
+      "sha256": "6a4d4f3742b2a4fbb9e2e8ccdf5f7f3ea945aac14ec3e318961a1c0e2d8a8251",
+      "size": 25234
     },
     {
       "path": "CONTEXT/README.md",
       "sha256": "37bdcad600896b9c2995e058911dfd9cc25433d9cf924c0bcbe15e41941f0ebb",
       "size": 2146
-    },
-    {
-      "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md",
-      "sha256": "21ac62e2449effee4c2172ba02438c2f5093c9dc7e0235684fcb78801b851060",
-      "size": 9670
-    },
-    {
-      "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md",
-      "sha256": "124440f4a2ed17d7bfbf265ac2936fa38695e6699069acc94f19f38a92b4351f",
-      "size": 6107
     },
     {
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/CONTEXT.md",
@@ -75,30 +65,45 @@
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json",
       "sha256": "c09b2579c04568fbe62d963c8a8585b4dbe0d6dbfb6d8494df5cbde4b4fdc1fa",
       "size": 2564
+    },
+    {
+      "path": "CONTEXT/references/ne68be75ed7bf392/docs/change-workflow.md",
+      "sha256": "21ac62e2449effee4c2172ba02438c2f5093c9dc7e0235684fcb78801b851060",
+      "size": 9670
+    },
+    {
+      "path": "CONTEXT/references/ne68be75ed7bf392/docs/filesystem-cleanup.md",
+      "sha256": "d4a218e41916fe83ffd2345744a0843cffd9c52ad7ba014d7f0fd1bb8889c9da",
+      "size": 4438
+    },
+    {
+      "path": "CONTEXT/references/ne68be75ed7bf392/docs/version-provenance-python.md",
+      "sha256": "124440f4a2ed17d7bfbf265ac2936fa38695e6699069acc94f19f38a92b4351f",
+      "size": 6107
     }
   ],
   "imports": [
     {
       "id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
       "name": "Development Workflow",
-      "normalized_digest": "2569d89b6d105194539c50fd4a71a6780cadfc967b3787604174ab90fcdf70c2",
-      "package_digest": "a97532c6c06aff41b0cb1c8b8678c3eb653a478787e5fa8f6251520a33db1029",
-      "version": "0.3.5-draft",
+      "normalized_digest": "1076c1f49996c5e253610a3ae2f1a860b495a02ade6100b4237e41ef2933cda5",
+      "package_digest": "1a564962bf4bb831e397809503b4208189ce775bb5f2e1f99be6cdc7f27ef1d5",
+      "version": "0.3.8-draft",
       "why": null
     },
     {
       "id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc",
       "name": "GitHub",
-      "normalized_digest": "a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65",
-      "package_digest": "0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd",
-      "version": "0.1.5-draft",
+      "normalized_digest": "a9340895196dda1ef699240a31034fb65496a131561bd8a97ee60e9d8a2fc3a2",
+      "package_digest": "d47864233115d029523dadf6d27ee5d9367e23eb4ad4ccde53d5eab02d3d6d6d",
+      "version": "0.1.9-draft",
       "why": "Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted."
     }
   ],
   "node": {
     "id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
     "name": "github.local",
-    "version": "0.1.14-draft"
+    "version": "0.1.15-draft"
   },
   "parents": [],
   "removed_rules": [],
@@ -162,6 +167,26 @@
       "statement": "When Markdown is also parsed, compiled, extracted, or otherwise given machine-significant meaning, every field or wording whose value affects machine semantics must live in an explicitly marked machine structure rather than being inferred from ordinary presentation prose. Keep that machine significance recognizable in rendered and review surfaces; rendering may style or summarize the control structure, but must not make the machine/human boundary indistinguishable.",
       "title": "Mark machine-significant Markdown explicitly",
       "why": "Humans must be able to tell which Markdown is freely editable presentation and which content participates in operational semantics; hidden parser contracts turn harmless-looking prose edits into surprising behavior."
+    },
+    {
+      "group": "Transparent machine semantics",
+      "id": "CCW-015",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "When writing Markdown links to repository-local files or directories, keep the real filesystem path as the semantic source of truth but percent-encode the Markdown link destination as a URI path instead of embedding raw spaces or Markdown/URL-sensitive path characters.",
+      "title": "Render repository-local Markdown links URL-safely",
+      "why": "Valid repository filenames can contain spaces, `#`, `%`, parentheses and other characters that Markdown consumers parse differently; URL-safe link destinations keep links portable across IDEs, GitHub and other renderers without forcing artificial filename restrictions."
+    },
+    {
+      "group": "Filesystem robustness",
+      "id": "CCW-016",
+      "modifications": [],
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "statement": "For tool-owned disposable directories, use a shared bounded-retry deletion method, tolerate empty leftovers from temporary filesystem locks, and retry later. Never follow links or remove unknown files; fail on missing or corrupt authoritative data. Follow the detailed method in `docs/filesystem-cleanup.md`.",
+      "title": "Treat directory cleanup as best-effort, but authoritative data as strict",
+      "why": "Windows antivirus/indexers and other concurrent processes can outlive a cleanup attempt. One transient lock must not break a later unrelated build, but cleanup tolerance must never hide lost project data."
     },
     {
       "group": "Proportional verification",
@@ -529,10 +554,10 @@
     {
       "id": "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc",
       "name": "GitHub",
-      "normalized_digest": "a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65",
-      "package_digest": "0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd",
+      "normalized_digest": "a9340895196dda1ef699240a31034fb65496a131561bd8a97ee60e9d8a2fc3a2",
+      "package_digest": "d47864233115d029523dadf6d27ee5d9367e23eb4ad4ccde53d5eab02d3d6d6d",
       "relationship": "parent",
-      "version": "0.1.5-draft",
+      "version": "0.1.9-draft",
       "why": null
     }
   ],
@@ -546,7 +571,7 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md",
+          "locator": "CONTEXT/references/ne68be75ed7bf392/docs/change-workflow.md",
           "resource_id": "RESOURCE-AF854839DFA0"
         }
       ],
@@ -561,11 +586,26 @@
         {
           "intent": "required",
           "kind": "resource",
-          "locator": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md",
+          "locator": "CONTEXT/references/ne68be75ed7bf392/docs/version-provenance-python.md",
           "resource_id": "RESOURCE-7C6F7E4D126B"
         }
       ],
       "title": "Implementing executable version identity"
+    },
+    {
+      "condition": "When implementing, modifying, reviewing, or troubleshooting deletion of generated or temporary files and directories on Windows, WSL or Linux:",
+      "id": "CCW-TOPIC-FILESYSTEM-CLEANUP",
+      "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "origin_node_name": "Development Workflow",
+      "targets": [
+        {
+          "intent": "required",
+          "kind": "resource",
+          "locator": "CONTEXT/references/ne68be75ed7bf392/docs/filesystem-cleanup.md",
+          "resource_id": "RESOURCE-CCW-FS-001"
+        }
+      ],
+      "title": "Resilient filesystem cleanup"
     },
     {
       "condition": "When deciding between official `gh` compatibility and the native `github-local` CLI, changing the supported CLI surface, reproducing the client protocol, or extending the runtime boundary:",

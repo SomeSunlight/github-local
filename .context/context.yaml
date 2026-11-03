@@ -9,7 +9,7 @@ compiler_version: "0.8.0"
 node:
   id: "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2"
   name: "github.local"
-  version: "0.1.14-draft"
+  version: "0.1.15-draft"
 
 # Accepted semantic Parent packages. Locators are discovery metadata; build uses only exact pins.
 parents: []
@@ -18,11 +18,11 @@ parents: []
 sources:
   - id: "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc"
     name: "GitHub"
-    version: "0.1.5-draft"
+    version: "0.1.9-draft"
     relationship: "parent"
     locator: "contextcanon.yaml"
-    normalized_digest: "a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65"
-    package_digest: "0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd"
+    normalized_digest: "a9340895196dda1ef699240a31034fb65496a131561bd8a97ee60e9d8a2fc3a2"
+    package_digest: "d47864233115d029523dadf6d27ee5d9367e23eb4ad4ccde53d5eab02d3d6d6d"
     why: "Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted."
 
 # Direct informational References. Their Rules are not effective and they are not exported to Children.
@@ -32,14 +32,14 @@ references: []
 imports:
   - id: "c4c94726-3cc7-4df6-b779-72bbf9c06f40"
     name: "Development Workflow"
-    version: "0.3.5-draft"
-    normalized_digest: "2569d89b6d105194539c50fd4a71a6780cadfc967b3787604174ab90fcdf70c2"
-    package_digest: "a97532c6c06aff41b0cb1c8b8678c3eb653a478787e5fa8f6251520a33db1029"
+    version: "0.3.8-draft"
+    normalized_digest: "1076c1f49996c5e253610a3ae2f1a860b495a02ade6100b4237e41ef2933cda5"
+    package_digest: "1a564962bf4bb831e397809503b4208189ce775bb5f2e1f99be6cdc7f27ef1d5"
   - id: "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc"
     name: "GitHub"
-    version: "0.1.5-draft"
-    normalized_digest: "a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65"
-    package_digest: "0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd"
+    version: "0.1.9-draft"
+    normalized_digest: "a9340895196dda1ef699240a31034fb65496a131561bd8a97ee60e9d8a2fc3a2"
+    package_digest: "d47864233115d029523dadf6d27ee5d9367e23eb4ad4ccde53d5eab02d3d6d6d"
     why: "Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted."
 
 # Elements authored in this Node's CONTEXT.src.md.
@@ -93,6 +93,8 @@ official:
     - {"id": "CCW-003", "title": "Keep recovery-critical knowledge in the repository", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-007", "title": "Resume recent explicit continuation without re-proving unchanged state", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-012", "title": "Mark machine-significant Markdown explicitly", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-015", "title": "Render repository-local Markdown links URL-safely", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-016", "title": "Treat directory cleanup as best-effort, but authoritative data as strict", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-004", "title": "Batch related edits before expensive final verification", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-009", "title": "Use owner-approved Fast Track blocks without weakening the final gate", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-005", "title": "Require exact-head green verification at the merge gate, not the first review gate", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
@@ -130,7 +132,7 @@ official:
     - {"id": "ONB-62CF63BD255B", "title": "Keep repository discovery local", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
     - {"id": "ONB-9CD288976D1B", "title": "Use immutable Issue IDs and human-friendly mutable numbers", "origin_node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2", "origin_node_name": "github.local", "local": true, "overrides": []}
   removed_rules: []
-  topic_ids: ["CCW-TOPIC-CHANGE-WORKFLOW", "CCW-TOPIC-VERSION-PROVENANCE", "GHLR-TOPIC-ARCH", "GHLR-TOPIC-ISSUES", "GHLR-TOPIC-AGENT", "ONB-1DE6FDEDE8CF", "ONB-AE22D5D54F87", "ONB-B06387F8E1D0", "ONB-C31D33B512BF"]
+  topic_ids: ["CCW-TOPIC-CHANGE-WORKFLOW", "CCW-TOPIC-VERSION-PROVENANCE", "CCW-TOPIC-FILESYSTEM-CLEANUP", "GHLR-TOPIC-ARCH", "GHLR-TOPIC-ISSUES", "GHLR-TOPIC-AGENT", "ONB-1DE6FDEDE8CF", "ONB-AE22D5D54F87", "ONB-B06387F8E1D0", "ONB-C31D33B512BF"]
   resource_root: "CONTEXT/"
 
 # Topic edges are explicit: kind is resource or context-node; intent is required or optional.
@@ -138,13 +140,19 @@ targets:
   - topic: "CCW-TOPIC-CHANGE-WORKFLOW"
     intent: "required"
     kind: "resource"
-    locator: "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md"
+    locator: "CONTEXT/references/ne68be75ed7bf392/docs/change-workflow.md"
     target_node_id: null
     target_node_name: null
   - topic: "CCW-TOPIC-VERSION-PROVENANCE"
     intent: "required"
     kind: "resource"
-    locator: "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md"
+    locator: "CONTEXT/references/ne68be75ed7bf392/docs/version-provenance-python.md"
+    target_node_id: null
+    target_node_name: null
+  - topic: "CCW-TOPIC-FILESYSTEM-CLEANUP"
+    intent: "required"
+    kind: "resource"
+    locator: "CONTEXT/references/ne68be75ed7bf392/docs/filesystem-cleanup.md"
     target_node_id: null
     target_node_name: null
   - topic: "GHLR-TOPIC-ARCH"
@@ -234,8 +242,6 @@ targets:
 
 # Mapping from author-facing Resource paths to generated package paths.
 resources:
-  - {"source": null, "published": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md"}
-  - {"source": null, "published": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md"}
   - {"source": "CONTEXT.md", "published": "CONTEXT/references/n4ee5f9d0a09d92c/CONTEXT.md"}
   - {"source": "CONTRIBUTING.md", "published": "CONTEXT/references/n4ee5f9d0a09d92c/CONTRIBUTING.md"}
   - {"source": "README.md", "published": "CONTEXT/references/n4ee5f9d0a09d92c/README.md"}
@@ -245,8 +251,11 @@ resources:
   - {"source": "docs/storage.md", "published": "CONTEXT/references/n4ee5f9d0a09d92c/docs/storage.md"}
   - {"source": "spike/README.md", "published": "CONTEXT/references/n4ee5f9d0a09d92c/spike/README.md"}
   - {"source": "spike/gh-2.101.0-source-contract.json", "published": "CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json"}
+  - {"source": null, "published": "CONTEXT/references/ne68be75ed7bf392/docs/change-workflow.md"}
+  - {"source": null, "published": "CONTEXT/references/ne68be75ed7bf392/docs/filesystem-cleanup.md"}
+  - {"source": null, "published": "CONTEXT/references/ne68be75ed7bf392/docs/version-provenance-python.md"}
 
 # Exact deterministic identities. package_digest covers CONTEXT.md plus CONTEXT/ resources.
 package:
-  normalized_digest: "84ba26292adb540ccfe2e2c63c94bde244feaba933c922e96af7dc744d339297"
-  package_digest: "f1cd412cb4af5db644c41a572b2cbd8126ed86a40da70a44a99577fef174c37c"
+  normalized_digest: "d04739a38fa940cb4933582c493ef7c7ce36b99e649a5e14a3fac7f7612cd14c"
+  package_digest: "2ca2abe81cedd95722fb5273df4a4d4fcf7a18222149eeb452e94981306cf723"

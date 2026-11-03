@@ -1,16 +1,6 @@
 {
   "resources": [
     {
-      "node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
-      "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md",
-      "repo_path": "nodes/library/development-workflow/docs/change-workflow.md"
-    },
-    {
-      "node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
-      "path": "CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md",
-      "repo_path": "nodes/library/development-workflow/docs/version-provenance-python.md"
-    },
-    {
       "node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/CONTEXT.md",
       "repo_path": "CONTEXT.md"
@@ -54,6 +44,21 @@
       "node_id": "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2",
       "path": "CONTEXT/references/n4ee5f9d0a09d92c/spike/gh-2.101.0-source-contract.json",
       "repo_path": "spike/gh-2.101.0-source-contract.json"
+    },
+    {
+      "node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "path": "CONTEXT/references/ne68be75ed7bf392/docs/change-workflow.md",
+      "repo_path": "nodes/library/development-workflow/docs/change-workflow.md"
+    },
+    {
+      "node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "path": "CONTEXT/references/ne68be75ed7bf392/docs/filesystem-cleanup.md",
+      "repo_path": "nodes/library/development-workflow/docs/filesystem-cleanup.md"
+    },
+    {
+      "node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40",
+      "path": "CONTEXT/references/ne68be75ed7bf392/docs/version-provenance-python.md",
+      "repo_path": "nodes/library/development-workflow/docs/version-provenance-python.md"
     }
   ],
   "schema": "contextcanon/resource-origins/v1"

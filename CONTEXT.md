@@ -8,12 +8,12 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.14-draft`
+**Context version:** `0.1.15-draft`
 
 **Resulting imported Contexts:**
 
-- **Development Workflow** — `0.3.5-draft` — via Parent Context **GitHub** — [inspect accepted carrier](.context/sources/0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd/CONTEXT.md)
-- **GitHub** — `0.1.5-draft` — direct Parent Context — Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted. — [inspect accepted carrier](.context/sources/0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd/CONTEXT.md)
+- **Development Workflow** — `0.3.8-draft` — via Parent Context **GitHub** — [inspect accepted carrier](.context/versions/dbdfd1055f0f7f14/CONTEXT.md)
+- **GitHub** — `0.1.9-draft` — direct Parent Context — Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted. — [inspect accepted carrier](.context/versions/dbdfd1055f0f7f14/CONTEXT.md)
 
 ## Local Overview
 
@@ -152,6 +152,16 @@ When the project owner resumes work after a short conversational interruption, e
 #### `CCW-012` — Mark machine-significant Markdown explicitly
 
 When Markdown is also parsed, compiled, extracted, or otherwise given machine-significant meaning, every field or wording whose value affects machine semantics must live in an explicitly marked machine structure rather than being inferred from ordinary presentation prose. Keep that machine significance recognizable in rendered and review surfaces; rendering may style or summarize the control structure, but must not make the machine/human boundary indistinguishable.
+
+#### `CCW-015` — Render repository-local Markdown links URL-safely
+
+When writing Markdown links to repository-local files or directories, keep the real filesystem path as the semantic source of truth but percent-encode the Markdown link destination as a URI path instead of embedding raw spaces or Markdown/URL-sensitive path characters.
+
+### Filesystem robustness
+
+#### `CCW-016` — Treat directory cleanup as best-effort, but authoritative data as strict
+
+For tool-owned disposable directories, use a shared bounded-retry deletion method, tolerate empty leftovers from temporary filesystem locks, and retry later. Never follow links or remove unknown files; fail on missing or corrupt authoritative data. Follow the detailed method in `docs/filesystem-cleanup.md`.
 
 ### Proportional verification
 
@@ -321,7 +331,7 @@ When planning, resuming, checkpointing, reviewing, testing, finalizing, merging,
 
 **Required**
 
-- [`CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md`](CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/change-workflow.md)
+- [`CONTEXT/references/ne68be75ed7bf392/docs/change-workflow.md`](CONTEXT/references/ne68be75ed7bf392/docs/change-workflow.md)
 
 ### Implementing executable version identity
 
@@ -329,7 +339,15 @@ When adding or changing `--version`, package version lookup, or Git checkout pro
 
 **Required**
 
-- [`CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md`](CONTEXT/references/c4c94726-3cc7-4df6-b779-72bbf9c06f40/nodes/library/development-workflow/docs/version-provenance-python.md)
+- [`CONTEXT/references/ne68be75ed7bf392/docs/version-provenance-python.md`](CONTEXT/references/ne68be75ed7bf392/docs/version-provenance-python.md)
+
+### Resilient filesystem cleanup
+
+When implementing, modifying, reviewing, or troubleshooting deletion of generated or temporary files and directories on Windows, WSL or Linux:
+
+**Required**
+
+- [`CONTEXT/references/ne68be75ed7bf392/docs/filesystem-cleanup.md`](CONTEXT/references/ne68be75ed7bf392/docs/filesystem-cleanup.md)
 
 ## Local Topics
 

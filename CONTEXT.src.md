@@ -1,5 +1,5 @@
 # github.local — Local Context Source
-<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.14-draft" -->
+<!-- ctx:node id="66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2" name="github.local" version="0.1.15-draft" -->
 
 <!-- contextcanon:format Node
 Format: Node metadata follows the # title: ctx:node id="..." name="..." version="...". Preserve existing identity.
@@ -21,9 +21,9 @@ Details: CONTEXT-format.md
 -->
 
 <!-- contextcanon-placement-sources:start -->
-- [GitHub](contextcanon.yaml) — `0.1.5-draft` — `relationship=parent`
+- [GitHub](contextcanon.yaml) — `0.1.9-draft` — `relationship=parent`
   Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted.
-  <!-- ctx:source id="ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc" version="0.1.5-draft" normalized-digest="a2eccd94281c99f1dac2bad1a4379b1a5cb04cb58d52272a119f70a5563b5f65" package-digest="0292a626e9b4ec646623e678b0b681a4c9d14822121f161404f3bd5af35613dd" -->
+  <!-- ctx:source id="ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc" version="0.1.9-draft" normalized-digest="a9340895196dda1ef699240a31034fb65496a131561bd8a97ee60e9d8a2fc3a2" package-digest="d47864233115d029523dadf6d27ee5d9367e23eb4ad4ccde53d5eab02d3d6d6d" -->
 <!-- contextcanon-placement-sources:end -->
 
 ## Local Overview

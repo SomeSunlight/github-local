@@ -20,3 +20,11 @@ htmlcov/
 !/.context/onboarding/inventory-state.json
 !/.context/onboarding/inventory-acceptance.json
 # <<< ContextCanon onboarding (managed)
+
+# >>> ContextCanon candidate scratch (managed)
+**/.context/candidates/
+**/.context/parent-candidates/
+**/.context/source-reviews/
+**/.context/parent-reviews/
+**/.context/migration-trash/
+# <<< ContextCanon candidate scratch (managed)
