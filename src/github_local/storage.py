@@ -47,6 +47,35 @@ class IssueNotFound(StorageError):
     pass
 
 
+def _verify_owned_comments(directory: Path) -> None:
+    """Never delete arbitrary documents encountered under an Issue's comments."""
+    if directory.is_symlink() or not directory.is_dir():
+        raise StorageError(f"unowned Issue comments directory: {directory}")
+    for item in directory.iterdir():
+        # Legacy numeric names are accepted until migration is complete.
+        if (item.is_symlink() or not item.is_file()
+                or not (COMMENT_RE.fullmatch(item.name)
+                        or re.fullmatch(r"[0-9]{4,}[.]md", item.name))):
+            raise StorageError(f"unrecognized file in Issue comments: {item}")
+
+
+def _verify_owned_issue_tree(root: Path) -> None:
+    """Explicit delete-all must not sweep non-Issue project documents."""
+    if root.is_symlink():
+        raise StorageError(f"refusing linked Issue directory: {root}")
+    for item in root.iterdir():
+        if item.name == "comments" and item.is_dir() and not item.is_symlink():
+            for folder in item.iterdir():
+                if (folder.is_symlink() or not folder.is_dir()
+                        or not re.fullmatch(r"[0-9]{4,}", folder.name)):
+                    raise StorageError(f"unrecognized Issue comments directory: {folder}")
+                _verify_owned_comments(folder)
+        elif item.is_file() and not item.is_symlink() and ISSUE_RE.fullmatch(item.name):
+            continue
+        else:
+            raise StorageError(f"unrecognized file in Issue directory: {item}")
+
+
 def _utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -261,6 +290,7 @@ class IssueStore:
             path = self._issue_path(number)
             comments = self.repository.issues_dir / "comments" / f"{number:04d}"
             if comments.exists():
+                _verify_owned_comments(comments)
                 # Remove discussion before the Issue file: a persistent lock
                 # must not orphan live comments after their Issue disappears.
                 remove_owned_tree(comments)
@@ -278,6 +308,7 @@ class IssueStore:
                 if ISSUE_RE.match(path.name)
             )
             if self.repository.issues_dir.exists():
+                _verify_owned_issue_tree(self.repository.issues_dir)
                 remove_owned_tree(self.repository.issues_dir)
             # A locked but fileless skeleton is harmless; reuse its root.
             self.repository.issues_dir.mkdir(parents=True, exist_ok=True)
