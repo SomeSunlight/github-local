@@ -93,6 +93,25 @@ class CleanupTests(unittest.TestCase):
             self.repo.deinitialize()
         self.assertTrue(self.repo.config_path.exists())
 
+    def test_delete_all_refuses_unrecognized_files(self):
+        issue = self.store.create("Preserve")
+        foreign = self.repo.issues_dir / "personal-notes.txt"
+        foreign.write_text("not an issue", encoding="utf-8")
+        with self.assertRaisesRegex(Exception, "unrecognized file"):
+            self.store.delete_all()
+        self.assertEqual(issue.issue_id, self.store.get(issue.number).issue_id)
+        self.assertTrue(foreign.exists())
+
+    def test_delete_refuses_unknown_comment_attachment(self):
+        issue = self.store.create("Preserve comments")
+        self.store.comment(issue.number, "Known")
+        foreign = self.repo.issues_dir / "comments" / "0001" / "attachment.txt"
+        foreign.write_text("user data", encoding="utf-8")
+        with self.assertRaisesRegex(Exception, "unrecognized file"):
+            self.store.delete(issue.number)
+        self.assertEqual(issue.issue_id, self.store.get(issue.number).issue_id)
+        self.assertTrue(foreign.exists())
+
     def test_reparse_and_symlink_paths_are_not_traversed(self):
         external = self.root / "external"
         external.mkdir()
