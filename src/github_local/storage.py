@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable
 
+from .fs_cleanup import remove_empty_directory, remove_owned_tree
 from .models import Issue, IssueComment
 from .repository import Repository, _git, _git_optional
 
@@ -259,13 +260,15 @@ class IssueStore:
         with FileLock(self._lock_path):
             self.ensure_no_collisions()
             path = self._issue_path(number)
-            path.unlink()
             comments = self.repository.issues_dir / "comments" / f"{number:04d}"
             if comments.exists():
-                shutil.rmtree(comments)
+                # Remove discussion before the Issue file: a persistent lock
+                # must not orphan live comments after their Issue disappears.
+                remove_owned_tree(comments)
+            path.unlink()
             comments_root = self.repository.issues_dir / "comments"
             if comments_root.exists() and not any(comments_root.iterdir()):
-                comments_root.rmdir()
+                remove_empty_directory(comments_root)
 
     def delete_all(self) -> int:
         with FileLock(self._lock_path):
@@ -276,7 +279,8 @@ class IssueStore:
                 if ISSUE_RE.match(path.name)
             )
             if self.repository.issues_dir.exists():
-                shutil.rmtree(self.repository.issues_dir)
+                remove_owned_tree(self.repository.issues_dir)
+            # A locked but fileless skeleton is harmless; reuse its root.
             self.repository.issues_dir.mkdir(parents=True, exist_ok=True)
             return count
 
