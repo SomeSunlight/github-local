@@ -1,3 +1,14 @@
+## Active review block — Windows filesystem cleanup (#23)
+
+Purpose: implement the shared Development Workflow filesystem-cleanup method from [ContextCanon #127](https://github.com/SomeSunlight/context-canon/issues/127) without changing accepted Context pins or weakening Git-tracked Issue integrity.
+
+- [x] Centralize bounded cleanup of explicitly owned directories, including benign recursively fileless Windows leftovers.
+- [x] Preserve live Issues when associated comment deletion fails; keep nonempty cleanup errors explicit, never follow junctions or symlinks.
+- [x] Add focused regression coverage and test on both Ubuntu and native Windows CI.
+- [ ] Confirm exact-head CI, owner review and squash merge; subsequently close the baseline checkpoint.
+
+---
+
 # Plan
 
 ## Active Fast Track: CLI-first github.local MVP — bootstrap Issue #1
