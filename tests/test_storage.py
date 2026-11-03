@@ -117,7 +117,7 @@ class StorageTests(unittest.TestCase):
         self.git(root, "worktree", "add", "-q", "-b", "feature", str(linked))
         linked_repo = Repository.discover(linked)
         self.assertEqual(linked.resolve(), linked_repo.workflow_root)
-        self.assertEqual(linked / "issues", linked_repo.issues_dir)
+        self.assertEqual(linked.resolve() / "issues", linked_repo.issues_dir)
         self.assertEqual(repo.git_repository_id, linked_repo.git_repository_id)
         created = IssueStore(linked_repo).create("Linked")
         self.assertEqual(2, created.number)
