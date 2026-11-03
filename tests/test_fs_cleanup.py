@@ -78,6 +78,21 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual([], self.store.list())
         self.assertEqual(3, self.store.create("Next").number)
 
+    def test_deinitialize_tolerates_empty_nested_comments(self):
+        skeleton = self.repo.issues_dir / "comments" / "0001" / "deep"
+        skeleton.mkdir(parents=True)
+        self.repo.deinitialize()
+        self.assertFalse(self.repo.config_path.exists())
+        self.assertFalse(any(self.repo.issues_dir.rglob("*")))
+
+    def test_deinitialize_rejects_unknown_file(self):
+        skeleton = self.repo.issues_dir / "comments" / "0001"
+        skeleton.mkdir(parents=True)
+        (skeleton / "unknown.txt").write_text("keep", encoding="utf-8")
+        with self.assertRaisesRegex(Exception, "still contains Issues"):
+            self.repo.deinitialize()
+        self.assertTrue(self.repo.config_path.exists())
+
     def test_reparse_and_symlink_paths_are_not_traversed(self):
         external = self.root / "external"
         external.mkdir()
