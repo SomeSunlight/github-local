@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "client": {
+    "name": "gh",
+    "version": "2.101.0",
+    "source_ref": "v2.101.0",
+    "black_box_executed_here": false,
+    "reason": "gh binary unavailable and execution container has no outbound DNS"
+  },
+  "host_contract": {
+    "alternative_host_shape": "GitHub Enterprise",
+    "rest_meta": "GET /api/v3/meta (enterprise base resolution)",
+    "graphql": "POST /api/graphql",
+    "api_host": {
+      "introduced": "2.100.0",
+      "bare_hostname_only": true,
+      "arbitrary_port": false,
+      "https_443_harness": true
+    }
+  },
+  "issue_commands": [
+    {
+      "command": "gh issue create",
+      "source": [
+        "pkg/cmd/issue/create/create.go",
+        "api/queries_repo.go",
+        "api/queries_issue.go",
+        "internal/featuredetection/feature_detection.go"
+      ],
+      "operations": [
+        "enterprise version probe",
+        "Issue_fields GraphQL introspection",
+        "IssueRepositoryInfo GraphQL query",
+        "IssueCreate/createIssue GraphQL mutation"
+      ],
+      "structured_output": "prints created Issue URL; no normal --json export flag"
+    },
+    {
+      "command": "gh issue list",
+      "source": [
+        "pkg/cmd/issue/list/list.go",
+        "pkg/cmd/issue/list/http.go"
+      ],
+      "operations": [
+        "IssueList GraphQL query with Repository.issues pagination/filtering"
+      ],
+      "structured_output": "--json supported"
+    },
+    {
+      "command": "gh issue view",
+      "source": [
+        "pkg/cmd/issue/view/view.go",
+        "pkg/cmd/issue/shared/lookup.go"
+      ],
+      "operations": [
+        "IssueByNumber GraphQL query via issueOrPullRequest"
+      ],
+      "structured_output": "--json supported and narrows requested fields"
+    },
+    {
+      "command": "gh issue comment",
+      "source": [
+        "pkg/cmd/issue/comment/comment.go",
+        "pkg/cmd/pr/shared/commentable.go",
+        "api/queries_comments.go"
+      ],
+      "operations": [
+        "Issue lookup GraphQL",
+        "CommentCreate/addComment GraphQL mutation"
+      ],
+      "structured_output": "prints comment URL"
+    },
+    {
+      "command": "gh issue close",
+      "source": [
+        "pkg/cmd/issue/close/close.go",
+        "pkg/cmd/issue/shared/lookup.go"
+      ],
+      "operations": [
+        "IssueByNumber GraphQL lookup",
+        "IssueClose/closeIssue GraphQL mutation"
+      ],
+      "structured_output": "human-oriented status output"
+    }
+  ],
+  "decision": "Native github-local CLI for MVP; retain gh as optional later adapter measured with spike/gh_trace_server.py"
+}

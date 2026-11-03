@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shutil
 import subprocess
 import uuid
 from dataclasses import dataclass
+
+from .fs_cleanup import is_fileless_owned_tree, remove_empty_directory, remove_owned_tree
 from pathlib import Path
 
 
@@ -571,20 +572,23 @@ class Repository:
         )
 
     def deinitialize(self) -> None:
-        if self.issues_dir.exists() and any(self.issues_dir.iterdir()):
+        if self.issues_dir.exists() and not is_fileless_owned_tree(self.issues_dir):
             raise RepositoryError(
                 f"local Issue repository {self.owner}/{self.name} still contains Issues; "
                 "delete them explicitly before deinitializing"
             )
+        # Clean disposable scratch before removing authoritative identity.
+        # A persistent lock with files must stop deinitialization safely.
+        for name in ("locks", "tmp"):
+            folder = self.config_dir / name
+            if folder.exists():
+                remove_owned_tree(folder)
         if self.issues_dir.exists():
-            self.issues_dir.rmdir()
+            # Remove recursively fileless nested comments too, not just root.
+            remove_owned_tree(self.issues_dir)
         # A Git-root .github-local/ may also contain the versioned identity
         # shared by nested Issue repositories. Never delete that identity.
         for name in ("config.json", "closing-state.json", "issue-state.json"):
             (self.config_dir / name).unlink(missing_ok=True)
-        for name in ("locks", "tmp"):
-            folder = self.config_dir / name
-            if folder.is_dir():
-                shutil.rmtree(folder)
         if self.config_dir.is_dir() and not any(self.config_dir.iterdir()):
-            self.config_dir.rmdir()
+            remove_empty_directory(self.config_dir)
