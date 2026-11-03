@@ -76,6 +76,11 @@ def _fileless(path: Path) -> bool:
         return False
 
 
+def is_fileless_owned_tree(path: Path) -> bool:
+    """Read-only classification; links and unknown files are not empty."""
+    return _fileless(path)
+
+
 def remove_owned_tree(path: Path, *, delays=RETRY_DELAYS) -> bool:
     """Remove known-owned content; fileless locked skeletons are acceptable.
 
