@@ -98,6 +98,6 @@ def remove_owned_tree(path: Path, *, delays=RETRY_DELAYS) -> bool:
                 return True
             if _fileless(path):
                 for folder in sorted(_folders(path), key=lambda p: len(p.parts), reverse=True):
-                    remove_empty_directory(folder, delays=(0,))
+                    remove_empty_directory(folder)
                 return True
     raise CleanupError(f"owned directory still contains files: {path}") from last_error
