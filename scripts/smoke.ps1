@@ -1,4 +1,6 @@
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'Filesystem.ps1')
+Clear-EmptyGithubLocalSmokeTrees -TempRoot $env:TEMP
 $repo = Join-Path $env:TEMP ("github-local-smoke-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $repo | Out-Null
 try {
@@ -12,5 +14,12 @@ try {
     Get-Content .\issues\0001-smoke-issue.md
 } finally {
     Pop-Location
-    Remove-Item -Recurse -Force $repo -ErrorAction SilentlyContinue
+    try {
+        if (-not (Remove-GithubLocalSmokeTree -Path $repo -TempRoot $env:TEMP)) {
+            Write-Warning "Smoke test directory remains locked; retry after Windows releases it: $repo"
+        }
+    }
+    catch {
+        Write-Warning "Smoke cleanup refused unsafe path: $($_.Exception.Message)"
+    }
 }
