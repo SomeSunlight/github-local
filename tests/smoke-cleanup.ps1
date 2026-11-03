@@ -42,17 +42,18 @@ try {
 
     Microsoft.PowerShell.Management\Remove-Item -LiteralPath Function:\Remove-Item -Force
     $linked = Join-Path $blocked 'linked'
+    $hasLink = $false
     try {
         New-Item -ItemType Junction -Path $linked -Target $foreign -ErrorAction Stop | Out-Null
+        $hasLink = $true
+    }
+    catch { Write-Host 'Junction creation unavailable; fixture skipped.' }
+    if ($hasLink) {
         $refused = $false
         try { Remove-GithubLocalSmokeTree -Path $blocked -TempRoot $fixture -DelaysMs @(0) | Out-Null }
         catch { $refused = $true }
         Assert-True $refused 'Nested junction accepted'
         Assert-True (Test-Path -LiteralPath (Join-Path $foreign 'keep.txt')) 'Foreign junction target modified'
-    }
-    catch {
-        if ($_.Exception.Message -notlike '*privilege*') { throw }
-        Write-Host 'Junction creation unavailable; fixture skipped.'
     }
 
     $stale = Join-Path $fixture ('github-local-smoke-' + [guid]::NewGuid().ToString('N'))
