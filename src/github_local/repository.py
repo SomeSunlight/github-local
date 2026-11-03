@@ -6,7 +6,7 @@ import subprocess
 import uuid
 from dataclasses import dataclass
 
-from .fs_cleanup import remove_empty_directory, remove_owned_tree
+from .fs_cleanup import is_fileless_owned_tree, remove_empty_directory, remove_owned_tree
 from pathlib import Path
 
 
@@ -572,7 +572,7 @@ class Repository:
         )
 
     def deinitialize(self) -> None:
-        if self.issues_dir.exists() and any(self.issues_dir.iterdir()):
+        if self.issues_dir.exists() and not is_fileless_owned_tree(self.issues_dir):
             raise RepositoryError(
                 f"local Issue repository {self.owner}/{self.name} still contains Issues; "
                 "delete them explicitly before deinitializing"
@@ -584,7 +584,8 @@ class Repository:
             if folder.exists():
                 remove_owned_tree(folder)
         if self.issues_dir.exists():
-            remove_empty_directory(self.issues_dir)
+            # Remove recursively fileless nested comments too, not just root.
+            remove_owned_tree(self.issues_dir)
         # A Git-root .github-local/ may also contain the versioned identity
         # shared by nested Issue repositories. Never delete that identity.
         for name in ("config.json", "closing-state.json", "issue-state.json"):
