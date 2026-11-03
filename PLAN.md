@@ -1,11 +1,15 @@
-## Active review block — Windows filesystem cleanup (#23)
+## Review gate — resilient owned-directory cleanup (#23 / PR #24)
 
-Purpose: implement the shared Development Workflow filesystem-cleanup method from [ContextCanon #127](https://github.com/SomeSunlight/context-canon/issues/127) without changing accepted Context pins or weakening Git-tracked Issue integrity.
+**Status:** Implementation, reviewed ContextCanon acceptance and owner Windows regression tests complete; final squash merge remains the owner's decision.
 
-- [x] Centralize bounded cleanup of explicitly owned directories, including benign recursively fileless Windows leftovers.
-- [x] Preserve live Issues when associated comment deletion fails; keep nonempty cleanup errors explicit, never follow junctions or symlinks.
-- [x] Add focused regression coverage and test on both Ubuntu and native Windows CI.
-- [ ] Confirm exact-head CI, owner review and squash merge; subsequently close the baseline checkpoint.
+Purpose: apply the inherited [Development Workflow filesystem-cleanup contract](https://github.com/SomeSunlight/context-canon/blob/main/nodes/library/development-workflow/docs/filesystem-cleanup.md), with strict ownership and preservation of Git-tracked Issue history.
+
+- [x] Centralize bounded cleanup of explicitly owned directories; accept only recursively fileless Windows leftovers.
+- [x] Preserve live Issues when comment deletion fails; reject residual files, foreign paths, junctions and symlinks.
+- [x] Add focused Python/PowerShell tests; owner independently tested the PR on Windows, and Ubuntu/native-Windows CI passed for the code and ContextCanon update.
+- [x] Accept the newer GitHub Parent `0.1.9-draft`, inheriting Development Workflow `0.3.8-draft`; regenerate the official ContextCanon packages in the same PR.
+- [x] Remove two obsolete, previously Git-tracked `.context/candidates/` scratch packages (12 files) that caused Windows long-path checkout failure; ignore future candidates. Keep authoritative `.context/versions/` packages and exact Source pins.
+- [ ] Owner reviews and squash-merges [PR #24](https://github.com/SomeSunlight/github-local/pull/24); [Issue #23](https://github.com/SomeSunlight/github-local/issues/23) is closed only after merge.
 
 ---
 

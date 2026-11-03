@@ -28,3 +28,6 @@ htmlcov/
 **/.context/parent-reviews/
 **/.context/migration-trash/
 # <<< ContextCanon candidate scratch (managed)
+
+# Disposable ContextCanon Source candidates are not accepted packages.
+/.context/candidates/
