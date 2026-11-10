@@ -104,6 +104,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action=_RuntimeVersionAction, nargs=0)
     sub = parser.add_subparsers(dest="command", required=True)
 
+    version = sub.add_parser(
+        "version",
+        help="inspect the tool version; optionally check the public GitHub source (read-only)",
+    )
+    version_sub = version.add_subparsers(dest="version_command", required=True)
+    version_check = version_sub.add_parser(
+        "check", help="compare the installed tool commit with GitHub (explicit network request)"
+    )
+    version_check.add_argument(
+        "--branch", help="GitHub branch to compare (default: installed ref or repository default)"
+    )
+
     top_status = sub.add_parser(
         "status", help="inspect local Git and Issue repository diagnostics"
     )
@@ -337,6 +349,13 @@ def _show_collisions(collisions: list[dict], *, interactive: bool = False) -> No
 
 
 def _run(args: argparse.Namespace) -> int:
+    if args.command == "version":
+        from .version_check import check_remote_version
+
+        result = check_remote_version(branch=args.branch)
+        print(result.render(), end="")
+        return result.exit_code
+
     if args.command == "init":
         repo = _initialize_here(args.owner, args.repo, args.accepted_branch)
         branch = f", accepted branch {repo.accepted_branch}" if repo.accepted_branch else ""

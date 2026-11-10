@@ -58,7 +58,7 @@ git pull
 
 This is the preferred owner-test workflow while the project changes frequently.
 
-Check the exact running source revision at any time:
+Check the exact running source revision at any time (entirely **offline**):
 
 ```powershell
 github-local --version
@@ -79,6 +79,29 @@ github-local --version
 The installed output should likewise include the selected branch and resolved immutable Git commit, for example `github-local 0.1.0 (issue-20-git-tracked-workflow-state@abc1234)`. This reads the installer-recorded `direct_url.json` Git origin (PEP 610), **not** the Git checkout of whatever directory your shell currently occupies. The reported commit is the authoritative test identity.
 
 When `uv tool install` is run from a pinned commit instead of a branch, the version suffix reads `detached@abc1234`. Standard wheels without Git installation metadata show just the release version. To get the latest branch version installed rather than retaining an old test installation, use `--force`.
+
+### Check whether this exact installed commit is current (opt-in)
+
+Use the same explicit check as ContextCanon. Unlike `--version`, **this command contacts GitHub**; neither command installs, downloads, pulls or modifies files:
+
+~~~bash
+github-local --version
+# github-local 0.1.0 (main@abc1234)    # always offline
+
+github-local version check
+# Installed: github-local 0.1.0 (main@abc1234)
+# Remote:    main@def5678
+# Status:    behind
+
+github-local version check --branch main   # override an absent/ambiguous ref
+~~~
+
+This compares the immutable **github-local executable's own** installed Git commit to its public `SomeSunlight/github-local` source branch. It does **not** inspect, contact or synchronize any private/local Issue repository managed by the tool. Source/editable checkouts use Git HEAD, branch and dirty state; Git-URL installations use their installer-recorded PEP 610 commit. Ordinary wheels without a known Git origin cannot be compared.
+
+Results and exit codes match the shared [Development Workflow Python provenance guide](https://github.com/SomeSunlight/context-canon/blob/main/nodes/library/development-workflow/docs/version-provenance-python.md): `up to date` (0), `behind`, `ahead` or `diverged` (1), `unknown` (2). `unknown` means the comparison could not be verified—for example offline, an unsupported origin or a missing branch; it never means current. The request is strictly read-only and uses bounded public GitHub API calls without credentials.
+
+To **update intentionally after checking**, use the existing installation workflow: `git pull` for an editable checkout or `uv tool install --force --refresh "git+https://github.com/SomeSunlight/github-local.git@main"` for a Git-URL tool. Updating is never performed by `version check`.
+
 
 
 ### Normal installation after merge/release

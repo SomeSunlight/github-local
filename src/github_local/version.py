@@ -96,12 +96,11 @@ def git_provenance(project_root: Path | None = None) -> str | None:
     return result
 
 
-def installed_git_provenance() -> str | None:
-    """PEP 610 identity of an installed Git URL, without a working Git checkout.
+def installed_git_origin() -> tuple[str, str, str | None] | None:
+    """Return the Git URL, resolved commit, and requested ref from PEP 610.
 
-    uv and pip record the *resolved* immutable commit in direct_url.json.
-    The requested revision is orientation, not the authority. Never inspect
-    the user's current Git working directory: it belongs to a different tool.
+    Read only the installed distribution metadata, never the caller's CWD.
+    The resolved commit is authoritative; a requested revision is orientation.
     """
     try:
         direct_url = distribution(_DISTRIBUTION_NAME).read_text("direct_url.json")
@@ -115,23 +114,34 @@ def installed_git_provenance() -> str | None:
         info = metadata["vcs_info"]
         if info["vcs"] != "git":
             return None
+        url = metadata["url"]
         commit = info["commit_id"]
+        if not isinstance(url, str) or not url:
+            return None
         if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}", commit):
             return None
         requested = info.get("requested_revision")
         resolved = info.get("resolved_revision")
-        revision = requested or resolved or "git"
-        if not isinstance(revision, str):
+        revision = requested or resolved
+        if revision is not None and (
+            not isinstance(revision, str) or any(char in revision for char in "\r\n\t")
+        ):
             return None
-        revision = revision.removeprefix("refs/heads/").removeprefix("refs/tags/")
-        if not revision or any(c in revision for c in "\r\n\t"):
-            return None
-        # If a commit rather than a branch/tag was requested, mark it detached.
-        if re.fullmatch(r"[0-9a-fA-F]{7,64}", revision):
-            revision = "detached"
-        return f"{revision}@{commit[:7].lower()}"
+        return url, commit.lower(), revision or None
     except (ValueError, KeyError, TypeError, AttributeError):
         return None
+
+
+def installed_git_provenance() -> str | None:
+    """PEP 610 identity of a Git-URL installation without a live checkout."""
+    origin = installed_git_origin()
+    if origin is None:
+        return None
+    _, commit, revision = origin
+    label = (revision or "git").removeprefix("refs/heads/").removeprefix("refs/tags/")
+    if not label or re.fullmatch(r"[0-9a-fA-F]{7,64}", label):
+        label = "detached"
+    return f"{label}@{commit[:7]}"
 
 
 def display_version(project_root: Path | None = None) -> str:

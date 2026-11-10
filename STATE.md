@@ -1,3 +1,7 @@
+## Review candidate — version check (#25, 2026-11-10)
+
+The owner tested and squash-merged ContextCanon PR #132; its reusable Development Workflow has the explicit on-demand version-check rule CCW-017. github-local already reports Git-URL installation provenance correctly. Issue #25 adds the corresponding **explicit-only** GitHub comparison to github-local's own public repository. It must not query project Issue repositories, must not update anything, and must never make `--version` network-dependent. The exact GitHub 0.1.10-draft Parent has now been accepted via ContextCanon from main 5a1f2bf; the effective Development Workflow is 0.3.9-draft with CCW-017 and local context was auto-bumped to 0.1.16-draft. The self-hosted regeneration job passed all Python tests and `contextcanon check --all .`. Review/merge remains owner-controlled. Linux and Windows CI passed on code/Context commit `ea0f001` (full Python suite, Windows cleanup smoke, exact ContextCanon check, real uv Git-URL commit/branch installation). The PLAN/STATE documentation-only checkpoint will trigger fresh exact-head verification before owner handoff.
+
 # Current State
 
 The original bootstrap block is complete; current development state is tracked by the active Fast Track Issue and the maintained Context rather than relying on bootstrap Issue #1.

@@ -9,7 +9,7 @@ compiler_version: "0.8.0"
 node:
   id: "66c4d70e-e478-4cf2-8bf0-70aeb0ad30b2"
   name: "github.local"
-  version: "0.1.15-draft"
+  version: "0.1.16-draft"
 
 # Accepted semantic Parent packages. Locators are discovery metadata; build uses only exact pins.
 parents: []
@@ -18,11 +18,11 @@ parents: []
 sources:
   - id: "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc"
     name: "GitHub"
-    version: "0.1.9-draft"
+    version: "0.1.10-draft"
     relationship: "parent"
     locator: "contextcanon.yaml"
-    normalized_digest: "a9340895196dda1ef699240a31034fb65496a131561bd8a97ee60e9d8a2fc3a2"
-    package_digest: "d47864233115d029523dadf6d27ee5d9367e23eb4ad4ccde53d5eab02d3d6d6d"
+    normalized_digest: "6f545ecba6f73a3edb8e18deedb340fdf58c56079d5d4acc421bc459d2387fa0"
+    package_digest: "26bd6e11d64e728a6a41c57b010882a559822a90cebab0632395c7384e846191"
     why: "Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted."
 
 # Direct informational References. Their Rules are not effective and they are not exported to Children.
@@ -32,14 +32,14 @@ references: []
 imports:
   - id: "c4c94726-3cc7-4df6-b779-72bbf9c06f40"
     name: "Development Workflow"
-    version: "0.3.8-draft"
-    normalized_digest: "1076c1f49996c5e253610a3ae2f1a860b495a02ade6100b4237e41ef2933cda5"
-    package_digest: "1a564962bf4bb831e397809503b4208189ce775bb5f2e1f99be6cdc7f27ef1d5"
+    version: "0.3.9-draft"
+    normalized_digest: "f65995239d42a95e91f1f3353772c1c867e8cdac71ba7a8a271cd2ae3e84ddf6"
+    package_digest: "a9cfabdda18aaf0ad33f06708757bd9e73b58243778913e674737e491c31a36c"
   - id: "ccf4d7ee-4db1-4110-9ddc-5d70c69cf2bc"
     name: "GitHub"
-    version: "0.1.9-draft"
-    normalized_digest: "a9340895196dda1ef699240a31034fb65496a131561bd8a97ee60e9d8a2fc3a2"
-    package_digest: "d47864233115d029523dadf6d27ee5d9367e23eb4ad4ccde53d5eab02d3d6d6d"
+    version: "0.1.10-draft"
+    normalized_digest: "6f545ecba6f73a3edb8e18deedb340fdf58c56079d5d4acc421bc459d2387fa0"
+    package_digest: "26bd6e11d64e728a6a41c57b010882a559822a90cebab0632395c7384e846191"
     why: "Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted."
 
 # Elements authored in this Node's CONTEXT.src.md.
@@ -100,6 +100,7 @@ official:
     - {"id": "CCW-005", "title": "Require exact-head green verification at the merge gate, not the first review gate", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-013", "title": "Prefer editable installs for repeated owner testing", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-014", "title": "Expose development provenance without micro-bumping releases", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
+    - {"id": "CCW-017", "title": "Check remote versions only on request", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-011", "title": "Expand change scope explicitly", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-006", "title": "Do not merge without explicit project-owner approval", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
     - {"id": "CCW-008", "title": "Close the post-merge baseline checkpoint before new development", "origin_node_id": "c4c94726-3cc7-4df6-b779-72bbf9c06f40", "origin_node_name": "Development Workflow", "local": false, "overrides": []}
@@ -257,5 +258,5 @@ resources:
 
 # Exact deterministic identities. package_digest covers CONTEXT.md plus CONTEXT/ resources.
 package:
-  normalized_digest: "d04739a38fa940cb4933582c493ef7c7ce36b99e649a5e14a3fac7f7612cd14c"
-  package_digest: "2ca2abe81cedd95722fb5273df4a4d4fcf7a18222149eeb452e94981306cf723"
+  normalized_digest: "0e906d7ce246e4b962899e4795d4e89546e9a6c70e1740ccec4de048545b8950"
+  package_digest: "d46863db183fb8def580c25e77b8c80972004a100f4668d3c6271c1023195c20"
