@@ -5,9 +5,9 @@ Purpose: match the owner-tested ContextCanon `version check` contract while reta
 - [x] Confirm the accepted main baseline, #25 scope and source/editable/PEP 610 behavior.
 - [x] Add read-only `github-local version check [--branch]` with exact installed commit vs GitHub branch/ancestry; restrict lookup to the tool's own public source.
 - [x] Document explicit network behavior, status/exit codes, and separate opt-in update commands.
-- [ ] Add and pass focused offline/mocked version and CLI regressions on Linux/Windows.
-- [ ] Update the accepted GitHub provider (and transitive Development Workflow) through normal ContextCanon Source review, then regenerate/check its managed packages.
-- [ ] Record full exact-head CI evidence; hand PR to owner for review/testing.
+- [x] Add focused offline/mocked version and CLI regressions; all focused and full Python tests passed on Linux during immutable Source acceptance. Native Windows CI remains a separate gate.
+- [x] Accept exact GitHub 0.1.10-draft from ContextCanon main commit 5a1f2bf, inheriting Development Workflow 0.3.9-draft / CCW-017; auto-bump github.local 0.1.16-draft, regenerate immutable packages and pass `contextcanon check --all .` without drift.
+- [ ] Pass final exact-head Linux/Windows CI (including the offline version and Git-URL smoke tests); present Draft PR #26 for owner review/testing.
 - [ ] Owner acceptance and squash-merge; close post-merge baseline checkpoint.
 
 ## Review gate — resilient owned-directory cleanup (#23 / PR #24)

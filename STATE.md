@@ -1,6 +1,6 @@
 ## Review candidate — version check (#25, 2026-11-10)
 
-The owner tested and squash-merged ContextCanon PR #132; its reusable Development Workflow has the explicit on-demand version-check rule CCW-017. github-local already reports Git-URL installation provenance correctly. Issue #25 adds the corresponding **explicit-only** GitHub comparison to github-local's own public repository. It must not query project Issue repositories, must not update anything, and must never make `--version` network-dependent. Review/merge remains owner-controlled; see the active PLAN checkpoint.
+The owner tested and squash-merged ContextCanon PR #132; its reusable Development Workflow has the explicit on-demand version-check rule CCW-017. github-local already reports Git-URL installation provenance correctly. Issue #25 adds the corresponding **explicit-only** GitHub comparison to github-local's own public repository. It must not query project Issue repositories, must not update anything, and must never make `--version` network-dependent. The exact GitHub 0.1.10-draft Parent has now been accepted via ContextCanon from main 5a1f2bf; the effective Development Workflow is 0.3.9-draft with CCW-017 and local context was auto-bumped to 0.1.16-draft. The self-hosted regeneration job passed all Python tests and `contextcanon check --all .`. Review/merge remains owner-controlled; final matrix CI is the remaining verification checkpoint.
 
 # Current State
 
