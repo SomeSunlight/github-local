@@ -8,12 +8,12 @@
 > Edit [CONTEXT.src.md](CONTEXT.src.md) instead.
 
 **Node:** github.local  
-**Context version:** `0.1.15-draft`
+**Context version:** `0.1.16-draft`
 
 **Resulting imported Contexts:**
 
-- **Development Workflow** — `0.3.8-draft` — via Parent Context **GitHub** — [inspect accepted carrier](.context/versions/dbdfd1055f0f7f14/CONTEXT.md)
-- **GitHub** — `0.1.9-draft` — direct Parent Context — Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted. — [inspect accepted carrier](.context/versions/dbdfd1055f0f7f14/CONTEXT.md)
+- **Development Workflow** — `0.3.9-draft` — via Parent Context **GitHub** — [inspect accepted carrier](.context/versions/dcd12db27e8baeef/CONTEXT.md)
+- **GitHub** — `0.1.10-draft` — direct Parent Context — Why: Evidence explicitly says development of this public runtime project should use the reusable GitHub provider while its canonical remote is on github.com. This relationship is not among the already accepted STEP-07 assignments; Development Workflow is already assigned separately and is not re-emitted. — [inspect accepted carrier](.context/versions/dcd12db27e8baeef/CONTEXT.md)
 
 ## Local Overview
 
@@ -185,6 +185,10 @@ When actively testing an installable Python tool from a development checkout, pr
 
 When an executable tool is tested from a changing Git checkout, keep its release version stable until a real release/version boundary, but make runtime version output identify the current VCS state with the branch/ref when available, commit identity, and dirty state. Treat the commit identity as authoritative and the branch/ref as human orientation; release artifacts without checkout metadata still report the canonical release version.
 
+#### `CCW-017` — Check remote versions only on request
+
+Keep --version fully offline and report the exact installed Git identity when available; for executable tools where remote currency matters, provide an explicit read-only version check. Compare exact commits with the selected remote branch, distinguish behind/ahead/diverged, and report unknown rather than guessing when verification is impossible.
+
 ### Human review gate
 
 #### `CCW-011` — Expand change scope explicitly
@@ -335,7 +339,7 @@ When planning, resuming, checkpointing, reviewing, testing, finalizing, merging,
 
 ### Implementing executable version identity
 
-When adding or changing `--version`, package version lookup, or Git checkout provenance for an executable Python tool:
+When adding or changing `--version`, package version lookup, Git checkout provenance, or an opt-in remote version check for an executable Python tool:
 
 **Required**
 
