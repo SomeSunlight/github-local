@@ -1,9 +1,9 @@
 ## Review block — opt-in executable version check (#25, 2026-11-10)
 
-Purpose: match the owner-tested ContextCanon \`version check\` contract while retaining github-local's existing offline PEP 610 provenance and never contacting GitHub on behalf of local Issue repositories.
+Purpose: match the owner-tested ContextCanon `version check` contract while retaining github-local's existing offline PEP 610 provenance and never contacting GitHub on behalf of local Issue repositories.
 
 - [x] Confirm the accepted main baseline, #25 scope and source/editable/PEP 610 behavior.
-- [x] Add read-only \`github-local version check [--branch]\` with exact installed commit vs GitHub branch/ancestry; restrict lookup to the tool's own public source.
+- [x] Add read-only `github-local version check [--branch]` with exact installed commit vs GitHub branch/ancestry; restrict lookup to the tool's own public source.
 - [x] Document explicit network behavior, status/exit codes, and separate opt-in update commands.
 - [ ] Add and pass focused offline/mocked version and CLI regressions on Linux/Windows.
 - [ ] Update the accepted GitHub provider (and transitive Development Workflow) through normal ContextCanon Source review, then regenerate/check its managed packages.
