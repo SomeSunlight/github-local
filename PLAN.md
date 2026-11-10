@@ -7,7 +7,8 @@ Purpose: match the owner-tested ContextCanon `version check` contract while reta
 - [x] Document explicit network behavior, status/exit codes, and separate opt-in update commands.
 - [x] Add focused offline/mocked version and CLI regressions; all focused and full Python tests passed on Linux during immutable Source acceptance. Native Windows CI remains a separate gate.
 - [x] Accept exact GitHub 0.1.10-draft from ContextCanon main commit 5a1f2bf, inheriting Development Workflow 0.3.9-draft / CCW-017; auto-bump github.local 0.1.16-draft, regenerate immutable packages and pass `contextcanon check --all .` without drift.
-- [ ] Pass final exact-head Linux/Windows CI (including the offline version and Git-URL smoke tests); present Draft PR #26 for owner review/testing.
+- [x] Linux and Windows CI passed on reviewed code/Context commit `ea0f001`: full Python suites, Windows directory-lock smoke, generated ContextCanon drift check, and real uv Git-URL commit/branch provenance tests ([run 42855442474](https://github.com/SomeSunlight/github-local/actions/runs/42855442474)). This documentation checkpoint itself receives an exact-head CI rerun.
+- [x] Prepare [Draft PR #26](https://github.com/SomeSunlight/github-local/pull/26) with usage/test commands; temporary self-hosted Source acceptance workflow is removed.
 - [ ] Owner acceptance and squash-merge; close post-merge baseline checkpoint.
 
 ## Review gate — resilient owned-directory cleanup (#23 / PR #24)
